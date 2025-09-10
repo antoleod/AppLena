@@ -1,27 +1,21 @@
-# Appli de Léna (GitHub Pages)
+# Appli de Léna — PWA (Offline + A2HS)
 
-Site **statique** listo para publicar en **GitHub Pages**.  
-Incluye: menú por iconos (sin scroll), Matemáticas (Multiplications con recompensas 🦄), Lectura (cloze y frases mezcladas) y Orthographe (placeholders).
+Este paquete está listo para **GitHub Pages** y funciona **offline**:
+- `manifest.webmanifest` (A2HS / iconos)
+- `service-worker.js` (cache-first + fallback)
+- `icons/*` (192/512 + maskable + apple-touch)
+- `index.html` (registra SW y muestra un banner “Instalar”)
+- `.github/workflows/pages.yml` (deploy automático)
+- `.nojekyll` y `README.md`
 
-## Cómo publicar en GitHub Pages
+## Publicar en GitHub Pages
+1. Crea un repositorio (p.ej. `appli-de-lena`).
+2. Sube **todo** este paquete en la rama `main` (en la raíz).
+3. Ve a **Settings → Pages** y usa **GitHub Actions** como fuente.
+4. Haz un push a `main`. Al terminar, abre la URL de Pages.
 
-1. Crea un repo nuevo en GitHub, por ejemplo: `appli-de-lena`.
-2. Sube *estos archivos* al **root** del repo:
-   - `index.html`
-   - `.github/workflows/pages.yml`
-3. Ve a **Settings → Pages**, confirma que la fuente es **GitHub Actions** (por el workflow).
-4. Haz un commit/push a `main`. El workflow desplegará y te dará una URL tipo:
-   `https://TU_USUARIO.github.io/appli-de-lena/`.
+## Instalar en el teléfono/iPad
+- **Android/Chrome**: abre la URL, verás el banner `Installer` o el menú “Agregar a pantalla de inicio”.
+- **iOS Safari**: pulsa `Compartir → Añadir a pantalla de inicio`. (Apple ignora el banner; usa el botón del sistema).
 
-> Alternativa: si no quieres usar Actions, puedes desactivar el workflow y en **Settings → Pages** elegir **Deploy from a branch** (branch `main`, carpeta `/ (root)`).
-
-## Desarrollo local (opcional)
-Como es una página estática, basta con abrir `index.html` en el navegador.  
-Si quieres un servidor local: `npx serve .` y abre `http://localhost:3000`.
-
-## Personalización rápida
-- **Textos/bancos**: edita `CLOZE_BANK` y `SCRAMBLE_BANK` en `index.html`.
-- **Colores/estilos**: ajusta el `<style>` en `index.html`.
-- **Más materias**: duplica un submenú en el código React inline y crea tus juegos.
-
-¡Listo!
+> Nota: la app usa React por CDN; el SW intenta cachear esos recursos para uso **offline** después del primer uso online.
