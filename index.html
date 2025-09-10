@@ -5,501 +5,418 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Appli de Léna — 2e primaire</title>
     <meta name="theme-color" content="#f472b6">
-    <meta name="color-scheme" content="light dark">
+    <meta name="color-scheme" content="light">
     <style>
       :root{
         --bg-1:#fdf2f8; --bg-2:#fae8ff; --bg-3:#e9d5ff; --fg:#1f2937;
-        --card-bg: rgba(255,255,255,.94);
-        --ring:#ec4899; --muted:#6b7280; --border:#f3e8ff;
-        --good:#22c55e; --bad:#ef4444;
+        --card:rgba(255,255,255,.94); --muted:#6b7280; --ring:#ec4899;
+        --good:#22c55e; --bad:#ef4444; --purple:#a78bfa;
       }
       *{box-sizing:border-box}
-      html,body{height:100%}
-      body{margin:0;font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,sans-serif;background:linear-gradient(135deg,var(--bg-1),var(--bg-2),var(--bg-3));background-size:200% 200%;animation:bg-pan 24s linear infinite;color:var(--fg);-webkit-font-smoothing:antialiased;}@keyframes bg-pan{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}r infinite;color:var(--fg);-webkit-font-smoothing:antialiased;}@keyframes bg-pan{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}r infinite;color:var(--fg);-webkit-font-smoothing:antialiased;}@keyframes bg-pan{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}r infinite;color:var(--fg);-webkit-font-smoothing:antialiased;}@keyframes bg-pan{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}r infinite;color:var(--fg);-webkit-font-smoothing:antialiased;}@keyframes bg-pan{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}r infinite;color:var(--fg);-webkit-font-smoothing:antialiased;}@keyframes bg-pan{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}r infinite;color:var(--fg);-webkit-font-smoothing:antialiased;}@keyframes bg-pan{0%{background-position:0.icon-btn{position:relative;border:1px solid transparent;background:linear-gradient(#fff,#fff) padding-box,linear-gradient(135deg,#ec4899,#f59e0b,#10b981,#3b82f6,#8b5cf6) border-box;background-size:100% 100%,300% 300%;animation:rainbow 8s linear infinite;border-radius:22px;padding:18px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;text-align:center;min-height:140px;box-shadow:0 6px 14px rgba(0,0,0,.05);transition:transform .12s ease, box-shadow .12s ease; cursor:pointer; color:var(--fg)}@keyframes rainbow{0%{background-position:0% 0%,0% 0%}100%{background-position:0% 0%,300% 300%}}der-box;background-size:100% 100%,300% 300%;animation:rainbow 8s linear infinite;border-radius:22px;padding:18px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;text-align:center;min-height:140px;box-shadow:0 6px 14px rgba(0,0,0,.05);transition:transform .12s ease, box-shadow .12s ease; cursor:pointer; color:var(--fg)}@keyframes rainbow{0%{background-position:0% 0%,0% 0%}100%{background-position:0% 0%,300% 300%}}der-box;background-size:100% 100%,300% 300%;animation:rainbow 8s linear infinite;border-radius:22px;padding:18px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;text-align:center;min-height:140px;box-shadow:0 6px 14px rgba(0,0,0,.05);transition:transform .12s ease, box-shadow .12s ease; cursor:pointer; color:var(--fg)}@keyframes rainbow{0%{background-position:0% 0%,0% 0%}100%{background-position:0% 0%,300% 300%}}der-box;background-size:100% 100%,300% 300%;animation:rainbow 8s linear infinite;border-radius:22px;padding:18px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;text-align:center;min-height:140px;box-shadow:0 6px 14px rgba(0,0,0,.05);transition:transform .12s ease, box-shadow .12s ease; cursor:pointer; color:var(--fg)}@keyframes rainbow{0%{background-position:0% 0%,0% 0%}100%{background-position:0% 0%,300% 300%}}der-box;background-size:100% 100%,300% 300%;animation:rainbow 8s linear infinite;border-radius:22px;padding:18px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;text-align:center;min-height:140px;box-shadow:0 6px 14px rgba(0,0,0,.05);transition:transform .12s ease, box-shadow .12s ease; cursor:pointer; color:var(--fg)}@keyframes rainbow{0%{background-position:0% 0%,0% 0%}100%{background-position:0% 0%,300% 300%}}der-box;background-size:100% 100%,300% 300%;animation:rainbow 8s linear infinite;border-radius:22px;padding:18px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;text-align:center;min-height:140px;box-shadow:0 6px 14px rgba(0,0,0,.05);transition:transform .12s ease, box-shadow .12s ease; cursor:pointer; color:var(--fg)}@keyframes rainbow{0%{background-position:0% 0%,0% 0%}100%{background-position:0% 0%,300% 300%}}der-box;background-size:100% 100%,300% 300%;animation:rainbow 8s linear infinite;border-radius:22px;padding:18px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;text-align:center;min-height:140px;box-shadow:0 6px 14px rgba(0,0,0,.05);transition:transform .12s ease, box-shadow .12s ease; cursor:pointer; color:var(--fg)}@keyframes rainbow{0%{background-position:0% 0%,0% 0%}100%{background-position:0% 0%,300% 300%}}der-box;background-size:100% 100%,300% 300%;animation:rainbow 8s linear infinite;border-radius:22px;padding:18px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;text-align:c.bill{display:inline-block;margin:2px;font-size:22px; animation:jump .35s ease-in-out both}
-      @keyframes jump{0%{transform:translateY(6px)} 50%{transform:translateY(-2px)} 100%{transform:translateY(0)}}
-      /* Dots infinite;border-radius:22px;padding:18px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;text-align:c.bill{display:inline-block;margin:2px;font-size:22px; animation:jump .35s ease-in-out both}
-      @keyframes jump{0%{transform:translateY(6px)} 50%{transform:translateY(-2px)} 100%{transform:translateY(0)}}
-      /* Dots infinite;border-radius:22px;padding:18px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;text-align:c.bill{display:inline-block;margin:2px;font-size:22px; animation:jump .35s ease-in-out both}
-      @keyframes jump{0%{transform:translateY(6px)} 50%{transform:translateY(-2px)} 100%{transform:translateY(0)}}
-      /* Dots infinite;border-radius:22px;padding:18px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;text-align:c.bill{display:inline-block;margin:2px;font-size:22px; animation:jump .35s ease-in-out both}
-      @keyframes jump{0%{transform:translateY(6px)} 50%{transform:translateY(-2px)} 100%{transform:translateY(0)}}
-      /* Dots infinite;border-radius:22px;padding:18px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;text-align:c.bill{display:inline-block;margin:2px;font-size:22px; animation:jump .35s ease-in-out both}
-      @keyframes jump{0%{transform:translateY(6px)} 50%{transform:translateY(-2px)} 100%{transform:translateY(0)}}
-      /* Dots infinite;border-radius:22px;padding:18px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;text-align:c.bill{display:inline-block;margin:2px;font-size:22px; animation:jump .35s ease-in-out both}
-      @keyframes jump{0%{transform:translateY(6px)} 50%{transform:translateY(-2px)} 100%{transform:translateY(0)}}
-      /* Dots infinite;border-radius:22px;padding:18px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;text-align:c.bill{display:inline-block;margin:2px;font-size:22px; animation:jump .35s ease-in-out both}
-      @keyframes jump{0%{transform:translateY(6px)} 50%{transform:translateY(-2px)} 100%{transform:translateY(0)}}
-      /* Dots infinite;border-radius:22px;padding:18px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;text-align:c.bill{display:inline-block;margin:2px;font-size:22px; animation:jump .35s ease-in-out both}
-      @keyframes jump{0%{transform:translateY(6px)} 50%{transform:translateY(-2px)} 100%{transform:translateY(0)}}
-      /* Dots infinite;border-radius:22px;padding:18px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;text-align:c.bill{display:inline-block;margin:2px;font-size:22px; animation:jump .35s ease-in-out both}
-      @keyframes jump{0%{transform:translateY(6px)} 50%{transform:translateY(-2px)} 100%{transform:translateY(0)}}
-      /* Dots infinite;border-radius:22px;padding:18px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;text-align:c.bill{display:inline-block;margin:2px;font-size:22px; animation:jump .35s ease-in-out both}
-      @keyframes jump{0%{transform:translateY(6px)} 50%{transform:translateY(-2px)} 100%{transform:translateY(0)}}
-      /* Dots infinite;border-radius:22px;padding:18px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;text-align:c.bill{display:inline-block;margin:2px;font-size:22px; animation:jump .35s ease-in-out both}
-      @keyframes jump{0%{transform:translateY(6px)} 50%{transform:translateY(-2px)} 100%{transform:translateY(0)}}
-      /* Dots infinite;border-radius:22px;padding:18px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;text-align:c.bill{display:inline-block;margin:2px;font-size:22px; animation:jump .35s ease-in-out both}
-      @keyframes jump{0%{transform:translateY(6px)} 50%{transform:translateY(-2px)} 100%{transform:translateY(0)}}
-      /* Dots infinite;border-radius:22px;padding:18px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;text-align:c.bill{display:inline-block;margin:2px;font-size:22px; animation:jump .35s ease-in-out both}
-      @keyframes jump{0%{transform:translateY(6px)} 50%{transform:translateY(-2px)} 100%{transform:translateY(0)}}
-      /* Dots infinite;border-radius:22px;padding:18px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;text-align:c.bill{display:inline-block;margin:2px;font-size:22px; animation:jump .35s ease-in-out both}
-      @keyframes jump{0%{transform:translateY(6px)} 50%{transform:translateY(-2px)} 100%{transform:translateY(0)}}
-      /* Dots infinite;border-radius:22px;padding:18px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;text-align:c.bill{display:inline-block;margin:2px;font-size:22px; animation:jump .35s ease-in-out both}
-      @keyframes jump{0%{transform:translateY(6px)} 50%{transform:translateY(-2px)} 100%{transform:translateY(0)}}
-      /* Dots infinite;border-radius:22px;padding:18px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;text-align:c.bilfunction MCQGame({title, items, onExit, onWrongPenalty, onWin}){
-        const [i,setI]=useState(0); const [ok,setOk]=useState(0);
-        const [wrongCounts,setWrongCounts]=useState({});
+      html,body,#root{height:100%}
+      body{margin:0;font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,sans-serif;color:var(--fg);-webkit-font-smoothing:antialiased;
+        background:linear-gradient(135deg,var(--bg-1),var(--bg-2),var(--bg-3));background-size:200% 200%;animation:bg-pan 26s linear infinite;}
+      @keyframes bg-pan{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+      .container{max-width:1100px;margin:0 auto;padding:16px;display:flex;flex-direction:column;gap:16px}
+      .header{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:linear-gradient(90deg,#fff,rgba(255,255,255,.85));border-radius:20px;box-shadow:0 8px 24px rgba(0,0,0,.06)}
+      .brand{display:flex;align-items:center;gap:10px}
+      .brand .title{font-weight:900;font-size:22px;background:linear-gradient(90deg,#ec4899,#f59e0b,#10b981,#3b82f6,#8b5cf6);-webkit-background-clip:text;background-clip:text;color:transparent}
+      .bill-purse{display:flex;align-items:center;gap:6px;font-weight:700}
+      .card{background:var(--card);border-radius:24px;padding:16px;box-shadow:0 12px 28px rgba(0,0,0,.06)}
+      .grid{display:grid;gap:14px}
+      @media (min-width:640px){.grid.cols-3{grid-template-columns:repeat(3,minmax(0,1fr));}}
+      @media (max-width:639.98px){.grid.cols-3{grid-template-columns:repeat(2,minmax(0,1fr));}}
+      .icon-btn{position:relative;border:1px solid transparent;background:linear-gradient(#fff,#fff) padding-box,linear-gradient(135deg,#ec4899,#f59e0b,#10b981,#3b82f6,#8b5cf6) border-box;background-size:100% 100%,300% 300%;animation:rainbow 8s linear infinite;border-radius:22px;padding:18px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;text-align:center;min-height:140px;box-shadow:0 6px 14px rgba(0,0,0,.05);transition:transform .12s ease, box-shadow .12s ease;cursor:pointer;color:var(--fg)}
+      @keyframes rainbow{0%{background-position:0% 0%,0% 0%}100%{background-position:0% 0%,300% 300%}}
+      .icon-emoji{font-size:34px}
+      .icon-label{font-weight:800;font-size:16px}
+      .icon-desc{font-size:12px;color:var(--muted)}
+      .back{border:none;background:#fff;border-radius:14px;padding:10px 12px;box-shadow:0 6px 16px rgba(0,0,0,.06);display:inline-flex;align-items:center;gap:8px;cursor:pointer}
+      .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+      .caption{color:var(--muted);font-size:12px}
+      .progress{height:8px;border-radius:999px;background:#f3e8ff;overflow:hidden}
+      .progress > span{display:block;height:100%;background:linear-gradient(90deg,#a78bfa,#ec4899);transition:width .2s}
+      /* options */
+      .opt{position:relative;border:1px solid #f3e8ff;background:#fff;border-radius:16px;padding:14px 16px;min-height:96px;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 10px 20px rgba(0,0,0,.06);cursor:pointer;transition:transform .08s}
+      .opt:active{transform:scale(.98)}
+      .opt .emo{font-size:26px}
+      .opt .lbl{font-weight:800}
+      .opt .badge{position:absolute;left:8px;top:8px;background:#a78bfa;color:#fff;border-radius:999px;width:24px;height:24px;font-size:12px;display:flex;align-items:center;justify-content:center;font-weight:800}
+      /* modal */
+      .modal-wrap{position:fixed;inset:0;background:rgba(15,23,42,.38);display:flex;align-items:center;justify-content:center;z-index:50;animation:fade .15s}
+      .modal{background:#fff;border-radius:18px;padding:18px 18px;min-width:260px;max-width:92vw;text-align:center;box-shadow:0 24px 60px rgba(0,0,0,.25);animation:pop .2s}
+      .modal h3{margin:8px 0 6px;font-size:18px;font-weight:900}
+      .modal .big{font-size:56px}
+      .modal .actions{margin-top:10px;display:flex;gap:8px;justify-content:center}
+      @keyframes fade{from{opacity:0}to{opacity:1}} @keyframes pop{from{transform:scale(.92)}to{transform:scale(1)}}
+      .modal[data-type="bad"]{animation:shake .35s ease-in-out,pop .2s}
+      @keyframes shake{10%{transform:translateX(-4px)}20%{transform:translateX(4px)}30%{transform:translateX(-3px)}40%{transform:translateX(3px)}60%{transform:translateX(2px)}100%{transform:translateX(0)}}
+      /* dots base-10 */
+      .ten,.unit{display:grid;grid-template-columns:repeat(10,10px);gap:6px;align-items:center}
+      .unit{grid-template-columns:repeat(10,10px)}
+      .dot{width:10px;height:10px;border-radius:50%;background:#8b5cf6;box-shadow:0 1px 0 rgba(0,0,0,.08)}
+      .money{display:inline-block;margin:2px;font-size:22px;animation:jump .3s ease-in-out}
+      @keyframes jump{0%{transform:translateY(6px)}50%{transform:translateY(-2px)}100%{transform:translateY(0)}}
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+
+    <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <script type="text/babel">
+      const { useState, useMemo, useEffect, useRef } = React;
+
+      // ===== Utils
+      const r = (min,max)=> Math.floor(Math.random()*(max-min+1))+min;
+      const shuffle = (a)=>{const b=[...a]; for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1)); [b[i],b[j]]=[b[j],b[i]];} return b;};
+      const makeChoices=(correct)=>{const s=new Set([correct]); while(s.size<4){const d=Math.max(1,Math.round(Math.abs(correct)*0.2)+1); s.add(correct + (Math.random()<.5?-1:1)*r(1,d));} return shuffle([...s]).slice(0,4)};
+
+      function confettiBurst(x,y){ // lightweight confetti (emojis)
+        const emo=['💜','💙','💚','💛','🦄','✨'];
+        for(let i=0;i<12;i++){
+          const span=document.createElement('span');
+          span.textContent=emo[r(0,emo.length-1)];
+          span.style.position='fixed'; span.style.left=x+'px'; span.style.top=y+'px';
+          span.style.pointerEvents='none'; span.style.transition='transform .8s, opacity .8s';
+          document.body.appendChild(span);
+          requestAnimationFrame(()=>{
+            span.style.transform=`translate(${r(-120,120)}px, ${r(-120,120)}px) rotate(${r(-180,180)}deg)`; span.style.opacity='0';
+          });
+          setTimeout(()=> span.remove(), 900);
+        }
+      }
+
+      // ===== UI bits
+      const Progress=({current,total})=> (
+        <div className="progress" aria-label="progression"><span style={{width:`${(current)/(total-1||1)*100}%`}}/></div>
+      );
+      const LevelPill=({children,onClick})=> (<button className="back" onClick={onClick} style={{background:'#ec4899',color:'#fff'}}>{children}</button>);
+      const OptionButton=({index,emoji,label,onClick})=> (
+        <button className="opt" onClick={onClick}>
+          <span className="badge">{String.fromCharCode(65+index)}</span>
+          <span className="emo">{emoji}</span>
+          <span className="lbl">{label}</span>
+        </button>
+      );
+      const Modal=({open,type='info',title,children,actions=[],onClose})=> open? (
+        <div className="modal-wrap" onClick={onClose}>
+          <div className="modal" role="dialog" aria-modal="true" data-type={type} onClick={e=>e.stopPropagation()}>
+            <div className="big">{type==='bad'? '🦄😢':'🎉'}</div>
+            <h3>{title}</h3>
+            <div>{children}</div>
+            <div className="actions">
+              {actions.length? actions.map((a,i)=> (
+                <button key={i} className="back" onClick={a.onClick} style={a.primary?{background:'#ec4899',color:'#fff'}:null}>{a.label}</button>
+              )) : <button className="back" onClick={onClose}>OK</button>}
+            </div>
+          </div>
+        </div>
+      ): null;
+
+      // ===== Visual: base-10 dots
+      const DotsBaseTen=({n})=>{ const d=Math.floor(n/10)%10, u=n%10; return (
+        <div style={{display:'flex',gap:14,alignItems:'flex-start',margin:'6px 0 10px'}}>
+          {d>0 && <div><div className="caption">Dizaines</div><div className="ten">{Array.from({length:d*10}).map((_,i)=>(<span key={i} className="dot"/>))}</div></div>}
+          {u>0 && <div><div className="caption">Unités</div><div className="unit">{Array.from({length:u}).map((_,i)=>(<span key={i} className="dot"/>))}</div></div>}
+        </div>
+      );};
+      const AdditionVisual=({a,b})=> (
+        <div className="row" style={{alignItems:'flex-start'}}>
+          <div><div className="caption" style={{fontWeight:700}}>A ({a})</div><DotsBaseTen n={a}/></div>
+          <div style={{fontSize:22,alignSelf:'center'}}>+</div>
+          <div><div className="caption" style={{fontWeight:700}}>B ({b})</div><DotsBaseTen n={b}/></div>
+          <div style={{fontSize:22,alignSelf:'center'}}>= ?</div>
+        </div>
+      );
+
+      // ===== Generic MCQ engine (with penalty)
+      function MCQGame({title, items, onExit, onWrongPenalty, onWin}){
+        const [i,setI]=useState(0); const [ok,setOk]=useState(0); const [wrongCounts,setWrongCounts]=useState({});
         const total=items.length; const item=items[i];
         const opts = useMemo(()=> shuffle([...item.options]), [i]);
         const submit=(opt,ev)=>{
           const label = typeof opt==='string'? opt : (opt.label||'');
           const good = label===item.answer;
-          if(good){
-            setOk(x=>x+1);
-            const r=ev.currentTarget.getBoundingClientRect(); confettiBurst(r.left+r.width/2, r.top+r.height/2);
-            if(i+1<total) setI(i+1); else onWin(ok+1);
-          }else{
-            const curr=(wrongCounts[i]||0)+1; const penalty = curr===1?1:3;
-            setWrongCounts({...wrongCounts,[i]:curr});
-            onWrongPenalty(penalty);
-          }
+          if(good){ setOk(x=>x+1); const r=ev.currentTarget.getBoundingClientRect(); confettiBurst(r.left+r.width/2, r.top+r.height/2); if(i+1<total) setI(i+1); else onWin(ok+1); }
+          else { const c=(wrongCounts[i]||0)+1; setWrongCounts({...wrongCounts,[i]:c}); onWrongPenalty(c===1?1:3); }
         };
         return (
           <div className="card">
-            <button className="back" style={{marginBottom:12}} onClick={onExit}>← Retour</button>
-            <h2 style={{fontWeight:800,fontSize:22}}>{title}</h2>
-            <div className="caption" style={{marginTop:4}}>{item.hint||''}</div>
-            <div style={{fontSize:18,fontWeight:700,margin:"12px 0"}} aria-live="polite">{item.emoji? <span style={{marginRight:8}}>{item.emoji}</span> : null}{item.prompt}</div>
+            <button className="back" style={{marginBottom:10}} onClick={onExit}>← Retour</button>
+            <h2 style={{fontWeight:900,fontSize:22}}>{title}</h2>
+            <div className="caption" style={{marginTop:2}}>{item.hint||''}</div>
+            <div style={{fontSize:18,fontWeight:800,margin:'10px 0'}} aria-live="polite">{item.emoji? <span style={{marginRight:8}}>{item.emoji}</span>:null}{item.prompt}</div>
             <Progress current={i} total={total}/>
             <div className="grid cols-3" style={{marginTop:12}}>
-              {opts.map((opt,idx)=> {
-                const lbl = typeof opt==='string'? opt : (opt.label||'');
-                const emo = typeof opt==='object' && opt.emoji? opt.emoji : '✅';
-                return <OptionButton key={lbl+idx} index={idx} emoji={emo} label={lbl} onClick={(e)=>submit(opt,e)} />
-              })}
+              {opts.map((opt,idx)=>{ const lbl=typeof opt==='string'?opt:(opt.label||''); const emo=(typeof opt==='object'&&opt.emoji)?opt.emoji:'✅'; return <OptionButton key={lbl+idx} index={idx} emoji={emo} label={lbl} onClick={(e)=>submit(opt,e)}/> })}
             </div>
-            <div style={{marginTop:12,color:'var(--muted)'}}>Question {i+1}/{total} — Score {ok}</div>
+            <div className="caption" style={{marginTop:10}}>Question {i+1}/{total} — Score {ok}</div>
           </div>
         );
       }
 
-      // ===== Jeux: Math avec niveauxclassName="unit">{Array.from({length:u}).map((_,i)=>(<span key={i} className="dot"/>))}</div></div>}
-          </div>
-        );
-      }
-
-      // ===== Représentation en boules (unités/dizaines/centaines) + niveaux =====   function DotsBaseTen({n}){
-        consconst [i,setI]=useState(0); const [score,setScore]=useState(0); const [wrongCounts,setWrongCounts]=useState({});es</div><div className="row">{Array.from({lconst [i,setI]=useState(0); const [score,setScore]=useState(0); const [wrongCounts,setWrongCounts]=useState({});div><div className="ten">{Array.from({length:d*10}).map((_,i)=>(<span key={i} className="dot"/>))}</div></div>}
-            {u>0 && <div><div className="caption">Unités</div><div className="unit">{Array.from({length:u// ===== Aide visuelle base 10 (centaines=💯, dizaines=•, unités=•) =====
-      function DotsBaseTen({n}){
-        const c=Math.floor(n/100), d=Math.floor(n/10)%10, u=n%10;
-        return (
-          <div className="dots">
-            {c>0 && <div><div className="caption">Centaines</div><div className="row">{Array.from({length:c}).map((_,i)=>(<span key={i} className="bill" aria-label="centaine">💯</span>))}</div></div>}
-            {d>0 && <div><div className="caption">Dizaines</div><div className="ten">{Array.from({length:d*10}).map((_,i)=>(<span key={i} className="dot"/>))}</div></div>}
-            {u>0 && <div><div className="caption">Unités</div><div className="unit">{Array.from({length:u}).map((_,i)=>(<span key={i} className="dot"/>))}</div></div>}
-          </div>
-        );
-      }
-
-      // ===== Représentation en boules (unités/dizaines/centaines) + niveaux =====   function DotsBaseTen({n}){
-        consconst [i,setI]=useState(0); const [score,setScore]=useState(0); const [wrongCounts,setWrongCounts]=useState({});es</div><div className="row">{Array.from({length:c}).map((_,i)=>(<span key={i} className="bill" aria-label="centaine">💯</span>))}</div></div>}
-            {d>0 && <div><div className="caption">Dizaines</div><div className="ten">{Array.from({length:d*10}).map((_,i)=>(<span key={i} className="dot"/>))}</div></div>}
-            {u>0 && <div><div className="caption">Unités</div><div className="unit">{Array.from({length:u}).map((_,i)=>(<span key={i} className="dot"/>))}</div></div>}
-          </div>
-        );
-      }
-
-      // ===== Représentation en boules (unités/dizaines/centaines) + niveaux =====v>
-        );
-      }
-
-      // ===== Représentation en boules (unités/dizaines/centaines) + niveaux =====v>
-        );
-      }
-
-      // ===== Représentation en boules (unités/dizaines/centaines) + niveaux ===== cconst [i,setI]=useState(0); const [score,setScore]=useState(0); const [wrongCounts,setWrongCounts]=useState({});ion DotsBaseTen({n}){
-        const c=Math.const [i,setI]=useState(0); const [score,setScore]=useState(0); const [wrongCounts,setWrongCounts]=useState({});div className="row">{Array.from({length:c}).map((_,i)=>(<span key={i} className="bill" aria-label="centaine">💯</span>))}</div></div>}
-            {d>0 && <div><div className="caption">Dizaines</div><div className="ten">{Array.from({length:d*10}).map((_,i)=>(<span key={i} className="dot"/>))}</div></div>}
-            {u>0 && <div><div className="caption">Unités</div><div className="unit">{Array.from({length:u}).map((_,i)=>(<span key={i} className="dot"/>))}</div></div>}
-          </div>
-        );
-      }
-
-      // ===== Représentation en boules (unités/dizaines/centaines) + niveaux =====v>
-        );
-      }
-
-      // ===== Représentation en boules (unités/dizaines/centaines) + niveaux =====v>
-        );
-      }
-
-      // ===== Représentation en boules (unités/dizaines/centaines) + niveaux ===== className=const [i,setI]=useState(0); const [score,setScore]=useState(0); const [wrongCounts,setWrongCounts]=useState({});aseTen({n}){
-        const c=Math.floor(n/1const [i,setI]=useState(0); const [score,setScore]=useState(0); const [wrongCounts,setWrongCounts]=useState({});Name="row">{Array.from({length:c}).map((_,i)=>(<span key={i} className="bill" aria-label="centaine">💯</span>))}</div></div>}
-            {d>0 && <div><div className="caption">Dizaines</div><div className="ten">{Array.from({length:d*10}).map((_,i)=>(<span key={i} className="dot"/>))}</div></div>}
-            {u>0 && <div><div className="caption">Unités</div><div className="unit">{Array.from({length:u}).map((_,i)=>(<span key={i} className="dot"/>))}</div></div>}
-          </div>
-        );
-      }
-
-      // ===== Représentation en boules (unités/dizaines/centaines) + niveaux =====v>
-        );
-      }
-
-      // ===== Représentation en boules (unités/dizaines/centaines) + niveaux =====   function DotsBaseTen({n}){
-        const c=Math.floor(n/100), d=Math.floor(n/10)%10, u=n%10;
-        return (
-          <div className="dots">
-            {c>0 && <div><div className="caption">Centaines</div><div className="row">{Array.from({length:c}).map((_,i)=>(<span key={i} className="bill" aria-label="centaine">💯</span>))}</div></div>}
-            {d>0 && <div><div className="caption">Dizaines</div><div className="ten">{Array.from({length:d*10}).map((_,i)=>(<span key={i} className="dot"/>))}</div></div>}
-            {u>0 && <div><div className="caption">Unités</div><div className="unit">{Array.from({length:u}).map((_,i)=>(<span key={i} className="dot"/>))}</div></div>}
-          </div>
-        );
-      }
-
-      // ===== Représentation en boules (unités/dizaines/centaines) + niveaux =====   function DotsBaseTen({n}){
-        const c=Math.floor(n/100), d=Math.floor(n/10)%10, u=n%10;
-        return (
-          <div className="dots">
-            {c>0 && <div><div className="caption">Centaines</div><div className="row">{Array.from({length:c}).map((_,i)=>(<span key={i} className="bill" aria-label="centaine">💯</span>))}</div></div>}
-            {d>0 && <div><div className="caption">Dizaines</div><div className="ten">{Array.from({length:d*10}).map((_,i)=>(<span key={i} className="dot"/>))}</div></div>}
-            {u>0 && <div><div className="caption">Unités</div><div className="unit">{Array.from({length:u}).map((_,i)=>(<span key={i} className="dot"/>))}</div></div>}
-          </div>
-        );
-      }
-
-      // ===== Représentation en boules (unités/dizaines/centaines) + niveaux =====   function DotsBaseTen({n}){
-        const c=Math.floor(n/100), d=Math.floor(n/10)%10, u=n%10;
-        return (
-          <div className="dots">
-            {c>0 && <div><div className="caption">Centaines</div><div className="row">{Array.from({length:c}).map((_,i)=>(<span key={i} className="bill" aria-label="centaine">💯</span>))}</div></div>}
-            {d>0 && <div><div className="caption">Dizaines</div><div className="ten">{Array.from({length:d*10}).map((_,i)=>(<span key={i} className="dot"/>))}</div></div>}
-            {u>0 && <div><div className="caption">Unités</div><div className="unit">{Array.from({length:u}).map((_,i)=>(<span key={i} className="dot"/>))}</div></div>}
-          </div>
-        );
-      }
-
-      // ===== Représentation en boules (unités/dizaines/centaines) + niveaux =====   function DotsBaseTen({n}){
-        const c=Math.floor(n/100), d=Math.floor(n/10)%10, u=n%10;
-        return (
-          <div className="dots">
-            {c>0 && <div><div className="caption">Centaines</div><div className="row">{Array.from({length:c}).map((_,i)=>(<span key={i} className="bill" aria-label="centaine">💯</span>))}</div></div>}
-            {d>0 && <div><div className="caption">Dizaines</div><div className="ten">{Array.from({length:d*10}).map((_,i)=>(<span key={i} className="dot"/>))}</div></div>}
-            {u>0 && <div><div className="caption">Unités</div><div className="unit">{Array.from({length:u}).map((_,i)=>(<span key={i} className="dot"/>))}</div></div>}
-          </div>
-        );
-      }
-
-      // ===== Représentation en boules (unités/dizaines/centaines) + niveaux =====   function DotsBaseTen({n}){
-        const c=Math.floor(n/100), d=Math.floor(n/10)%10, u=n%10;
-        return (
-          <div className="dots">
-            {c>0 && <div><div className="caption">Centaines</div><div className="row">{Array.from({length:c}).map((_,i)=>(<span key={i} className="bill" aria-label="centaine">💯</span>))}</div></div>}
-            {d>0 && <div><div className="caption">Dizaines</div><div className="ten">{Array.from({length:d*10}).map((_,i)=>(<span key={i} className="dot"/>))}</div></div>}
-            {u>0 && <div><div className="caption">Unités</div><div className="unit">{Array.from({length:u}).map((_,i)=>(<span key={i} className="dot"/>))}</div></div>}
-          </div>
-        );
-      }
-
-      // ===== Représentation en boules (unités/dizaines/centaines) + niveaux =====   function DotsBaseTen({n}){
-        const c=Math.floor(n/100), d=Math.floor(n/10)%10, u=n%10;
-        return (
-          <div className="dots">
-            {c>0 && <div><div className="caption">Centaines</div><div className="row">{Array.from({length:c}).map((_,i)=>(<span key={i} className="bill" aria-label="centaine">💯</span>))}</div></div>}
-            {d>0 && <div><div className="caption">Dizaines</div><div className="ten">{Array.from({length:d*10}).map((_,i)=>(<span key={i} className="dot"/>))}</div></div>}
-            {u>0 && <div><div className="caption">Unités</div><div className="unit">{Array.from({length:u}).map((_,i)=>(<span key={i} className="dot"/>))}</div></div>}
-          </div>
-        );
-      }
-
-      // ===== Représentation en boules (unités/dizaines/centaines) + niveaux =====   function DotsBaseTen({n}){
-        const c=Math.floor(n/100), d=Math.floor(n/10)%10, u=n%10;
-        return (
-          <div className="dots">
-            {c>0 && <div><div className="caption">Centaines</div><div className="row">{Array.from({length:c}).map((_,i)=>(<span key={i} className="bill" aria-label="centaine">💯</span>))}</div></div>}
-            {d>0 && <div><div className="caption">Dizaines</div><div className="ten">{Array.from({length:d*10}).map((_,i)=>(<span key={i} className="dot"/>))}</div></div>}
-            {u>0 && <div><div className="caption">Unités</div><div className="unit">{Array.from({length:u}).map((_,i)=>(<span key={i} className="dot"/>))}</div></div>}
-          </div>
-        );
-      }
-
-      // ===== Représentation en boules (unités/dizaines/centaines) + niveaux =====ct = target==='unités'?u: target==='dizaines'?d:c;
-        const choices = useMemo(()=> lvl?makeChoices(correct):[], [i,target,lvl]);
-        const pick=(v,ev)=>{ 
-          const good = Number(v)===correct; 
-          if(good){ 
-            setScore(s=>s+1); const r=ev.currentTarget.getBoundingClientRect(); confettiBurst(r.left+r.width/2, r.top+r.height/2); 
-            if(i+1<total) setI(i+1); else onWin(score+1, (lvl<3? ()=>{ setLvl(lvl+1); setI(0); setScore(0); }: null)); 
-          } else { 
-            const curr=(wrongCounts[i]||0)+1; setWrongCounts({...wrongCounts,[i]:curr}); onWrongPenalty(curr===1?1:3); 
-          } 
-        };
-        if(!lvl){
-          return (
-            <div className="card">
-              <button className="back" style={{marginBottom:12}} onClick={onExit}>← Retour</button>
-              <h2 style={{fontWeight:800,fontSize:22}}>Unités · Dizaines · Centaines</h2>
-              <p className="caption">Choisis un niveau pour commencer.</p>
-              <div className="row" style={{marginTop:8}}>
-                <LevelPill onClick={()=>setLvl(1)}>Niveau 1</LevelPill>
-                <LevelPill onClick={()=>setLvl(2)}>Niveau 2</LevelPill>
-                <LevelPill onClick={()=>setLvl(3)}>Niveau 3</LevelPill>
-              </div>
+      // ===== Math quiz (+, -, ×, ÷) levels with addition visual
+      function ArithmeticQuiz({mode='+', onExit, onWrongPenalty, onWin}){
+        const presets={1:{count:6,minA:1,maxA:10,minB:1,maxB:10},2:{count:8,minA:1,maxA:20,minB:1,maxB:20},3:{count:10,minA:1,maxA:50,minB:1,maxB:50}};
+        const [lvl,setLvl]=useState(0);
+        const cfg=presets[lvl];
+        const buildPool=()=>{ if(!cfg) return []; const q=[]; for(let i=0;i<cfg.count;i++){ let a=r(cfg.minA,cfg.maxA), b=r(cfg.minB,cfg.maxB), ans; if(mode==='x') ans=a*b; if(mode==='+') ans=a+b; if(mode==='-'){ if(a<b) [a,b]=[b,a]; ans=a-b;} if(mode==='/'){ b=Math.max(1,r(cfg.minB,cfg.maxB)); const k=r(cfg.minA,cfg.maxA); a=k*b; ans=k;} q.push({a,b,ans}); } return q; };
+        const [i,setI]=useState(0); const [score,setScore]=useState(0); const [wrongCounts,setWrongCounts]=useState({});
+        const pool=useMemo(buildPool,[lvl]); const total=pool.length; const q=pool[i]||{};
+        const choices=useMemo(()=> q.ans!=null?makeChoices(q.ans):[], [i,lvl]);
+        if(!lvl){ return (
+          <div className="card"><button className="back" style={{marginBottom:10}} onClick={onExit}>← Retour</button>
+            <h2 style={{fontWeight:900,fontSize:22}}>Mathématiques · {mode==='+'?'Additions':mode==='-'?'Soustractions':mode==='x'?'Multiplications':'Divisions'}</h2>
+            <p className="caption">Choisis un niveau.</p>
+            <div className="row" style={{marginTop:8}}>
+              <LevelPill onClick={()=>setLvl(1)}>Niveau 1</LevelPill>
+              <LevelPill onClick={()=>setLvl(2)}>Niveau 2</LevelPill>
+              <LevelPill onClick={()=>setLvl(3)}>Niveau 3</LevelPill>
             </div>
-          );
-        }
+          </div> ); }
+        const pick=(v,ev)=>{ const good=Number(v)===q.ans; if(good){ setScore(s=>s+1); const r=ev.currentTarget.getBoundingClientRect(); confettiBurst(r.left+r.width/2, r.top+r.height/2); if(i+1<total) setI(i+1); else onWin(score+1, (lvl<3? ()=>{setLvl(lvl+1); setI(0); setScore(0);} : null)); } else { const c=(wrongCounts[i]||0)+1; setWrongCounts({...wrongCounts,[i]:c}); onWrongPenalty(c===1?1:3); } };
         return (
           <div className="card">
-            <button className="back" style={{marginBottom:12}} onClick={onExit}>← Retour</button>
-            <h2 style={{fontWeight:800,fontSize:22}}>Unités · Dizaines · Centaines · Niveau {lvl}</h2>
-            <div className="back" style={{gap:8,marginBottom:12}}>Cible:
-              <select className="back" onChange={e=>setTarget(e.target.value)} value={target} aria-label="Choisir la position">
-                <option value="unités">Unités</option>
-                <option value="dizaines">Dizaines</option>
-                <option value="centaines">Centaines</option>
-              </select>
+            <button className="back" style={{marginBottom:10}} onClick={onExit}>← Retour</button>
+            <h2 style={{fontWeight:900,fontSize:22}}>Mathématiques · {mode==='+'?'Additions':mode==='-'?'Soustractions':mode==='x'?'Multiplications':'Divisions'} · Niveau {lvl}</h2>
+            <div style={{fontSize:28,fontWeight:900,margin:'10px 0'}} aria-live="polite">{q.a} {mode} {q.b} = ?</div>
+            {mode==='+' && <AdditionVisual a={q.a} b={q.b}/>} 
+            <Progress current={i} total={total}/>
+            <div className="grid cols-3" style={{marginTop:12}}>
+              {choices.map((c,idx)=> (<OptionButton key={idx} index={idx} emoji={'🔢'} label={String(c)} onClick={(e)=>pick(c,e)}/> ))}
             </div>
-            <div style={{fontSize:28,fontWeight:800,margin:"12px 0"}} aria-live="polite">{n}</div>
+            <div className="caption" style={{marginTop:10}}>Question {i+1}/{total} — Score {score}</div>
+          </div>
+        );
+      }
+
+      // ===== Place Value (unités/dizaines/centaines) with levels
+      function PlaceValue({onExit,onWrongPenalty,onWin}){
+        const presets={1:{count:6,min:10,max:99},2:{count:8,min:100,max:999},3:{count:10,min:100,max:999}};
+        const [lvl,setLvl]=useState(0); const [i,setI]=useState(0); const [score,setScore]=useState(0); const [wrongCounts,setWrongCounts]=useState({}); const [target,setTarget]=useState('dizaines');
+        const cfg=presets[lvl]; const pool=useMemo(()=> cfg? Array.from({length:cfg.count},()=> r(cfg.min,cfg.max)) : [], [lvl]); const total=pool.length; const n=pool[i]||0; const u=n%10, d=Math.floor(n/10)%10, c=Math.floor(n/100)%10; const correct= target==='unités'?u: target==='dizaines'?d:c;
+        const choices=useMemo(()=> lvl?makeChoices(correct):[], [i,target,lvl]);
+        const pick=(v,ev)=>{ const good=Number(v)===correct; if(good){ setScore(s=>s+1); const r=ev.currentTarget.getBoundingClientRect(); confettiBurst(r.left+r.width/2, r.top+r.height/2); if(i+1<total) setI(i+1); else onWin(score+1, (lvl<3? ()=>{setLvl(lvl+1); setI(0); setScore(0);} : null)); } else { const c=(wrongCounts[i]||0)+1; setWrongCounts({...wrongCounts,[i]:c}); onWrongPenalty(c===1?1:3); } };
+        if(!lvl){ return (
+          <div className="card">
+            <button className="back" style={{marginBottom:10}} onClick={onExit}>← Retour</button>
+            <h2 style={{fontWeight:900,fontSize:22}}>Unités · Dizaines · Centaines</h2>
+            <p className="caption">Choisis un niveau.</p>
+            <div className="row" style={{marginTop:8}}>
+              <LevelPill onClick={()=>setLvl(1)}>Niveau 1</LevelPill>
+              <LevelPill onClick={()=>setLvl(2)}>Niveau 2</LevelPill>
+              <LevelPill onClick={()=>setLvl(3)}>Niveau 3</LevelPill>
+            </div>
+          </div> ); }
+        return (
+          <div className="card">
+            <button className="back" style={{marginBottom:10}} onClick={onExit}>← Retour</button>
+            <h2 style={{fontWeight:900,fontSize:22}}>Unités · Dizaines · Centaines · Niveau {lvl}</h2>
+            <div className="back" style={{gap:8,marginBottom:8}}>Cible: <select className="back" onChange={e=>setTarget(e.target.value)} value={target}><option value="unités">Unités</option><option value="dizaines">Dizaines</option><option value="centaines">Centaines</option></select></div>
+            <div style={{fontSize:28,fontWeight:900,margin:'10px 0'}} aria-live="polite">{n}</div>
             <DotsBaseTen n={n}/>
             <Progress current={i} total={total}/>
             <div className="grid cols-3" style={{marginTop:12}}>
-              {choices.map((c,idx)=> (
-                <OptionButton key={idx} index={idx} emoji={'🔟'} label={String(c)} onClick={(e)=>pick(c,e)} />
-              ))}
+              {choices.map((c,idx)=> (<OptionButton key={idx} index={idx} emoji={'🔟'} label={String(c)} onClick={(e)=>pick(c,e)}/> ))}
             </div>
-            <div style={{marginTop:12,color:'var(--muted)'}}>Question {i+1}/{total} — Score {score}</div>
+            <div className="caption" style={{marginTop:10}}>Question {i+1}/{total} — Score {score}</div>
           </div>
         );
       }
 
-      // ===== Lecture (Cloze) avec niveaux (aléatoire) =====
-      const CLOZE_BASE = [
+      // ===== Lecture (Cloze) FR with levels
+      const CLOZE_BANK=[
         { text:"Chaque matin, Léna ____ à l'école.", options:["va","vont","allez"], answer:"va" },
         { text:"Le chat ____ sur le canapé.", options:["dort","dorment","dormi"], answer:"dort" },
         { text:"Papa ____ un café.", options:["boit","boivent","boire"], answer:"boit" },
         { text:"Nous ____ dans la cour.", options:["jouons","joue","jouent"], answer:"jouons" },
-        { text:"Tu ____ le cartable.", optionsconst COULEURS_LEVELS = [
-        [ // Niveau 1 – 2 options
-          { emoji:'🔵🟡', prompt:'Bleu + Jaune = ?', options:['Vert','Rouge'], answer:'Vert' },
-          { emoji:'🔴🔵', prompt:'Rouge + Bleu = ?', options:['Violet','Orange'], answer:'Violet' },
-          { emoji:'🔴🟡', prompt:'Rouge + Jaune = ?', options:['Orange','Vert'], answer:'Orange' }
-        ],
-        [ // Niveau 2 – 3 options
-          { emoji:'🔵🟡', prompt:'Bleu + Jaune = ?', options:['Vert','Rouge','Violet'], answer:'Vert' },
-          { emoji:'🔴🔵', prompt:'Rouge + Bleu = ?', options:['Violet','Orange','Vert'], answer:'Violet' },
-          { emoji:'🔴🟡', prompt:'Rouge + Jaune = ?', options:['Orange','Violet','Marron'], answer:'Orange' }
-        ],
-        [ // Niveau 3 – 4 options
-          { emoji:'🔵🔴🟡', prompt:'Bleu + Rouge + Jaune = ?', options:['Marron','Rose','Gris','Vert'], answer:'Marron' },
-          { emoji:'⚪🔴', prompt:'Blanc + Rouge = ?', options:['Rose','Violet','Orange','Marron'], answer:'Rose' },
-          { emoji:'⚪⚫', prompt:'Blanc + Noir = ?', options:['Gris','Marron','Violet','Orange'], answer:'Gris' }
-        ]
+        { text:"Tu ____ le cartable.", options:["portes","portez","portent"], answer:"portes" },
+        { text:"Ils ____ une chanson.", options:["chantent","chante","chantons"], answer:"chantent" }
       ];
+      function ClozeWithLevels({onExit,onWrongPenalty,onWin}){
+        const [lvl,setLvl]=useState(0); if(!lvl){return (
+          <div className="card"><button className="back" style={{marginBottom:10}} onClick={onExit}>← Retour</button><h2 style={{fontWeight:900,fontSize:22}}>Lecture · Choisis le mot</h2><p className="caption">Choisis un niveau.</p><div className="row" style={{marginTop:8}}><LevelPill onClick={()=>setLvl(1)}>Niveau 1</LevelPill><LevelPill onClick={()=>setLvl(2)}>Niveau 2</LevelPill><LevelPill onClick={()=>setLvl(3)}>Niveau 3</LevelPill></div></div> );}
+        const parts=[CLOZE_BANK.slice(0,2), CLOZE_BANK.slice(0,4), CLOZE_BANK];
+        const items=parts[lvl-1].map(x=>({prompt:x.text.replace('____','_____'), options:shuffle(x.options), answer:x.answer, emoji:'📖'}));
+        return <MCQGame title={`Lecture · Niveau ${lvl}`} items={items} onExit={onExit} onWrongPenalty={onWrongPenalty} onWin={(earned)=> onWin(earned, (lvl<3? ()=> setLvl(lvl+1): null))}/>;
+      }
 
+      // ===== Multi-level datasets (Saisons, Couleurs, Digital, Santé, Social, NL, Famille)
+      const SAISONS_LEVELS=[
+        [ {emoji:'🌸',prompt:'Quelle saison ? (fleurs, abeilles 🐝)',options:[{label:'Printemps',emoji:'🌸'},{label:'Été',emoji:'☀️'}],answer:'Printemps'}, {emoji:'❄️',prompt:'Quelle saison ? (neige, gants 🧤)',options:[{label:'Hiver',emoji:'❄️'},{label:'Automne',emoji:'🍂'}],answer:'Hiver'} ],
+        [ {emoji:'🌸',prompt:'Je réveille les fleurs 🌷 et les abeilles 🐝. Qui suis‑je ?',options:[{label:'Printemps',emoji:'🌸'},{label:'Automne',emoji:'🍂'},{label:'Hiver',emoji:'❄️'}],answer:'Printemps'}, {emoji:'🍂',prompt:'Je fais tomber les feuilles 🍁. Qui suis‑je ?',options:[{label:'Automne',emoji:'🍂'},{label:'Été',emoji:'☀️'},{label:'Printemps',emoji:'🌸'}],answer:'Automne'} ],
+        [ {emoji:'☀️',prompt:'Je ris très chaud 😎, la mer brille 🌊.',options:[{label:'Été',emoji:'☀️'},{label:'Automne',emoji:'🍂'},{label:'Printemps',emoji:'🌸'},{label:'Hiver',emoji:'❄️'}],answer:'Été'}, {emoji:'❄️',prompt:'Je dessine des flocons ❄️ sur les vitres.',options:[{label:'Hiver',emoji:'❄️'},{label:'Printemps',emoji:'🌸'},{label:'Été',emoji:'☀️'},{label:'Automne',emoji:'🍂'}],answer:'Hiver'} ]
+      ];
+      const COULEURS_LEVELS=[
+        [ {emoji:'🔵🟡',prompt:'Bleu + Jaune = ?',options:['Vert','Rouge'],answer:'Vert'}, {emoji:'🔴🔵',prompt:'Rouge + Bleu = ?',options:['Violet','Orange'],answer:'Violet'} ],
+        [ {emoji:'🔵🟡',prompt:'Bleu + Jaune = ?',options:['Vert','Rouge','Violet'],answer:'Vert'}, {emoji:'🔴🟡',prompt:'Rouge + Jaune = ?',options:['Orange','Vert','Marron'],answer:'Orange'} ],
+        [ {emoji:'⚪🔴',prompt:'Blanc + Rouge = ?',options:['Rose','Violet','Orange','Marron'],answer:'Rose'}, {emoji:'⚪⚫',prompt:'Blanc + Noir = ?',options:['Gris','Marron','Violet','Orange'],answer:'Gris'} ]
+      ];
+      const DIGITAL_MOUSE_LEVELS=[[{emoji:'🖱️',prompt:'Quel bouton pour cliquer ?',options:['Gauche','Droite'],answer:'Gauche'},{emoji:'⌨️',prompt:'Quelle touche pour espace ?',options:['Espace','Entrée'],answer:'Espace'}],[{emoji:'🖱️',prompt:'Double‑clic sert à…',options:['Ouvrir','Éteindre','Imprimer'],answer:'Ouvrir'},{emoji:'⌨️',prompt:'Quelle touche pour nouvelle ligne ?',options:['Entrée','Espace','Tab'],answer:'Entrée'}],[{emoji:'🖱️',prompt:'Pour déplacer un objet on…',options:['Cliquer‑glisser','Double‑clic','Scroll'],answer:'Cliquer‑glisser'},{emoji:'⌨️',prompt:'CTRL + C sert à…',options:['Copier','Coller','Couper','Fermer'],answer:'Copier'}]];
+      const DIGITAL_NET_LEVELS=[[{emoji:'🔒',prompt:'Partages‑tu ton mot de passe ?',options:['Non','Oui'],answer:'Non'},{emoji:'🧑‍💻',prompt:'Un inconnu parle en ligne…',options:['Parler avec un adulte','Donner ton adresse'],answer:'Parler avec un adulte'}],[{emoji:'📧',prompt:'Un email bizarre : tu…',options:['Ne cliques pas','Cliques le lien'],answer:'Ne cliques pas'},{emoji:'🕵️',prompt:'Infos personnelles ?',options:['Ne pas partager','Partager'],answer:'Ne pas partager'}],[{emoji:'🛡️',prompt:'Sites sûrs ont souvent…',options:['https','http'],answer:'https'},{emoji:'📣',prompt:'Une pub crie “TU AS GAGNÉ !!!”',options:['Méfie‑toi','Clique vite'],answer:'Méfie‑toi'}]];
+      const SANTE_HYGIENE_LEVELS=[[{emoji:'🧼',prompt:'Avant de manger je…',options:['Me lave les mains','Cours'],answer:'Me lave les mains'},{emoji:'🪥',prompt:'Brossage des dents : combien ?',options:['2','0','1'],answer:'2'}],[{emoji:'🤧',prompt:'Je tousse : je…',options:['Dans mon coude','Dans ma main'],answer:'Dans mon coude'},{emoji:'🛁',prompt:'Je dois me laver…',options:['Régulièrement','Jamais'],answer:'Régulièrement'}],[{emoji:'🧴',prompt:'Le gel hydro sert à…',options:['Nettoyer les mains','Boire'],answer:'Nettoyer les mains'}]];
+      const SANTE_FOOD_LEVELS=[[{emoji:'🍎🍫',prompt:'Le plus sain ?',options:['Pomme','Chocolat'],answer:'Pomme'},{emoji:'🥤💧',prompt:'Meilleure boisson ?',options:['Eau','Soda'],answer:'Eau'}],[{emoji:'🥦🍟',prompt:'Énergie longue…',options:['Légumes','Frites'],answer:'Légumes'},{emoji:'🍞🍬',prompt:'Petit‑déj équilibré ?',options:['Pain + fruit','Bonbons'],answer:'Pain + fruit'}],[{emoji:'🍽️',prompt:'Assiette idéale ?',options:['Couleurs variées','Seulement frites'],answer:'Couleurs variées'}]];
+      const SOCIAL_KINDNESS_LEVELS=[[{emoji:'🙂',prompt:'Un ami est triste, tu…',options:['Écoutes et aides','Te moques'],answer:'Écoutes et aides'},{emoji:'🤝',prompt:'Dans un jeu, tu…',options:['Partages','Prends tout'],answer:'Partages'}],[{emoji:'🗣️',prompt:'Tu veux parler : tu…',options:['Leves la main','Cries'],answer:'Leves la main'},{emoji:'💬',prompt:'Politesse ?',options:["S’il te plaît","Donne !"],answer:"S’il te plaît"}],[{emoji:'🧘',prompt:'En colère : tu…',options:['Respires et parles','Pousses'],answer:'Respires et parles'}]];
+      const NL_NUMBERS_LEVELS=[[{emoji:'1️⃣',prompt:'“een” = ?',options:['1','2','3'],answer:'1'},{emoji:'2️⃣',prompt:'“twee” = ?',options:['2','4','10'],answer:'2'}],[{emoji:'5️⃣',prompt:'“vijf” = ?',options:['5','6','8'],answer:'5'},{emoji:'8️⃣',prompt:'“acht” = ?',options:['7','8','9'],answer:'8'}],[{emoji:'🔢',prompt:'“tien” = ?',options:['10','12','20'],answer:'10'},{emoji:'🔢',prompt:'“twintig” = ?',options:['20','12','22'],answer:'20'}]];
+      const NL_GREETINGS_LEVELS=[[{emoji:'👋',prompt:'“Hola” en NL ?',options:['Hallo','Adiós'],answer:'Hallo'},{emoji:'🌞',prompt:'“Buenos días” ?',options:['Goeiemorgen','Goeienavond'],answer:'Goeiemorgen'}],[{emoji:'🌙',prompt:'“Buenas noches” (salut) ?',options:['Goedenacht','Tot ziens'],answer:'Goedenacht'},{emoji:'👋',prompt:'“Adiós” ?',options:['Tot ziens','Hallo'],answer:'Tot ziens'}],[{emoji:'🙂',prompt:'“Por favor” (FR : s’il te plaît) ?',options:['Alsjeblieft','Dank je'],answer:'Alsjeblieft'}]];
+      const FAMILLE_LEVELS=[[{emoji:'👩',prompt:'La maman est…',options:['maman','papa'],answer:'maman'},{emoji:'👨',prompt:'Le papa est…',options:['papa','maman'],answer:'papa'}],[{emoji:'👧',prompt:'Ta sœur est…',options:['soeur','frère'],answer:'soeur'},{emoji:'👦',prompt:'Ton frère est…',options:['frère','grand‑mère'],answer:'frère'}],[{emoji:'👵',prompt:'La maman de ta maman est…',options:['grand‑mère','tante'],answer:'grand‑mère'}]];
+
+      // ===== LevelGame generic wrapper
       function LevelGame({titlePrefix, levels, onExit, onWrongPenalty, onWin}){
         const [lvl,setLvl]=useState(0);
-        if(!lvl){
-          return (
-            <div className="card">
-              <button className="back" style={{marginBottom:12}} onClick={onExit}>← Retour</button>
-              <h2 style={{fontWeight:800,fontSize:22}}>{titlePrefix}</h2>
-              <p className="caption">Choisis un niveau.</p>
-              <div className="row" style={{marginTop:8}}>
-                <LevelPill onClick={()=>setLvl(1)}>Niveau 1</LevelPill>
-                <LevelPill onClick={()=>setLvl(2)}>Niveau 2</LevelPill>
-                <LevelPill onClick={()=>setLvl(3)}>Niveau 3</LevelPill>
-              </div>
-            </div>
-          );
-        }
+        if(!lvl){ return (
+          <div className="card"><button className="back" style={{marginBottom:10}} onClick={onExit}>← Retour</button>
+            <h2 style={{fontWeight:900,fontSize:22}}>{titlePrefix}</h2>
+            <p className="caption">Choisis un niveau.</p>
+            <div className="row" style={{marginTop:8}}><LevelPill onClick={()=>setLvl(1)}>Niveau 1</LevelPill><LevelPill onClick={()=>setLvl(2)}>Niveau 2</LevelPill><LevelPill onClick={()=>setLvl(3)}>Niveau 3</LevelPill></div>
+          </div> ); }
         const items=levels[lvl-1];
         return <MCQGame title={`${titlePrefix} (Niv. ${lvl})`} items={items} onExit={onExit} onWrongPenalty={onWrongPenalty} onWin={(earned)=> onWin(earned, (lvl<3? ()=> setLvl(lvl+1): null))}/>;
       }
 
-      function CouleursWithLevels(props){
-        return <LevelGame titlePrefix="Arts · Couleurs" levels={COULEURS_LEVELS} {...props}/>;
+      // Short tale generator (big text)
+      function TaleMaker({onExit}){
+        const lieux=['la forêt de l’Aurore 🌲','le village de Brindille 🏡','le bord de la mer 🌊','la montagne bleue ⛰️'];
+        const heros=['Léna 🦄','Milo 🐻','Zoé 🦊','Nino 🐼'];
+        const amis=['un écureuil curieux 🐿️','un chat qui parle 🐱💬','une luciole brillante 🔆','un petit robot 🤖'];
+        const quetes=['retrouver une étoile perdue ⭐','apprendre le secret des saisons 🌸☀️🍂❄️','rendre des couleurs à un tableau 🎨','offrir un sourire à quelqu’un de triste 😊➡️🙂'];
+        const obstacles=['un pont cassé 🌉','un brouillard épais 🌫️','une énigme à résoudre 🔍','un vent capricieux 💨'];
+        const moral=['le courage grandit quand on le partage 💪🤝','un petit geste peut illuminer le monde ✨','on apprend en aidant les autres 👩‍🏫','la patience ouvre toutes les portes 🗝️'];
+        const pick=a=>a[r(0,a.length-1)];
+        const mk=()=>{const L=pick(lieux), H=pick(heros), A=pick(amis), Q=pick(quetes), O=pick(obstacles), M=pick(moral); const name=H.split(' ')[0]; return [ `${H} habite près de ${L}. Chaque matin, ${name} dit « bonjour ! » aux oiseaux 🐦 et au soleil ☀️.`, `Un jour, ${name} rencontre ${A}. Ensemble, ils décident de ${Q}. Ils préparent un sac 🎒, une gourde 🥤 et un grand sourire 😄.`, `Le chemin est long… Ils chantent 🎶, sautent par‑dessus les flaques 💧 et partagent une pomme 🍎.`, `Soudain, ils doivent franchir ${O}. Ils respirent profondément 🧘 et essayent encore 💫.`, `Grâce à leur entraide 🤝, la route s’ouvre ✨. Au loin, une lumière les guide 🔔.`, `Au coucher du soleil 🌇, ils réussissent leur mission. Ils comprennent que ${M}.` ]; };
+        const [paras,setParas]=useState(mk());
+        return (
+          <div className="card"><button className="back" style={{marginBottom:10}} onClick={onExit}>← Retour</button>
+            <h2 style={{fontWeight:900,fontSize:22}}>Contes ✨</h2>
+            <p className="caption">Histoires (2–3 min) avec texte grand + emojis.</p>
+            <div style={{fontSize:22,lineHeight:1.8,marginTop:10}}>{paras.map((p,i)=>(<p key={i} style={{margin:'10px 0'}}>{p}</p>))}</div>
+            <div className="row" style={{marginTop:8}}><button className="back" onClick={()=>setParas(mk())}>Nouveau conte</button></div>
+          </div>
+        );
       }
 
-      // ===== Contes (générateur court) ===== prompt:'Blanc + Noir = ?', options:['Gris','Marron','Violet','Orange'], answer:'Gris' }
-        ]
-      ];
+      // ===== SubMenu & icons
+      function IconButton({emoji,label,desc,onClick}){
+        return (
+          <button className="icon-btn" onClick={onClick} aria-label={label} title={label}>
+            <div className="icon-emoji">{emoji}</div>
+            <div className="icon-label">{label}</div>
+            {desc && <div className="icon-desc">{desc}</div>}
+          </button>
+        );
+      }
+      function SubMenu({title,items,onBack}){
+        return (
+          <div className="card">
+            <button className="back" style={{marginBottom:10}} onClick={onBack}>← Retour</button>
+            <h2 style={{fontWeight:900,fontSize:22}}>{title}</h2>
+            <div className="grid cols-3" style={{marginTop:8}}>
+              {items.map(it=>(
+                <button key={it.key} className="icon-btn" onClick={it.onClick} aria-label={it.label} title={it.label}>
+                  <div className="icon-emoji">{it.emoji}</div>
+                  <div className="icon-label">{it.label}</div>
+                  {it.desc && <div className="icon-desc">{it.desc}</div>}
+                </button>
+              ))}
+            </div>
+          </div>
+        );
+      }
 
-      function LevelGame({titlePrefix, levels, onExit, onWrongPenalty, onWin}){
-        const [lvl,setLvl]=useState(0);
-        if(!lvl){
-          return (
-            <div className="card">
-              <button className="back" style={{marginBottom:12}} onClick={onExit}>← Retour</button>
-              <h2 style={{fontWeight:800,fontSize:22}}>{titlePrefix}</h2>
-              <p className="caption">Choisis un niveau.</p>
-              <div className="row" style={{marginTop:8}}>
-                <LevelPill onClick={()=>setLvl(1)}>Niveau 1</LevelPill>
-                <LevelPill onClick={()=>setLvl(2)}>Niveau 2</LevelPill>
-                <LevelPill onClick={()=>setLvl(3)}>Niveau 3</LevelPill>
+      // ===== App root
+      function App(){
+        const [screen,setScreen]=useState('home');
+        const [bills,setBills]=useState(()=> Number(localStorage.getItem('bills')||'0'));
+        const [modal,setModal]=useState({open:false});
+        const goHome=()=> setScreen('home');
+        const addBills=(n)=>{ const nb=bills+n; setBills(nb); localStorage.setItem('bills',String(nb)); };
+        const onWrongPenalty=(amount)=>{ const nb=Math.max(0,bills-amount); setBills(nb); localStorage.setItem('bills',String(nb)); setModal({open:true,type:'bad',title:'Oups… Essaie encore !',children:(<div>🦄 Tristounet… Tu perds <b>{amount}</b> billet{amount>1?'s':''} 💸</div>)}); };
+        const onWin=(earned,nextLevel)=>{ addBills(earned); setModal({open:true,type:'good',title:'Bravo !',children:(<div>Tu as gagné {Array.from({length:earned}).map((_,i)=>(<span key={i} className="money">💵</span>))}</div>), actions:[ nextLevel? {label:'Niveau suivant',primary:true,onClick:()=>{ setModal({open:false}); nextLevel(); }}: null, {label:'Menu principal',onClick:()=>{ setModal({open:false}); goHome(); }} ].filter(Boolean)}); };
+
+        // Routes
+        if(screen==='quiz-add') return <ArithmeticQuiz mode="+" onExit={goHome} onWrongPenalty={onWrongPenalty} onWin={onWin}/>;
+        if(screen==='quiz-sub') return <ArithmeticQuiz mode="-" onExit={goHome} onWrongPenalty={onWrongPenalty} onWin={onWin}/>;
+        if(screen==='quiz-mul') return <ArithmeticQuiz mode="x" onExit={goHome} onWrongPenalty={onWrongPenalty} onWin={onWin}/>;
+        if(screen==='quiz-div') return <ArithmeticQuiz mode="/" onExit={goHome} onWrongPenalty={onWrongPenalty} onWin={onWin}/>;
+        if(screen==='place-value') return <PlaceValue onExit={goHome} onWrongPenalty={onWrongPenalty} onWin={onWin}/>;
+        if(screen==='cloze') return <ClozeWithLevels onExit={goHome} onWrongPenalty={onWrongPenalty} onWin={onWin}/>;
+        if(screen==='saisons') return <LevelGame titlePrefix="Moi et le monde · Saisons" levels={SAISONS_LEVELS} onExit={goHome} onWrongPenalty={onWrongPenalty} onWin={onWin}/>;
+        if(screen==='famille') return <LevelGame titlePrefix="Moi et le monde · Famille" levels={FAMILLE_LEVELS} onExit={goHome} onWrongPenalty={onWrongPenalty} onWin={onWin}/>;
+        if(screen==='couleurs') return <LevelGame titlePrefix="Arts · Couleurs" levels={COULEURS_LEVELS} onExit={goHome} onWrongPenalty={onWrongPenalty} onWin={onWin}/>;
+        if(screen==='souris') return <LevelGame titlePrefix="Culture numérique · Souris & clavier" levels={DIGITAL_MOUSE_LEVELS} onExit={goHome} onWrongPenalty={onWrongPenalty} onWin={onWin}/>;
+        if(screen==='internet') return <LevelGame titlePrefix="Culture numérique · Internet" levels={DIGITAL_NET_LEVELS} onExit={goHome} onWrongPenalty={onWrongPenalty} onWin={onWin}/>;
+        if(screen==='hygiene') return <LevelGame titlePrefix="Santé · Hygiène" levels={SANTE_HYGIENE_LEVELS} onExit={goHome} onWrongPenalty={onWrongPenalty} onWin={onWin}/>;
+        if(screen==='alimentation') return <LevelGame titlePrefix="Santé · Alimentation" levels={SANTE_FOOD_LEVELS} onExit={goHome} onWrongPenalty={onWrongPenalty} onWin={onWin}/>;
+        if(screen==='bienveillance') return <LevelGame titlePrefix="Socio‑relationnel · Bienveillance" levels={SOCIAL_KINDNESS_LEVELS} onExit={goHome} onWrongPenalty={onWrongPenalty} onWin={onWin}/>;
+        if(screen==='nl-nombres') return <LevelGame titlePrefix="Néerlandais · Getallen (Nombres)" levels={NL_NUMBERS_LEVELS} onExit={goHome} onWrongPenalty={onWrongPenalty} onWin={onWin}/>;
+        if(screen==='nl-salut') return <LevelGame titlePrefix="Néerlandais · Groeten (Salutations)" levels={NL_GREETINGS_LEVELS} onExit={goHome} onWrongPenalty={onWrongPenalty} onWin={onWin}/>;
+        if(screen==='contes') return <TaleMaker onExit={goHome}/>;
+        if(screen==='nederlands') return (
+          <SubMenu title="Néerlandais — 2e primaire" onBack={goHome} items={[
+            {key:'nl-lecture', emoji:'📖', label:'Lecture (FR) · Cloze', desc:'Complète la phrase', onClick:()=>setScreen('cloze')},
+            {key:'nl-nombres', emoji:'🔢', label:'Getallen (Nombres)', desc:'1 à 20', onClick:()=>setScreen('nl-nombres')},
+            {key:'nl-salut', emoji:'👋', label:'Groeten (Salutations)', desc:'Bonjour, Au revoir…', onClick:()=>setScreen('nl-salut')},
+          ]}/>
+        );
+        if(screen==='digital') return (
+          <SubMenu title="Culture numérique — 2e primaire" onBack={goHome} items={[
+            {key:'souris', emoji:'🖱️', label:'Souris & clavier', desc:'Niveaux', onClick:()=>setScreen('souris')},
+            {key:'internet', emoji:'🌐', label:'Internet', desc:'Sécurité & usage', onClick:()=>setScreen('internet')},
+          ]}/>
+        );
+        if(screen==='sante') return (
+          <SubMenu title="Santé — 2e primaire" onBack={goHome} items={[
+            {key:'hygiene', emoji:'🧼', label:'Hygiène', desc:'Lavage des mains, dents', onClick:()=>setScreen('hygiene')},
+            {key:'alimentation', emoji:'🥦', label:'Alimentation', desc:'Choix sains', onClick:()=>setScreen('alimentation')},
+          ]}/>
+        );
+        if(screen==='social') return (
+          <SubMenu title="Socio‑relationnel — 2e primaire" onBack={goHome} items={[
+            {key:'bienveillance', emoji:'🙂', label:'Bienveillance', desc:'Niveaux', onClick:()=>setScreen('bienveillance')},
+          ]}/>
+        );
+        if(screen==='wereld') return (
+          <SubMenu title="Moi et le monde — 2e primaire" onBack={goHome} items={[
+            {key:'saisons', emoji:'⛅', label:'Saisons', desc:'Niveaux', onClick:()=>setScreen('saisons')},
+            {key:'famille', emoji:'👨‍👩‍👧', label:'Famille & communauté', desc:'Niveaux', onClick:()=>setScreen('famille')},
+          ]}/>
+        );
+
+        // ===== Home
+        return (
+          <div className="container">
+            <div className="header">
+              <div className="brand"><div style={{fontSize:28}}>🦄</div><div className="title">Appli de Léna — 2e primaire</div></div>
+              <div className="bill-purse" title="Billets">
+                <span>💵</span> <b>{bills}</b>
               </div>
             </div>
-          );
-        }
-        const items=levels[lvl-1];
-        return <MCQGame title={`${titlePrefix} (Niv. ${lvl})`} items={items} onExit={onExit} onWrongPenalty={onWrongPenalty} onWin={(earned)=> onWin(earned, (lvl<3? ()=> setLvl(lvl+1): null))}/>;
-      }
-
-      function CouleursWithLevels(props){
-        return <LevelGame titlePrefix="Arts · Couleurs" levels={COULEURS_LEVELS} {...props}/>;
-      }
-
-      // ===== Contes (générateur court) ===== prompt:'Blanc + Noir = ?', options:['Gris','Marron','Violet','Orange'], answer:'Gris' }
-        ]
-      ];
-
-      function LevelGame({titlePrefix, levels, onExit, onWrongPenalty, onWin}){
-        const [lvl,setLvl]=useState(0);
-        // ===== Jeux de monde & art (FR, multi‑niveaux) =====
-      const SAISONS_LEVELS = [
-        [
-          { emoji:'🌸', prompt:'Quelle saison ? (fleurs, abeilles 🐝)', options:[{label:'Printemps',emoji:'🌸'},{label:'Été',emoji:'☀️'}], answer:'Printemps' },
-          { emoji:'❄️', prompt:'Quelle saison ? (neige, gants 🧤)', options:[{label:'Hiver',emoji:'❄️'},{label:'Automne',emoji:'🍂'}], answer:'Hiver' },
-          { emoji:'☀️', prompt:'Quelle saison ? (soleil fort, glace 🍦)', options:[{label:'Été',emoji:'☀️'},{label:'Printemps',emoji:'🌸'}], answer:'Été' }
-        ],
-        [
-          { emoji:'🌸', prompt:"Je réveille les fleurs 🌷 et les abeilles 🐝. Qui suis‑je ?", options:[{label:'Printemps',emoji:'🌸'},{label:'Automne',emoji:'🍂'},{label:'Hiver',emoji:'❄️'}], answer:'Printemps' },
-          { emoji:'🍂', prompt:"Je fais tomber les feuilles 🍁 et je sens la cannelle. Qui suis‑je ?", options:[{label:'Automne',emoji:'🍂'},{label:'Été',emoji:'☀️'},{label:'Printemps',emoji:'🌸'}], answer:'Automne' },
-          { emoji:'❄️', prompt:"Je couvre tout de blanc ⛄. Qui suis‑je ?", options:[{label:'Hiver',emoji:'❄️'},{label:'Printemps',emoji:'🌸'},{label:'Été',emoji:'☀️'}], answer:'Hiver' }
-        ],
-        [
-          { emoji:'🌸', prompt:'Je peins la terre de vert, j’apporte la pluie fine 🌧️ et le chant des oiseaux 🎶.', options:[{label:'Printemps',emoji:'🌸'},{label:'Été',emoji:'☀️'},{label:'Automne',emoji:'🍂'},{label:'Hiver',emoji:'❄️'}], answer:'Printemps' },
-          { emoji:'☀️', prompt:'Je ris très chaud 😎, la mer brille 🌊, les glaces fondent 🍧.', options:[{label:'Été',emoji:'☀️'},{label:'Automne',emoji:'🍂'},{label:'Printemps',emoji:'🌸'},{label:'Hiver',emoji:'❄️'}], answer:'Été' },
-          { emoji:'🍂', prompt:'Je joue avec le vent 🍃 et je colorie les feuilles en or 🟠🟡.', options:[{label:'Automne',emoji:'🍂'},{label:'Hiver',emoji:'❄️'},{label:'Printemps',emoji:'🌸'},{label:'Été',emoji:'☀️'}], answer:'Automne' },
-          { emoji:'❄️', prompt:'Je murmure le silence et je dessine des flocons ❄️ sur les vitres.', options:[{label:'Hiver',emoji:'❄️'},{label:'Printemps',emoji:'🌸'},{label:'Été',emoji:'☀️'},{label:'Automne',emoji:'🍂'}], answer:'Hiver' }
-        ]
-      ];
-      const COULEURS_LEVELS = [
-        [
-          { emoji:'🔵🟡', prompt:'Bleu + Jaune = ?', options:['Vert','Rouge'], answer:'Vert' },
-          { emoji:'🔴🔵', prompt:'Rouge + Bleu = ?', options:['Violet','Orange'], answer:'Violet' },
-          { emoji:'🔴🟡', prompt:'Rouge + Jaune = ?', options:['Orange','Vert'], answer:'Orange' }
-        ],
-        [
-          { emoji:'🔵🟡', prompt:'Bleu + Jaune = ?', options:['Vert','Rouge','Violet'], answer:'Vert' },
-          { emoji:'🔴🔵', prompt:'Rouge + Bleu = ?', options:['Violet','Orange','Vert'], answer:'Violet' },
-          { emoji:'🔴🟡', prompt:'Rouge + Jaune = ?', options:['Orange','Violet','Marron'], answer:'Orange' }
-        ],
-        [
-          { emoji:'🔵🔴🟡', prompt:'Bleu + Rouge + Jaune = ?', options:['Marron','Rose','Gris','Vert'], answer:'Marron' },
-          { emoji:'⚪🔴', prompt:'Blanc + Rouge = ?', options:['Rose','Violet','Orange','Marron'], answer:'Rose' },
-          { emoji:'⚪⚫', prompt:'Blanc + Noir = ?', options:['Gris','Marron','Violet','Orange'], answer:'Gris' }
-        ]
-      ];
-
-      // ===== Jeux à niveaux générique =====
-      function LevelGame({titlePrefix, levels, onExit, onWrongPenalty, onWin}){
-        const [lvl,setLvl]=useState(0);
-        if(!lvl){
-          return (
             <div className="card">
-              <button className="back" style={{marginBottom:12}} onClick={onExit}>← Retour</button>
-              <h2 style={{fontWeight:800,fontSize:22}}>{titlePrefix}</h2>
-              <p className="caption">Choisis un niveau.</p>
-              <div className="row" style={{marginTop:8}}>
-                <LevelPill onClick={()=>setLvl(1)}>Niveau 1</LevelPill>
-                <LevelPill onClick={()=>setLvl(2)}>Niveau 2</LevelPill>
-                <LevelPill onClick={()=>setLvl(3)}>Niveau 3</LevelPill>
+              <div className="grid cols-3">
+                <IconButton emoji="🇳🇱" label="Néerlandais" desc="Lecture, nombres, salutations" onClick={()=>setScreen('nederlands')}/>
+                <IconButton emoji="🇫🇷" label="Français (L2)" desc="Mots, phrases, jeux" onClick={()=>setScreen('cloze')}/>
+                <IconButton emoji="🧮" label="Mathématiques" desc="Additions, etc." onClick={()=>setScreen('quiz-add')}/>
+                <IconButton emoji="🔟" label="Unités · Dizaines · Centaines" desc="Base 10" onClick={()=>setScreen('place-value')}/>
+                <IconButton emoji="🌍" label="Moi et le monde" desc="Saisons, famille" onClick={()=>setScreen('wereld')}/>
+                <IconButton emoji="🎨" label="Arts & couleurs" desc="Mélanges" onClick={()=>setScreen('couleurs')}/>
+                <IconButton emoji="🩺" label="Santé" desc="Hygiène, alimentation" onClick={()=>setScreen('sante')}/>
+                <IconButton emoji="💻" label="Culture numérique" desc="Souris, Internet" onClick={()=>setScreen('digital')}/>
+                <IconButton emoji="🤝" label="Socio‑relationnel" desc="Bienveillance" onClick={()=>setScreen('social')}/>
+                <IconButton emoji="📚" label="Contes" desc="Histoires à lire" onClick={()=>setScreen('contes')}/>
+                <IconButton emoji="✖️" label="Multiplications" desc="Niveaux" onClick={()=>setScreen('quiz-mul')}/>
+                <IconButton emoji="➗" label="Divisions" desc="Niveaux" onClick={()=>setScreen('quiz-div')}/>
+                <IconButton emoji="➖" label="Soustractions" desc="Niveaux" onClick={()=>setScreen('quiz-sub')}/>
               </div>
             </div>
-          );
-        }
-        const items=levels[lvl-1];
- // ===== Jeux datasets supplémentaires =====
-      const DIGITAL_MOUSE_LEVELS = [
-        [
-          {emoji:'🖱️', prompt:'Quel bouton pour cliquer ?', options:['Gauche','Droite'], answer:'Gauche'},
-          {emoji:'⌨️', prompt:'Quelle touche pour espace ?', options:['Espace','Entrée'], answer:'Espace'}
-        ],[
-          {emoji:'🖱️', prompt:'Double‑clic sert à…', options:['Ouvrir','Éteindre','Imprimer'], answer:'Ouvrir'},
-          {emoji:'⌨️', prompt:'Quelle touche pour nouvelle ligne ?', options:['Entrée','Espace','Tab'], answer:'Entrée'}
-        ],[
-          {emoji:'🖱️', prompt:'Pour faire glisser un objet on…', options:['Cliquer‑glisser','Double‑clic','Scroll'], answer:'Cliquer‑glisser'},
-          {emoji:'⌨️', prompt:'CTRL + C sert à…', options:['Copier','Coller','Couper','Fermer'], answer:'Copier'}
-        ]
-      ];
-      const DIGITAL_NET_LEVELS = [
-        [
-          {emoji:'🔒', prompt:'Partages‑tu ton mot de passe ?', options:['Non','Oui'], answer:'Non'},
-          {emoji:'🧑‍💻', prompt:'Si un inconnu parle en ligne…', options:['Parler avec un adulte','Donner ton adresse'], answer:'Parler avec un adulte'}
-        ],[
-          {emoji:'📧', prompt:'Un email bizarre: tu…', options:['Ne cliques pas','Cliques le lien'], answer:'Ne cliques pas'},
-          {emoji:'🕵️', prompt:'Informations personnelles ?', options:['Ne pas partager','Partager'], answer:'Ne pas partager'}
-        ],[
-          {emoji:'🛡️', prompt:'Sites sûrs ont souvent…', options:['https','http'], answer:'https'},
-          {emoji:'📣', prompt:'Une pub crie “TU AS GAGNÉ !!!”', options:['Méfie‑toi','Clique vite'], answer:'Méfie‑toi'}
-        ]
-      ];
-      const SANTE_HYGIENE_LEVELS=[
-        [
-          {emoji:'🧼', prompt:'Avant de manger je…', options:['Me lave les mains','Cours'], answer:'Me lave les mains'},
-          {emoji:'🪥', prompt:'Combien de fois brosser les dents ?', options:['2','0','1'], answer:'2'}
-        ],[
-          {emoji:'🤧', prompt:'Je tousse: je…', options:['Dans mon coude','Dans ma main'], answer:'Dans mon coude'},
-          {emoji:'🛁', prompt:'Je dois me laver…', options:['Régulièrement','Jamais'], answer:'Régulièrement'}
-        ],[
-          {emoji:'🧴', prompt:'Le gel hydroalcoolique sert à…', options:['Nettoyer les mains','Boire'], answer:'Nettoyer les mains'}
-        ]
-      ];
-      const SANTE_FOOD_LEVELS=[
-        [
-          {emoji:'🍎🍫', prompt:'Le plus sain ?', options:['Pomme','Chocolat'], answer:'Pomme'},
-          {emoji:'🥤💧', prompt:'Meilleure boisson ?', options:['Eau','Soda'], answer:'Eau'}
-        ],[
-          {emoji:'🥦🍟', prompt:'Pour l’énergie longue…', options:['Légumes','Frites'], answer:'Légumes'},
-          {emoji:'🍞🍬', prompt:'Petit‑déj équilibré ?', options:['Pain + fruit','Bonbons'], answer:'Pain + fruit'}
-        ],[
-          {emoji:'🍽️', prompt:'Mon assiette idéale a…', options:['Couleurs variées','Seulement frites'], answer:'Couleurs variées'}
-        ]
-      ];
-      const SOCIAL_KINDNESS_LEVELS=[
-        [
-          {emoji:'🙂', prompt:'Un ami est triste, tu…', options:['Écoutes et aides','Te moques'], answer:'Écoutes et aides'},
-          {emoji:'🤝', prompt:'Dans un jeu, tu…', options:['Partages','Prends tout'], answer:'Partages'}
-        ],[
-          {emoji:'🗣️', prompt:'Tu veux parler: tu…', options:['Leves la main','Cries'], answer:'Leves la main'},
-          {emoji:'💬', prompt:'Politesse ?', options:['S’il te plaît','Donne !'], answer:'S’il te plaît'}
-        ],[
-          {emoji:'🧘', prompt:'En colère: tu…', options:['Respires et parles','Pousses'], answer:'Respires et parles'}
-        ]
-      ];
-      const NL_NUMBERS_LEVELS=[
-        [
-          {emoji:'1️⃣', prompt:'“een” = ?', options:['1','2','3'], answer:'1'},
-          {emoji:'2️⃣', prompt:'“twee” = ?', options:['2','4','10'], answer:'2'}
-        ],[
-          {emoji:'5️⃣', prompt:'“vijf” = ?', options:['5','6','8'], answer:'5'},
-          {emoji:'8️⃣', prompt:'“acht” = ?', options:['7','8','9'], answer:'8'}
-        ],[
-          {emoji:'🔢', prompt:'“tien” = ?', options:['10','12','20'], answer:'10'},
-          {emoji:'🔢', prompt:'“twintig” = ?', options:['20','12','22'], answer:'20'}
-        ]
-      ];
-      const NL_GREETINGS_LEVELS=[
-        [
-          {emoji:'👋', prompt:'Comment dire “Hola” en NL ?', options:['Hallo','Adiós'], answer:'Hallo'},
-          {emoji:'🌞', prompt:'“Buenos días” = ?', options:['Goeiemorgen','Goeienavond'], answer:'Goeiemorgen'}
-        ],[
-          {emoji:'🌙', prompt:'“Buenas noches” (salut) = ?', options:['Goedenacht','Tot ziens'], answer:'Goedenacht'},
-          {emoji:'👋', prompt:'“Adiós” = ?', options:['Tot ziens','Hallo'], answer:'Tot ziens'}
-        ],[
-          {emoji:'🙂', prompt:'“Por favor” (FR: s’il te plaît) = ?', options:['Alsjeblieft','Dank je'], answer:'Alsjeblieft'}
-        ]
-      ];
-      const FAMILLE_LEVELS=[
-        [
-          {emoji:'👩', prompt:'La maman est…', options:['maman','papa'], answer:'maman'},
-          {emoji:'👨', prompt:'Le papa est…', options:['papa','maman'], answer:'papa'}
-        ],[
-          {emoji:'👧', prompt:'Ta sœur est…', options:['soeur','frère'], answer:'soeur'},
-          {emoji:'👦', prompt:'Ton frère est…', options:['frère','grand‑mère'], answer:'frère'}
-        ],[
-          {emoji:'👵', prompt:'La maman de ta maman est…', options:['grand‑mère','tante'], answer:'grand‑mère'}
-        ]
-      ];
+            <Modal {...modal} onClose={()=>setModal({open:false})}/>
+          </div>
+        );
+      }
 
-      function DigitalMouseWithLevels(props){ return <LevelGame titlePrefix="Culture numérique · Souris & clavier" levels={DIGITAL_MOUSE_LEVELS} {...props}/>; }
-      function DigitalNetWithLevels(props){ ret
+      ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+    </script>
+  </body>
+</html>
