@@ -1,0 +1,478 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Appli de Léna — Menu</title>
+    <meta name="theme-color" content="#f472b6">
+    <style>
+      :root{
+        --grad: linear-gradient(135deg,#fdf2f8,#fce7f3,#fae8ff,#e9d5ff);
+      }
+      *{box-sizing:border-box}
+      html,body,#root{height:100%}
+      body{
+        margin:0;
+        font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+        background: var(--grad);
+        color:#1f2937;
+      }
+      .container{max-width:1100px;margin:0 auto;padding:16px; display:flex; flex-direction:column; gap:16px}
+      .card{background:rgba(255,255,255,.92); border:1px solid #f3f4f6; border-radius:24px; box-shadow:0 8px 20px rgba(0,0,0,.06)}
+      .header{display:flex; align-items:center; justify-content:space-between; padding:16px 20px; background:linear-gradient(90deg,#fce7f3,#fff); border-radius:20px; border:1px solid #f3f4f6}
+      .brand{display:flex; align-items:center; gap:10px}
+      .brand .title{font-weight:800; font-size:22px; background:linear-gradient(90deg,#ec4899,#f43f5e,#8b5cf6); -webkit-background-clip:text; background-clip:text; color:transparent}
+      .pill{display:inline-flex; align-items:center; gap:6px; padding:6px 10px; border:1px solid #e5e7eb; border-radius:999px; font-size:12px; background:#fff}
+      .grid{display:grid; gap:14px}
+      @media (min-width: 640px){ .grid.cols-3{grid-template-columns: repeat(3, minmax(0, 1fr));} }
+      @media (max-width: 639.98px){ .grid.cols-3{grid-template-columns: repeat(2, minmax(0, 1fr));} }
+      .icon-btn{
+        border:1px solid #f3e8ff; background:#fff; border-radius:22px; padding:18px; 
+        display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px;
+        text-align:center; min-height:130px;
+        box-shadow:0 6px 14px rgba(0,0,0,.05);
+        transition: transform .12s ease, box-shadow .12s ease;
+      }
+      .icon-btn:active{ transform: scale(.98) }
+      .icon-emoji{ font-size:34px }
+      .icon-label{ font-weight:700; font-size:16px }
+      .row{ display:flex; align-items:center; gap:12px; flex-wrap:wrap }
+      .back{ border:none; background:#fff; border-radius:16px; padding:10px 12px; box-shadow:0 4px 10px rgba(0,0,0,.05); display:inline-flex; align-items:center; gap:8px; cursor:pointer }
+      .section{ padding:18px }
+      .btn{ border:none; background:linear-gradient(90deg,#ec4899,#f43f5e); color:#fff; border-radius:16px; padding:12px 16px; font-weight:700; cursor:pointer }
+      .btn-outline{ border:1px solid #e5e7eb; background:#fff; border-radius:16px; padding:10px 14px; cursor:pointer }
+      .chip{ border:1px solid #e5e7eb; background:#fff; border-radius:999px; padding:8px 12px; font-weight:600; cursor:pointer }
+      .ok{ background:#ecfdf5; color:#047857; border:1px solid #a7f3d0; padding:10px 12px; border-radius:12px; display:inline-flex; gap:8px; align-items:center }
+      .ko{ background:#fff1f2; color:#be123c; border:1px solid #fecdd3; padding:10px 12px; border-radius:12px; display:inline-flex; gap:8px; align-items:center }
+
+      /* Progress / headings */
+      .progress{ width:100%; height:8px; background:#f3f4f6; border-radius:999px; overflow:hidden }
+      .bar{ height:100%; background:linear-gradient(90deg,#f472b6,#f43f5e,#8b5cf6) }
+      .big-q{ font-size:38px; font-weight:800; background:linear-gradient(90deg,#ec4899,#f43f5e,#8b5cf6); -webkit-background-clip:text; background-clip:text; color:transparent }
+
+      /* Confetti + unicorn bills */
+      @keyframes confetti-fall { 0% { transform: translateY(-120vh) rotate(0); opacity: 1;} 100% { transform: translateY(5vh) rotate(720deg); opacity: 0; } }
+      .confetti { position: fixed; top: -10vh; width: 10px; height: 14px; opacity: .9; border-radius: 2px; animation: confetti-fall 1500ms linear forwards; pointer-events:none }
+      .u-bill { width: 110px; height: 58px; border-radius: 12px; padding: 6px 10px; display:flex; align-items:center; justify-content:center; gap:8px; font-weight:700; box-shadow: 0 6px 12px rgba(0,0,0,.12); background: linear-gradient(135deg,#ffadf7,#ffd1a6,#fff79a,#b4f8c8,#a0c4ff); border: 2px dashed rgba(0,0,0,.08); }
+      .u-bill .emoji { font-size: 26px; }
+      @keyframes pop { 0% { transform: scale(.6); opacity: 0; } 60% { transform: scale(1.1); opacity: 1; } 100% { transform: scale(1); } }
+      .pop { animation: pop 380ms ease-out; }
+
+      /* Hints */
+      .hint-dots{ display:grid; gap:6px }
+      .hint-row{ display:flex; gap:6px }
+      .dot{ width:14px; height:14px; border-radius:999px; background:#f0abfc; border:1px solid #e879f9 }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+
+    <!-- React & Babel (CDN) -->
+    <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <script type="text/babel">
+      const { useState, useMemo, useEffect } = React;
+
+      /* Utils */
+      const r = (min,max)=> Math.floor(Math.random()*(max-min+1))+min;
+      const pick = (arr)=> arr[Math.floor(Math.random()*arr.length)];
+
+      const ConfettiBurst = ({count=40}) => {
+        const colors = ["#F59E0B","#84CC16","#06B6D4","#A78BFA","#F472B6","#FB7185","#22C55E","#60A5FA"];
+        return (
+          <>
+            {Array.from({length:count}).map((_,i)=>{
+              const left = Math.random()*100, delay = Math.random()*0.5;
+              const bg = colors[Math.floor(Math.random()*colors.length)];
+              return <div key={i} className="confetti" style={{left:left+"%", background:bg, animationDelay:delay+"s"}}/>;
+            })}
+          </>
+        );
+      };
+
+      const UnicornBills = ({n}) => (
+        <div style={{display:"flex",flexWrap:"wrap",gap:"8px"}}>
+          {Array.from({length:n}).map((_,i)=>(
+            <div key={i} className="u-bill pop"><span className="emoji">🦄</span> BILLET</div>
+          ))}
+        </div>
+      );
+
+      /* Menu icon */
+      function IconButton({emoji,label,onClick}){
+        return (
+          <button className="icon-btn" onClick={onClick}>
+            <div className="icon-emoji">{emoji}</div>
+            <div className="icon-label">{label}</div>
+          </button>
+        );
+      }
+
+      /* ============== Math – MultipliX (QCM + récompenses) ============== */
+      function makePool({tables=[1,2,3,4,5,6],minB=1,maxB=10,count=10}){
+        const pairs=[]; tables.forEach(a=>{ for(let b=minB;b<=maxB;b++) pairs.push([a,b]);});
+        for(let i=pairs.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [pairs[i],pairs[j]]=[pairs[j],pairs[i]]; }
+        return pairs.slice(0,Math.min(count,pairs.length)).map(([a,b],i)=>({id:i+1,a,b,product:a*b}));
+      }
+
+      function DotsHint({a,b}){
+        return (
+          <div className="hint-dots">
+            {Array.from({length:a}).map((_,i)=>(
+              <div key={i} className="hint-row">
+                {Array.from({length:b}).map((_,j)=>(<div key={j} className="dot"/>))}
+              </div>
+            ))}
+            <div style={{fontSize:12,color:"#6b7280"}}>Addition répétée : {Array.from({length:a}).map(()=>b).join(" + ")} = <b>{a*b}</b></div>
+          </div>
+        );
+      }
+
+      function MultipliX({onExit}){
+        const [cfg,setCfg]=useState({tables:[1,2,3,4,5,6],count:10,minB:1,maxB:10,hints:true});
+        const [phase,setPhase]=useState("config");
+        const pool = useMemo(()=> makePool(cfg), [phase, cfg.tables.join(","), cfg.count, cfg.minB, cfg.maxB]);
+        const [i,setI]=useState(0); const [choices,setChoices]=useState([]);
+        const [corrects,setCorrects]=useState(0); const [feedback,setFeedback]=useState(null);
+        const [done,setDone]=useState(false);
+
+        const current = pool[i] || {};
+        useEffect(()=>{
+          if(phase==="play"){
+            setI(0); setChoices([]); setCorrects(0); setFeedback(null); setDone(false);
+          }
+        },[phase]);
+
+        useEffect(()=>{
+          if(phase==="play" && current.product){
+            const c=new Set([current.product]); 
+            while(c.size<4){ 
+              const d=Math.max(2,Math.floor(current.product*0.2)); 
+              const cand=current.product+ (Math.random()<.5?-1:1) * (1+Math.floor(Math.random()*d)); 
+              if(cand>0)c.add(cand); 
+            }
+            const arr=[...c];
+            for(let k=arr.length-1;k>0;k--){const j=Math.floor(Math.random()*(k+1)); [arr[k],arr[j]]=[arr[j],arr[k]];}
+            setChoices(arr);
+          }
+        },[i, phase]);
+
+        const submit = (ans) => {
+          const ok = Number(ans)===current.product;
+          setFeedback(ok? "ok":"ko");
+          if(ok) setCorrects(c=>c+1);
+          setTimeout(()=>{
+            if(i+1<pool.length){ setI(i+1); setFeedback(null); }
+            else { setDone(true); }
+          }, 450);
+        };
+
+        const rate = Math.round((corrects/(pool.length||1))*100);
+        const bills = rate===100?10 : rate>=80?8 : rate>=50?3 : 0;
+
+        if(phase==="config"){
+          return (
+            <div className="card section">
+              <button className="back" style={{marginBottom:12}} onClick={onExit}>← Retour</button>
+              <h2 className="mb-12" style={{fontWeight:800, fontSize:22}}>Mathématiques · Multiplications</h2>
+              <div className="mb-12" style={{fontSize:14, color:"#6b7280"}}>Choisis les tables et le nombre de questions (iPad/téléphone).</div>
+
+              <div className="row" style={{marginBottom:12}}>
+                {[1,2,3,4,5,6,7,8,9,10].map(t=>(
+                  <button key={t} className="chip"
+                    style={{background: cfg.tables.includes(t)? "#ec4899" : "#fff", color: cfg.tables.includes(t)? "#fff":"#111827", borderColor:"#ffe4e6"}}
+                    onClick={()=>{
+                      const set=new Set(cfg.tables); if(set.has(t)) set.delete(t); else set.add(t);
+                      setCfg({...cfg, tables:Array.from(set).sort((a,b)=>a-b)});
+                    }}>{t}</button>
+                ))}
+              </div>
+
+              <div className="row" style={{marginBottom:16}}>
+                <label>Questions: </label>
+                <input type="number" min="5" max="30" value={cfg.count} onChange={e=>setCfg({...cfg,count:Number(e.target.value)})} className="btn-outline"/>
+                <label>Facteur 2: </label>
+                <input type="number" min="1" max="10" value={cfg.minB} onChange={e=>setCfg({...cfg,minB:Number(e.target.value)})} className="btn-outline"/>
+                <input type="number" min="1" max="10" value={cfg.maxB} onChange={e=>setCfg({...cfg,maxB:Number(e.target.value)})} className="btn-outline"/>
+                <label className="row" style={{gap:6}}><input type="checkbox" checked={cfg.hints} onChange={e=>setCfg({...cfg,hints:e.target.checked})}/> Indices</label>
+              </div>
+
+              <button className="btn" onClick={()=>setPhase("play")}>Commencer</button>
+            </div>
+          );
+        }
+
+        if(done){
+          return (
+            <div className="card section" style={{display:"flex",flexDirection:"column",alignItems:"center",gap:16}}>
+              {rate>=50 && <ConfettiBurst count={rate===100?80:45}/>}
+              <div className="big-q">Résultats</div>
+              <div style={{fontWeight:700}}>{corrects}/{pool.length} corrects — {rate}%</div>
+              <div style={{color:"#6b7280", marginBottom:12}}>
+                {rate===100? "PERFECTO ! Tu gagnes 10 billets licorne."
+                  : rate>=80? "Super ! Tu gagnes 8 billets licorne."
+                  : rate>=50? "Bravo ! Tu gagnes 3 billets licorne."
+                  : "Presque ! Essaie encore et vise 50%."}
+              </div>
+              {bills>0 && <UnicornBills n={bills}/>}
+              <div className="row" style={{marginTop:8}}>
+                <button className="btn" onClick={()=>setPhase("play")}>Rejouer</button>
+                <button className="btn-outline" onClick={()=>setPhase("config")}>Paramètres</button>
+                <button className="btn-outline" onClick={onExit}>Menu</button>
+              </div>
+            </div>
+          );
+        }
+
+        return (
+          <div className="card section">
+            <button className="back" style={{marginBottom:12}} onClick={onExit}>← Retour</button>
+            <div className="progress" style={{marginBottom:12}}><div className="bar" style={{width: `${(i/(pool.length||1))*100}%`}}></div></div>
+            <div className="big-q" style={{marginBottom:16}}>{current.a} × {current.b} = ?</div>
+            {cfg.hints && <div style={{marginBottom:16}}><DotsHint a={current.a} b={current.b}/></div>}
+            <div className="grid cols-3">
+              {choices.map((c,idx)=>(
+                <button key={idx} className="icon-btn" onClick={()=>submit(c)}>
+                  <div className="icon-emoji">🔢</div>
+                  <div className="icon-label">{c}</div>
+                </button>
+              ))}
+            </div>
+            <div style={{marginTop:12}}>
+              {feedback==="ok" && <div className="ok">✓ Bravo !</div>}
+              {feedback==="ko" && <div className="ko">✗ Essaie encore…</div>}
+            </div>
+          </div>
+        );
+      }
+
+      /* ============== Lecture – Cloze (choisir le mot manquant) ============== */
+      const CLOZE_BANK = [
+        { text:"Chaque matin, Léna ____ à l'école avec son sac.", options:["va","vais","allez"], answer:"va" },
+        { text:"Le chat de Léna ____ sur le canapé.", options:["dort","dorment","dormi"], answer:"dort" },
+        { text:"Pour le goûter, elle boit du lait et ____ une pomme.", options:["mange","manges","mangent"], answer:"mange" },
+        { text:"Il ____ du soleil aujourd'hui.", options:["fait","font","fais"], answer:"fait" },
+        { text:"Nous ____ un livre ensemble.", options:["lisons","lisez","lis"], answer:"lisons" },
+      ];
+
+      function ClozeGame({onExit}){
+        const [i,setI]=useState(0);
+        const [corrects,setCorrects]=useState(0);
+        const [done,setDone]=useState(false);
+        const [choice,setChoice]=useState(null);
+        const item = CLOZE_BANK[i];
+
+        const validate = ()=>{
+          if(choice===item.answer) setCorrects(c=>c+1);
+          if(i+1<CLOZE_BANK.length){ setI(i+1); setChoice(null); }
+          else setDone(true);
+        };
+
+        const rate = Math.round((corrects/(CLOZE_BANK.length||1))*100);
+        const bills = rate===100?10 : rate>=80?8 : rate>=50?3 : 0;
+
+        return (
+          <div className="card section">
+            <button className="back" style={{marginBottom:12}} onClick={onExit}>← Retour</button>
+            <h2 className="mb-12" style={{fontWeight:800, fontSize:22}}>Lecture · Choisis le mot</h2>
+            {!done ? (
+              <>
+                <div style={{fontSize:20, lineHeight:1.4, marginBottom:16}}>
+                  {item.text.split("____").map((seg,idx)=> (
+                    <React.Fragment key={idx}>
+                      {seg}
+                      {idx < item.text.split("____").length - 1 && (
+                        <span style={{padding:"6px 10px", border:"1px dashed #e5e7eb", borderRadius:8, fontWeight:700, color:"#374151"}}>____</span>
+                      )}
+                    </React.Fragment>
+                  ))}
+                </div>
+                <div className="row" style={{marginBottom:16}}>
+                  {item.options.map(opt=>(
+                    <button key={opt} className="chip" style={{background: choice===opt? "#fde68a":"#fff"}} onClick={()=>setChoice(opt)}>{opt}</button>
+                  ))}
+                </div>
+                <button disabled={!choice} className="btn" onClick={validate}>Valider</button>
+                <div style={{color:"#6b7280", marginTop:12}}>Question {i+1}/{CLOZE_BANK.length}</div>
+              </>
+            ) : (
+              <div style={{display:"flex", flexDirection:"column", alignItems:"center", gap:16}}>
+                {rate>=50 && <ConfettiBurst count={rate===100?80:45}/>}
+                <div className="big-q">Résultats</div>
+                <div style={{fontWeight:700}}>{corrects}/{CLOZE_BANK.length} corrects — {rate}%</div>
+                {bills>0 && <UnicornBills n={bills}/>}
+                <div className="row">
+                  <button className="btn" onClick={()=>{setI(0);setCorrects(0);setDone(false);setChoice(null);}}>Rejouer</button>
+                  <button className="btn-outline" onClick={onExit}>Menu</button>
+                </div>
+              </div>
+            )}
+          </div>
+        );
+      }
+
+      /* ============== Lecture – Phrases mélangées (reconstituer) ============== */
+      const SCRAMBLE_BANK = [
+        "Léna mange une soupe chaude.",
+        "Le petit chat court très vite.",
+        "Je vais à l'école avec papa.",
+        "Nous lisons un livre ce soir.",
+        "La maîtresse parle doucement."
+      ];
+
+      function shuffle(arr){ const a=[...arr]; for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]];} return a; }
+
+      function SentenceScramble({onExit}){
+        const [idx,setIdx]=useState(0);
+        const [pool,setPool]=useState(shuffle(SCRAMBLE_BANK));
+        const [selected,setSelected]=useState([]);
+        const [done,setDone]=useState(false);
+        const base = pool[idx];
+        const words = useMemo(()=> shuffle(base.replace(/[.?!]/g,"").split(" ")), [idx, base]);
+
+        const toggleWord = (w,i)=>{
+          if(selected.findIndex(it=>it.i===i)>-1) return;
+          setSelected(sel=>[...sel, {w, i}]);
+        };
+        const undo = ()=> setSelected(sel=> sel.slice(0,-1));
+        const reset = ()=> setSelected([]);
+        const validate = ()=>{
+          const sentence = selected.map(s=>s.w).join(" ") + base.slice(-1);
+          if(sentence === base){
+            if(idx+1<pool.length){ setIdx(idx+1); reset(); }
+            else setDone(true);
+          } else {
+            alert("Presque ! Observe l'ordre et réessaie.");
+          }
+        };
+
+        return (
+          <div className="card section">
+            <button className="back" style={{marginBottom:12}} onClick={onExit}>← Retour</button>
+            <h2 className="mb-12" style={{fontWeight:800, fontSize:22}}>Lecture · Phrases mélangées</h2>
+            {!done ? (
+              <>
+                <div style={{fontSize:14, color:"#6b7280", marginBottom:12}}>Mets les mots dans le bon ordre pour reconstruire la phrase.</div>
+                <div style={{minHeight:48, border:"1px dashed #e5e7eb", borderRadius:12, padding:"10px", marginBottom:16}}>
+                  {selected.length? selected.map(s=>(<span key={s.i} className="chip" style={{marginRight:6}}>{s.w}</span>)) : <span style={{color:"#9ca3af"}}>Ta phrase apparaîtra ici…</span>}
+                </div>
+                <div className="row" style={{marginBottom:12}}>
+                  {words.map((w,i)=> (
+                    <button key={i} className="chip" onClick={()=>toggleWord(w,i)} disabled={selected.findIndex(s=>s.i===i)>-1} style={{opacity: selected.findIndex(s=>s.i===i)>-1? .4:1}}>{w}</button>
+                  ))}
+                </div>
+                <div className="row">
+                  <button className="btn" onClick={validate}>Valider</button>
+                  <button className="btn-outline" onClick={undo}>Annuler</button>
+                  <button className="btn-outline" onClick={reset}>Effacer</button>
+                </div>
+                <div style={{color:"#6b7280", marginTop:12}}>Phrase {idx+1}/{pool.length}</div>
+              </>
+            ) : (
+              <div style={{display:"flex", flexDirection:"column", alignItems:"center", gap:16}}>
+                <ConfettiBurst count={60}/>
+                <div className="big-q">Bravo !</div>
+                <div style={{fontWeight:700}}>Tu as reconstruit toutes les phrases.</div>
+                <UnicornBills n={8}/>
+                <div className="row">
+                  <button className="btn" onClick={()=>{setIdx(0); setPool(shuffle(SCRAMBLE_BANK)); reset(); setDone(false);}}>Rejouer</button>
+                  <button className="btn-outline" onClick={onExit}>Menu</button>
+                </div>
+              </div>
+            )}
+          </div>
+        );
+      }
+
+      /* ============== Sous-menus génériques ============== */
+      function SubMenu({title, items, onBack}){
+        return (
+          <div className="card section">
+            <button className="back" style={{marginBottom:12}} onClick={onBack}>← Retour</button>
+            <h2 className="mb-12" style={{fontWeight:800, fontSize:22}}>{title}</h2>
+            <div className="grid cols-3">
+              {items.map(it=> (
+                <button key={it.key} className="icon-btn" onClick={it.onClick}>
+                  <div className="icon-emoji">{it.emoji}</div>
+                  <div className="icon-label">{it.label}</div>
+                </button>
+              ))}
+            </div>
+          </div>
+        );
+      }
+
+      /* ============== App principale (menu d'icônes) ============== */
+      function App(){
+        const [screen,setScreen]=useState("home");
+
+        const goHome=()=> setScreen("home");
+
+        if(screen==="math-multipliX") return <MultipliX onExit={()=>setScreen("math")}/>;
+        if(screen==="lecture-cloze") return <ClozeGame onExit={()=>setScreen("lecture")}/>;
+        if(screen==="lecture-scramble") return <SentenceScramble onExit={()=>setScreen("lecture")}/>;
+
+        if(screen==="math"){
+          return (
+            <SubMenu
+              title="Mathématiques"
+              onBack={goHome}
+              items={[
+                {key:"mult",label:"Multiplications",emoji:"🔢", onClick:()=>setScreen("math-multipliX")},
+                {key:"add",label:"Additions (bientôt)",emoji:"➕", onClick:()=>alert("Arrive bientôt !")},
+                {key:"diz",label:"Dizaines & centaines (bientôt)",emoji:"🧱", onClick:()=>alert("Arrive bientôt !")},
+              ]}
+            />
+          );
+        }
+        if(screen==="lecture"){
+          return (
+            <SubMenu
+              title="Lecture"
+              onBack={goHome}
+              items={[
+                {key:"cloze",label:"Compréhension (choix)",emoji:"📖", onClick:()=>setScreen("lecture-cloze")},
+                {key:"scr",label:"Phrases mélangées",emoji:"🧩", onClick:()=>setScreen("lecture-scramble")},
+              ]}
+            />
+          );
+        }
+        if(screen==="orthographe"){
+          return (
+            <SubMenu
+              title="Orthographe"
+              onBack={goHome}
+              items={[
+                {key:"dict",label:"Dictée (bientôt)",emoji:"✍️", onClick:()=>alert("Arrive bientôt !")},
+                {key:"mots",label:"Mots fréquents (bientôt)",emoji:"🔤", onClick:()=>alert("Arrive bientôt !")},
+              ]}
+            />
+          );
+        }
+
+        return (
+          <div className="container">
+            <div className="header">
+              <div className="brand">
+                <div style={{fontSize:28}}>🦄</div>
+                <div className="title">Appli de Léna</div>
+              </div>
+              <div className="pill">iPad / Téléphone • Sans défilement</div>
+            </div>
+            <div className="card" style={{padding:16}}>
+              <div className="grid cols-3">
+                <IconButton emoji="🧮" label="Mathématiques" onClick={()=>setScreen("math")}/>
+                <IconButton emoji="📚" label="Lecture" onClick={()=>setScreen("lecture")}/>
+                <IconButton emoji="✍️" label="Orthographe" onClick={()=>setScreen("orthographe")}/>
+              </div>
+            </div>
+          </div>
+        );
+      }
+
+      ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+    </script>
+  </body>
+</html>
