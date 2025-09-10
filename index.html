@@ -3,46 +3,23 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Appli de Léna — Jeux de 2e primaire</title>
+    <title>Appli de Léna — Menu Principal</title>
     <meta name="theme-color" content="#f472b6">
     <style>
-      :root{ --grad: linear-gradient(135deg,#fdf2f8,#fce7f3,#fae8ff,#e9d5ff); }
-      *{box-sizing:border-box}
-      html,body,#root{height:100%}
-      body{ margin:0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial; background: var(--grad); color:#1f2937; }
-      .container{max-width:1100px;margin:0 auto;padding:16px; display:flex; flex-direction:column; gap:16px}
-      .card{background:rgba(255,255,255,.92); border:1px solid #f3f4f6; border-radius:24px; box-shadow:0 8px 20px rgba(0,0,0,.06)}
-      .header{display:flex; align-items:center; justify-content:space-between; padding:16px 20px; background:linear-gradient(90deg,#fce7f3,#fff); border-radius:20px; border:1px solid #f3f4f6}
-      .brand{display:flex; align-items:center; gap:10px}
-      .brand .title{font-weight:800; font-size:22px; background:linear-gradient(90deg,#ec4899,#f43f5e,#8b5cf6); -webkit-background-clip:text; background-clip:text; color:transparent}
-      .pill{display:inline-flex; align-items:center; gap:6px; padding:6px 10px; border:1px solid #e5e7eb; border-radius:999px; font-size:12px; background:#fff}
-      .grid{display:grid; gap:14px}
-      @media (min-width: 640px){ .grid.cols-3{grid-template-columns: repeat(3, minmax(0, 1fr));} }
-      @media (max-width: 639.98px){ .grid.cols-3{grid-template-columns: repeat(2, minmax(0, 1fr));} }
-      .icon-btn{ border:1px solid #f3e8ff; background:#fff; border-radius:22px; padding:18px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px; text-align:center; min-height:130px; box-shadow:0 6px 14px rgba(0,0,0,.05); transition: transform .12s ease }
-      .icon-btn:active{ transform: scale(.98) }
-      .icon-emoji{ font-size:34px }
-      .icon-label{ font-weight:700; font-size:16px }
-      .row{ display:flex; align-items:center; gap:12px; flex-wrap:wrap }
-      .back{ border:none; background:#fff; border-radius:16px; padding:10px 12px; box-shadow:0 4px 10px rgba(0,0,0,.05); display:inline-flex; align-items:center; gap:8px; cursor:pointer }
-      .section{ padding:18px }
-      .btn{ border:none; background:linear-gradient(90deg,#ec4899,#f43f5e); color:#fff; border-radius:16px; padding:12px 16px; font-weight:700; cursor:pointer }
-      .btn-outline{ border:1px solid #e5e7eb; background:#fff; border-radius:16px; padding:10px 14px; cursor:pointer }
-      .chip{ border:1px solid #e5e7eb; background:#fff; border-radius:999px; padding:8px 12px; font-weight:600; cursor:pointer }
-      .ok{ background:#ecfdf5; color:#047857; border:1px solid #a7f3d0; padding:10px 12px; border-radius:12px; display:inline-flex; gap:8px; align-items:center }
-      .ko{ background:#fff1f2; color:#be123c; border:1px solid #fecdd3; padding:10px 12px; border-radius:12px; display:inline-flex; gap:8px; align-items:center }
-      .progress{ width:100%; height:8px; background:#f3f4f6; border-radius:999px; overflow:hidden }
-      .bar{ height:100%; background:linear-gradient(90deg,#f472b6,#f43f5e,#8b5cf6) }
-      .big-q{ font-size:34px; font-weight:800; background:linear-gradient(90deg,#ec4899,#f43f5e,#8b5cf6); -webkit-background-clip:text; background-clip:text; color:transparent }
-      @keyframes confetti-fall { 0% { transform: translateY(-120vh) rotate(0); opacity: 1;} 100% { transform: translateY(5vh) rotate(720deg); opacity: 0; } }
-      .confetti { position: fixed; top: -10vh; width: 10px; height: 14px; opacity: .9; border-radius: 2px; animation: confetti-fall 1500ms linear forwards; pointer-events:none }
-      .u-bill { width: 110px; height: 58px; border-radius: 12px; padding: 6px 10px; display:flex; align-items:center; justify-content:center; gap:8px; font-weight:700; box-shadow: 0 6px 12px rgba(0,0,0,.12); background: linear-gradient(135deg,#ffadf7,#ffd1a6,#fff79a,#b4f8c8,#a0c4ff); border: 2px dashed rgba(0,0,0,.08); }
-      .u-bill .emoji { font-size: 26px; }
-      @keyframes pop { 0% { transform: scale(.6); opacity: 0; } 60% { transform: scale(1.1); opacity: 1; } 100% { transform: scale(1); } }
-      .pop { animation: pop 380ms ease-out; }
-      .hint-dots{ display:grid; gap:6px }
-      .hint-row{ display:flex; gap:6px }
-      .dot{ width:14px; height:14px; border-radius:999px; background:#f0abfc; border:1px solid #e879f9 }
+      body{margin:0;font-family:sans-serif;background:linear-gradient(135deg,#fdf2f8,#fae8ff,#e9d5ff);color:#1f2937}
+      .container{max-width:1100px;margin:0 auto;padding:16px;display:flex;flex-direction:column;gap:16px}
+      .header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;background:linear-gradient(90deg,#fce7f3,#fff);border-radius:20px}
+      .brand{display:flex;align-items:center;gap:10px}
+      .brand .title{font-weight:800;font-size:22px;background:linear-gradient(90deg,#ec4899,#f43f5e,#8b5cf6);-webkit-background-clip:text;background-clip:text;color:transparent}
+      .grid{display:grid;gap:14px}
+      @media (min-width: 640px){ .grid.cols-3{grid-template-columns:repeat(3,minmax(0,1fr));} }
+      @media (max-width: 639.98px){ .grid.cols-3{grid-template-columns:repeat(2,minmax(0,1fr));} }
+      .icon-btn{border:1px solid #f3e8ff;background:#fff;border-radius:22px;padding:18px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center;min-height:130px;box-shadow:0 6px 14px rgba(0,0,0,.05);transition:transform .12s ease}
+      .icon-btn:active{transform:scale(.98)}
+      .icon-emoji{font-size:34px}
+      .icon-label{font-weight:700;font-size:16px}
+      .back{border:none;background:#fff;border-radius:16px;padding:10px 12px;box-shadow:0 4px 10px rgba(0,0,0,.05);display:inline-flex;align-items:center;gap:8px;cursor:pointer}
+      .card{background:rgba(255,255,255,.92);border-radius:24px;padding:16px}
     </style>
   </head>
   <body>
@@ -53,28 +30,8 @@
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
     <script type="text/babel">
-      const { useState, useMemo, useEffect } = React;
+      const { useState } = React;
 
-      const r = (min,max)=> Math.floor(Math.random()*(max-min+1))+min;
-      const ConfettiBurst = ({count=40}) => {
-        const colors = ["#F59E0B","#84CC16","#06B6D4","#A78BFA","#F472B6","#FB7185","#22C55E","#60A5FA"];
-        return (
-          <>
-            {Array.from({length:count}).map((_,i)=>{
-              const left = Math.random()*100, delay = Math.random()*0.5;
-              const bg = colors[Math.floor(Math.random()*colors.length)];
-              return <div key={i} className="confetti" style={{left:left+"%", background:bg, animationDelay:delay+"s"}}/>;
-            })}
-          </>
-        );
-      };
-      const UnicornBills = ({n}) => (
-        <div style={{display:"flex",flexWrap:"wrap",gap:"8px"}}>
-          {Array.from({length:n}).map((_,i)=>(
-            <div key={i} className="u-bill pop"><span className="emoji">🦄</span> BILLET</div>
-          ))}
-        </div>
-      );
       function IconButton({emoji,label,onClick}){
         return (
           <button className="icon-btn" onClick={onClick}>
@@ -84,284 +41,6 @@
         );
       }
 
-      /* ======== Générateur générique de QCM arithmétiques ( + − × ÷ ) ======== */
-      function makeChoices(correct){
-        const set=new Set([correct]);
-        while(set.size<4){
-          const delta = Math.max(1, Math.round(Math.abs(correct)*0.2)+1);
-          const cand = correct + (Math.random()<.5?-1:1) * r(1, delta);
-          set.add(Math.max(-999, cand));
-        }
-        const arr=[...set];
-        for(let i=arr.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [arr[i],arr[j]]=[arr[j],arr[i]]; }
-        return arr;
-      }
-
-      function ArithmeticQuiz({symbol, config, onExit, showDots=false}){
-        const [phase,setPhase]=useState("config");
-        const [cfg,setCfg]=useState(config);
-        const [i,setI]=useState(0); const [pool,setPool]=useState([]);
-        const [choices,setChoices]=useState([]); const [corrects,setCorrects]=useState(0);
-        const [feedback,setFeedback]=useState(null); const [done,setDone]=useState(false);
-
-        useEffect(()=>{
-          if(phase!=="play") return;
-          // Construire pool de questions
-          const q=[];
-          while(q.length<cfg.count){
-            let a=r(cfg.minA,cfg.maxA), b=r(cfg.minB,cfg.maxB), ans;
-            if(symbol==='×'){ ans=a*b; }
-            if(symbol==='+'){ ans=a+b; }
-            if(symbol==='−'){ if(a<b) [a,b]=[b,a]; ans=a-b; }
-            if(symbol==='÷'){
-              // forcer divisions entières
-              b=r(Math.max(1,cfg.minB), Math.max(1,cfg.maxB));
-              const prod = r(cfg.minA, cfg.maxA) * b; // a = multiple de b
-              a = prod; ans = a/b;
-            }
-            q.push({a,b,ans});
-          }
-          setPool(q); setI(0); setCorrects(0); setDone(false); setFeedback(null);
-        },[phase, cfg]);
-
-        useEffect(()=>{ if(phase!=="play") return; const c=pool[i]?.ans; if(c!=null) setChoices(makeChoices(c)); },[i, phase, pool]);
-
-        const submit = (v)=>{
-          const ok = Number(v)===pool[i].ans; setFeedback(ok?"ok":"ko"); if(ok) setCorrects(c=>c+1);
-          setTimeout(()=>{ if(i+1<pool.length){ setI(i+1); setFeedback(null);} else setDone(true); }, 420);
-        };
-        const rate = Math.round((corrects/(pool.length||1))*100);
-        const bills = rate===100?10 : rate>=80?8 : rate>=50?3 : 0;
-
-        if(phase==="config"){
-          return (
-            <div className="card section">
-              <button className="back" style={{marginBottom:12}} onClick={onExit}>← Retour</button>
-              <h2 style={{fontWeight:800, fontSize:22}}>Mathématiques · {symbol}</h2>
-              <div className="row" style={{margin:"8px 0 12px"}}>
-                <label>Questions:</label>
-                <input className="btn-outline" type="number" min="5" max="30" value={cfg.count} onChange={e=>setCfg({...cfg,count:Number(e.target.value)})}/>
-                <label>a min/max</label>
-                <input className="btn-outline" type="number" value={cfg.minA} onChange={e=>setCfg({...cfg,minA:Number(e.target.value)})}/>
-                <input className="btn-outline" type="number" value={cfg.maxA} onChange={e=>setCfg({...cfg,maxA:Number(e.target.value)})}/>
-                <label>b min/max</label>
-                <input className="btn-outline" type="number" value={cfg.minB} onChange={e=>setCfg({...cfg,minB:Number(e.target.value)})}/>
-                <input className="btn-outline" type="number" value={cfg.maxB} onChange={e=>setCfg({...cfg,maxB:Number(e.target.value)})}/>
-                {symbol==='×' && (
-                  <label className="row" style={{gap:6}}><input type="checkbox" checked={cfg.hints} onChange={e=>setCfg({...cfg,hints:e.target.checked})}/> Indices (groupes)</label>
-                )}
-              </div>
-              <button className="btn" onClick={()=>setPhase("play")}>Commencer</button>
-            </div>
-          );
-        }
-
-        if(done){
-          return (
-            <div className="card section" style={{display:"flex",flexDirection:"column",alignItems:"center",gap:16}}>
-              {rate>=50 && <ConfettiBurst count={rate===100?80:45}/>}  
-              <div className="big-q">Résultats</div>
-              <div style={{fontWeight:700}}>{corrects}/{pool.length} corrects — {rate}%</div>
-              {bills>0 && <UnicornBills n={bills}/>} 
-              <div className="row" style={{marginTop:8}}>
-                <button className="btn" onClick={()=>setPhase("play")}>Rejouer</button>
-                <button className="btn-outline" onClick={()=>setPhase("config")}>Paramètres</button>
-                <button className="btn-outline" onClick={onExit}>Menu</button>
-              </div>
-            </div>
-          );
-        }
-
-        const q = pool[i]||{};
-        return (
-          <div className="card section">
-            <button className="back" style={{marginBottom:12}} onClick={onExit}>← Retour</button>
-            <div className="progress" style={{marginBottom:12}}><div className="bar" style={{width: `${(i/(pool.length||1))*100}%`}}></div></div>
-            <div className="big-q" style={{marginBottom:16}}>{q.a} {symbol} {q.b} = ?</div>
-            {cfg.hints && symbol==='×' && <DotsHint a={q.a} b={q.b}/>} 
-            <div className="grid cols-3">
-              {choices.map((c,idx)=>(
-                <button key={idx} className="icon-btn" onClick={()=>submit(c)}>
-                  <div className="icon-emoji">🔢</div>
-                  <div className="icon-label">{c}</div>
-                </button>
-              ))}
-            </div>
-            <div style={{marginTop:12}}>
-              {feedback==="ok" && <div className="ok">✓ Bravo !</div>}
-              {feedback==="ko" && <div className="ko">✗ Essaie encore…</div>}
-            </div>
-          </div>
-        );
-      }
-
-      function DotsHint({a,b}){
-        return (
-          <div className="hint-dots" style={{marginBottom:16}}>
-            {Array.from({length:a}).map((_,i)=>(
-              <div key={i} className="hint-row">
-                {Array.from({length:b}).map((_,j)=>(<div key={j} className="dot"/>))}
-              </div>
-            ))}
-            <div style={{fontSize:12,color:"#6b7280"}}>Addition répétée : {Array.from({length:a}).map(()=>b).join(" + ")} = <b>{a*b}</b></div>
-          </div>
-        );
-      }
-
-      /* ======== Place value – Unités / Dizaines / Centaines ======== */
-      function PlaceValue({onExit}){
-        const [cfg,setCfg]=useState({count:8, min:10, max:999});
-        const [i,setI]=useState(0); const [pool,setPool]=useState([]); const [done,setDone]=useState(false);
-        const [choice,setChoice]=useState(null); const [corrects,setCorrects]=useState(0);
-        const [target,setTarget]=useState('dizaines'); // unités | dizaines | centaines
-
-        useEffect(()=>{
-          const q=[]; for(let k=0;k<cfg.count;k++){ q.push(r(cfg.min,cfg.max)); }
-          setPool(q); setI(0); setCorrects(0); setDone(false); setChoice(null);
-        },[cfg.count,cfg.min,cfg.max]);
-
-        if(done){
-          const rate = Math.round((corrects/(pool.length||1))*100);
-          const bills = rate===100?10 : rate>=80?8 : rate>=50?3 : 0;
-          return (
-            <div className="card section" style={{display:"flex",flexDirection:"column",alignItems:"center",gap:16}}>
-              {rate>=50 && <ConfettiBurst count={rate===100?80:45}/>} 
-              <div className="big-q">Résultats</div>
-              <div style={{fontWeight:700}}>{corrects}/{pool.length} corrects — {rate}%</div>
-              {bills>0 && <UnicornBills n={bills}/>} 
-              <div className="row">
-                <button className="btn" onClick={()=>{ setI(0); setCorrects(0); setDone(false); }}>Rejouer</button>
-                <button className="btn-outline" onClick={onExit}>Menu</button>
-              </div>
-            </div>
-          );
-        }
-
-        const n = pool[i]||0; const u=n%10, d=Math.floor(n/10)%10, c=Math.floor(n/100)%10;
-        const correct = target==='unités'?u : target==='dizaines'?d : c;
-        const options = makeChoices(correct);
-
-        const validate = (v)=>{ if(Number(v)===correct){ setCorrects(x=>x+1);} if(i+1<pool.length){ setI(i+1);} else setDone(true); };
-
-        return (
-          <div className="card section">
-            <button className="back" style={{marginBottom:12}} onClick={onExit}>← Retour</button>
-            <h2 style={{fontWeight:800, fontSize:22}}>Unités • Dizaines • Centaines</h2>
-            <div className="row" style={{marginBottom:12}}>
-              <label className="row" style={{gap:6}}>Cible: 
-                <select className="btn-outline" value={target} onChange={e=>setTarget(e.target.value)}>
-                  <option value="unités">Unités</option>
-                  <option value="dizaines">Dizaines</option>
-                  <option value="centaines">Centaines</option>
-                </select>
-              </label>
-              <label>Questions</label>
-              <input className="btn-outline" type="number" min="5" max="30" value={cfg.count} onChange={e=>setCfg({...cfg,count:Number(e.target.value)})}/>
-              <label>Plage</label>
-              <input className="btn-outline" type="number" value={cfg.min} onChange={e=>setCfg({...cfg,min:Number(e.target.value)})}/>
-              <input className="btn-outline" type="number" value={cfg.max} onChange={e=>setCfg({...cfg,max:Number(e.target.value)})}/>
-            </div>
-            <div className="big-q" style={{marginBottom:8}}>{n}</div>
-            <div style={{color:'#6b7280', marginBottom:12}}>Quelle est la <b>{target}</b> ?</div>
-            <div className="grid cols-3">
-              {options.map((opt,idx)=>(
-                <button key={idx} className="icon-btn" onClick={()=>validate(opt)}>
-                  <div className="icon-emoji">🔟</div>
-                  <div className="icon-label">{opt}</div>
-                </button>
-              ))}
-            </div>
-            <div style={{color:'#6b7280', marginTop:12}}>Question {i+1}/{pool.length}</div>
-          </div>
-        );
-      }
-
-      /* ====== Contenus de lecture existants (Cloze + Scramble) – simplifiés ====== */
-      const CLOZE_BANK = [
-        { text:"Chaque matin, Léna ____ à l'école avec son sac.", options:["va","vais","allez"], answer:"va" },
-        { text:"Le chat de Léna ____ sur le canapé.", options:["dort","dorment","dormi"], answer:"dort" },
-      ];
-      function ClozeGame({onExit}){
-        const [i,setI]=useState(0), [corrects,setCorrects]=useState(0), [done,setDone]=useState(false), [choice,setChoice]=useState(null);
-        const item = CLOZE_BANK[i];
-        const rate = Math.round((corrects/(CLOZE_BANK.length||1))*100);
-        const bills = rate===100?10 : rate>=80?8 : rate>=50?3 : 0;
-        return (
-          <div className="card section">
-            <button className="back" style={{marginBottom:12}} onClick={onExit}>← Retour</button>
-            <h2 style={{fontWeight:800, fontSize:22}}>Lecture · Choisis le mot</h2>
-            {!done ? (
-              <>
-                <div style={{fontSize:20, lineHeight:1.4, marginBottom:16}}>
-                  {item.text.split("____").map((seg,idx)=> (
-                    <React.Fragment key={idx}>
-                      {seg}
-                      {idx < item.text.split("____").length - 1 && (
-                        <span style={{padding:"6px 10px", border:"1px dashed #e5e7eb", borderRadius:8, fontWeight:700, color:"#374151"}}>____</span>
-                      )}
-                    </React.Fragment>
-                  ))}
-                </div>
-                <div className="row" style={{marginBottom:16}}>
-                  {item.options.map(opt=> (
-                    <button key={opt} className="chip" style={{background: choice===opt? "#fde68a":"#fff"}} onClick={()=>setChoice(opt)}>{opt}</button>
-                  ))}
-                </div>
-                <button disabled={!choice} className="btn" onClick={()=>{ if(choice===item.answer) setCorrects(c=>c+1); if(i+1<CLOZE_BANK.length){ setI(i+1); setChoice(null);} else setDone(true); }}>Valider</button>
-                <div style={{color:"#6b7280", marginTop:12}}>Question {i+1}/{CLOZE_BANK.length}</div>
-              </>
-            ) : (
-              <div style={{display:"flex",flexDirection:"column",alignItems:"center",gap:16}}>
-                {rate>=50 && <ConfettiBurst count={rate===100?80:45}/>} 
-                <div className="big-q">Résultats</div>
-                <div style={{fontWeight:700}}>{corrects}/{CLOZE_BANK.length} corrects — {rate}%</div>
-                {bills>0 && <UnicornBills n={bills}/>} 
-                <div className="row"><button className="btn" onClick={()=>{setI(0);setCorrects(0);setDone(false);setChoice(null);}}>Rejouer</button><button className="btn-outline" onClick={onExit}>Menu</button></div>
-              </div>
-            )}
-          </div>
-        );
-      }
-
-      const SCRAMBLE_BANK = ["Léna mange une soupe chaude.","Nous lisons un livre ce soir."];
-      function shuffle(arr){ const a=[...arr]; for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]];} return a; }
-      function SentenceScramble({onExit}){
-        const [idx,setIdx]=useState(0), [pool,setPool]=useState(shuffle(SCRAMBLE_BANK)), [selected,setSelected]=useState([]), [done,setDone]=useState(false);
-        const base = pool[idx]; const words = useMemo(()=> shuffle(base.replace(/[.?!]/g,"").split(" ")), [idx, base]);
-        const toggleWord = (w,i)=>{ if(selected.findIndex(it=>it.i===i)>-1) return; setSelected(sel=>[...sel,{w,i}]); };
-        const undo=()=> setSelected(sel=>sel.slice(0,-1)); const reset=()=>setSelected([]);
-        const validate=()=>{ const sentence = selected.map(s=>s.w).join(" ") + base.slice(-1); if(sentence===base){ if(idx+1<pool.length){ setIdx(idx+1); reset(); } else setDone(true); } else alert("Presque !"); };
-        return (
-          <div className="card section">
-            <button className="back" style={{marginBottom:12}} onClick={onExit}>← Retour</button>
-            <h2 style={{fontWeight:800, fontSize:22}}>Lecture · Phrases mélangées</h2>
-            {!done ? (
-              <>
-                <div style={{minHeight:48, border:"1px dashed #e5e7eb", borderRadius:12, padding:"10px", marginBottom:16}}>
-                  {selected.length? selected.map(s=>(<span key={s.i} className="chip" style={{marginRight:6}}>{s.w}</span>)) : <span style={{color:"#9ca3af"}}>Ta phrase apparaîtra ici…</span>}
-                </div>
-                <div className="row" style={{marginBottom:12}}>
-                  {words.map((w,i)=> (
-                    <button key={i} className="chip" onClick={()=>toggleWord(w,i)} disabled={selected.findIndex(s=>s.i===i)>-1} style={{opacity: selected.findIndex(s=>s.i===i)>-1? .4:1}}>{w}</button>
-                  ))}
-                </div>
-                <div className="row"><button className="btn" onClick={validate}>Valider</button><button className="btn-outline" onClick={undo}>Annuler</button><button className="btn-outline" onClick={reset}>Effacer</button></div>
-                <div style={{color:"#6b7280", marginTop:12}}>Phrase {idx+1}/{pool.length}</div>
-              </>
-            ) : (
-              <div style={{display:"flex", flexDirection:"column", alignItems:"center", gap:16}}>
-                <ConfettiBurst count={60}/>
-                <div className="big-q">Bravo !</div>
-                <div style={{fontWeight:700}}>Tu as reconstruit toutes les phrases.</div>
-                <UnicornBills n={8}/>
-                <div className="row"><button className="btn" onClick={()=>{setIdx(0); setPool(shuffle(SCRAMBLE_BANK)); reset(); setDone(false);}}>Rejouer</button><button className="btn-outline" onClick={onExit}>Menu</button></div>
-              </div>
-            )}
-          </div>
-        );
-      }
-
-      /* ======== Sous-menus ======== */
       function SubMenu({title, items, onBack}){
         return (
           <div className="card section">
@@ -369,9 +48,9 @@
             <h2 className="mb-12" style={{fontWeight:800, fontSize:22}}>{title}</h2>
             <div className="grid cols-3">
               {items.map(it=> (
-                <button key={it.key} className="icon-btn" onClick={it.onClick}>
+                <button key={it.key} className="icon-btn" onClick={it.onClick} aria-label={it.label} title={it.label}>
                   <div className="icon-emoji">{it.emoji}</div>
-                  <div className="icon-label">{it.label}</div>
+                  {/* Menu secondaire: icône seulement (label masqué) */}
                 </button>
               ))}
             </div>
@@ -379,64 +58,141 @@
         );
       }
 
-      /* ======== App ======== */
       function App(){
         const [screen,setScreen]=useState("home");
         const goHome=()=> setScreen("home");
 
-        if(screen==="math-mult") return <ArithmeticQuiz symbol="×" onExit={()=>setScreen("math")} config={{count:10,minA:1,maxA:10,minB:1,maxB:10,hints:true}}/>;
-        if(screen==="math-add")  return <ArithmeticQuiz symbol="+" onExit={()=>setScreen("math")} config={{count:10,minA:1,maxA:50,minB:1,maxB:50}}/>;
-        if(screen==="math-sub")  return <ArithmeticQuiz symbol="−" onExit={()=>setScreen("math")} config={{count:10,minA:1,maxA:50,minB:1,maxB:50}}/>;
-        if(screen==="math-div")  return <ArithmeticQuiz symbol="÷" onExit={()=>setScreen("math")} config={{count:10,minA:1,maxA:10,minB:1,maxB:10}}/>;
-        if(screen==="math-place")return <PlaceValue onExit={()=>setScreen("math")}/>;
-        if(screen==="lecture-cloze") return <ClozeGame onExit={()=>setScreen("lecture")}/>;
-        if(screen==="lecture-scramble") return <SentenceScramble onExit={()=>setScreen("lecture")}/>;
+        // Routes jeux maths existants
+        if(screen==="math-mult") return <ArithmeticQuiz symbol="×" onExit={()=>setScreen("wiskunde")} config={{count:10,minA:1,maxA:10,minB:1,maxB:10,hints:true}/>;
+        if(screen==="math-add")  return <ArithmeticQuiz symbol="+" onExit={()=>setScreen("wiskunde")} config={{count:10,minA:1,maxA:50,minB:1,maxB:50}/>;
+        if(screen==="math-sub")  return <ArithmeticQuiz symbol="−" onExit={()=>setScreen("wiskunde")} config={{count:10,minA:1,maxA:50,minB:1,maxB:50}/>;
+        if(screen==="math-div")  return <ArithmeticQuiz symbol="÷" onExit={()=>setScreen("wiskunde")} config={{count:10,minA:1,maxA:10,minB:1,maxB:10}/>;
+        if(screen==="math-place")return <PlaceValue onExit={()=>setScreen("wiskunde")}/>;
 
-        if(screen==="math"){
+        // Lecture composants (para NL/FR submenus)
+        if(screen==="lecture-cloze") return <ClozeGame onExit={()=>setScreen("nederlands")}/>;
+        if(screen==="lecture-scramble") return <SentenceScramble onExit={()=>setScreen("nederlands")}/>;
+
+        // Submenus par domaines (icône seulement au niveau principal)
+        if(screen==="nederlands"){
           return (
-            <SubMenu title="Mathématiques" onBack={goHome} items={[
-              {key:"mult", label:"Multiplications", emoji:"✖️", onClick:()=>setScreen("math-mult")},
-              {key:"div",  label:"Divisions",       emoji:"➗", onClick:()=>setScreen("math-div")},
-              {key:"sub",  label:"Soustractions",   emoji:"➖", onClick:()=>setScreen("math-sub")},
-              {key:"add",  label:"Additions",       emoji:"➕", onClick:()=>setScreen("math-add")},
-              {key:"pv",   label:"Unités · Dizaines",emoji:"🔟", onClick:()=>setScreen("math-place")},
-            ]}/>
-          );
-        }
-        if(screen==="lecture"){
-          return (
-            <SubMenu title="Lecture" onBack={goHome} items={[
-              {key:"cloze", label:"Compréhension (choix)", emoji:"📖", onClick:()=>setScreen("lecture-cloze")},
-              {key:"scr",   label:"Phrases mélangées",    emoji:"🧩", onClick:()=>setScreen("lecture-scramble")},
-            ]}/>
-          );
-        }
-        if(screen==="orthographe"){
-          return (
-            <SubMenu title="Orthographe" onBack={goHome} items={[
-              {key:"mots", label:"Mots fréquents (bientôt)", emoji:"🔤", onClick:()=>alert("Arrive bientôt !")},
+            <SubMenu title="Néerlandais — 2e primaire" onBack={goHome} items={[
+              {key:"nl-lecture", emoji:"📖", label:"Lecture initiale & compréhension", onClick:()=>setScreen("lecture-cloze")},
+              {key:"nl-expression", emoji:"💬", label:"Expression orale & écrite (bientôt)", onClick:()=>alert("Activité à venir : expression orale & écrite.")},
+              {key:"nl-lexique", emoji:"🧠", label:"Vocabulaire & structures (bientôt)", onClick:()=>alert("Activité à venir : vocabulaire & structures.")},
             ]}/>
           );
         }
 
+        if(screen==="frans"){
+          return (
+            <SubMenu title="Français (L2) — 2e primaire" onBack={goHome} items={[
+              {key:"fr-intro", emoji:"🗣️", label:"Intro au français (L2)", onClick:()=>alert("Mini-leçon en préparation.")},
+              {key:"fr-mots", emoji:"🔤", label:"Mots & phrases simples", onClick:()=>alert("Activité mots & phrases à venir.")},
+              {key:"fr-vocab", emoji:"🧠", label:"Vocabulaire de base", onClick:()=>alert("Vocabulaire thématique à venir.")},
+            ]}/>
+          );
+        }
+
+        if(screen==="wiskunde"){
+          return (
+            <SubMenu title="Mathématiques — 2e primaire" onBack={goHome} items={[
+              {key:"mult", emoji:"✖️", label:"Multiplications", onClick:()=>setScreen("math-mult")},
+              {key:"div",  emoji:"➗", label:"Divisions",       onClick:()=>setScreen("math-div")},
+              {key:"sub",  emoji:"➖", label:"Soustractions",   onClick:()=>setScreen("math-sub")},
+              {key:"add",  emoji:"➕", label:"Additions",       onClick:()=>setScreen("math-add")},
+              {key:"pv",   emoji:"🔟", label:"Unités · Dizaines · Centaines", onClick:()=>setScreen("math-place")},
+              {key:"mesures", emoji:"📏", label:"Longueur / Poids / Patrons (bientôt)", onClick:()=>alert("Mesures & patrons : bientôt disponible.")},
+              {key:"problèmes", emoji:"🧩", label:"Problèmes du quotidien (bientôt)", onClick:()=>alert("Problèmes contextualisés : en préparation.")},
+            ]}/>
+          );
+        }
+
+        if(screen==="wereld"){
+          return (
+            <SubMenu title="Moi et le monde — 2e primaire" onBack={goHome} items={[
+              {key:"famille", emoji:"👨‍👩‍👧", label:"Famille & communauté", onClick:()=>alert("Activité Famille & communauté à venir.")},
+              {key:"nature",  emoji:"🌿", label:"Nature & saisons", onClick:()=>alert("Découverte nature & saisons : bientôt.")},
+              {key:"routines", emoji:"⏰", label:"Routines & environnement", onClick:()=>alert("Routines quotidiennes : bientôt.")},
+            ]}/>
+          );
+        }
+
+        if(screen==="kunst"){
+          return (
+            <SubMenu title="Arts & culture — 2e primaire" onBack={goHome} items={[
+              {key:"dessin", emoji:"🎨", label:"Dessin & bricolage", onClick:()=>alert("Atelier dessin bientôt.")},
+              {key:"musique", emoji:"🎵", label:"Musique & rythme", onClick:()=>alert("Jeux de rythme bientôt.")},
+              {key:"histoires", emoji:"📚", label:"Contes & traditions", onClick:()=>alert("Contes & traditions : bientôt.")},
+            ]}/>
+          );
+        }
+
+        if(screen==="gezondheid"){
+          return (
+            <SubMenu title="Santé — 2e primaire" onBack={goHome} items={[
+              {key:"hygiene", emoji:"🧼", label:"Hygiène", onClick:()=>alert("Routine hygiène : bientôt.")},
+              {key:"alimentation", emoji:"🥦", label:"Alimentation", onClick:()=>alert("Choix d'aliments sains : bientôt.")},
+              {key:"mouvement", emoji:"🤸", label:"Mouvement", onClick:()=>alert("Séance de mouvement : bientôt.")},
+            ]}/>
+          );
+        }
+
+        if(screen==="digital"){
+          return (
+            <SubMenu title="Culture numérique — 2e primaire" onBack={goHome} items={[
+              {key:"souris", emoji:"🖱️", label:"Souris & clavier", onClick:()=>alert("Exercices souris & clavier : bientôt.")},
+              {key:"jeux", emoji:"🕹️", label:"Jeux éducatifs", onClick:()=>alert("Sélection jeux éducatifs : bientôt.")},
+              {key:"internet", emoji:"🌐", label:"Découverte en ligne", onClick:()=>alert("Découverte Internet sécurisée : bientôt.")},
+            ]}/>
+          );
+        }
+
+        if(screen==="social"){
+          return (
+            <SubMenu title="Compétences socio‑relationnelles — 2e primaire" onBack={goHome} items={[
+              {key:"partager", emoji:"🤝", label:"Partager & attendre son tour", onClick:()=>alert("Jeux de tour de rôle : bientôt.")},
+              {key:"ecouter", emoji:"👂", label:"Écouter & respecter", onClick:()=>alert("Activité écoute active : bientôt.")},
+              {key:"conflits", emoji:"🧭", label:"Résoudre des conflits", onClick:()=>alert("Scènes de médiation : bientôt.")},
+            ]}/>
+          );
+        }
+
+        if(screen==="leer"){
+          return (
+            <SubMenu title="Compétences d’apprentissage — 2e primaire" onBack={goHome} items={[
+              {key:"etudier", emoji:"📒", label:"Comment étudier", onClick:()=>alert("Cartes & répétition espacée : bientôt.")},
+              {key:"attention", emoji:"🎯", label:"Attention & mémoire", onClick:()=>alert("Jeux d'attention/mémoire : bientôt.")},
+              {key:"metacog", emoji:"🧩", label:"Réflexion sur l'apprentissage", onClick:()=>alert("Auto-évaluation simple : bientôt.")},
+            ]}/>
+          );
+        }
+
+        // Accueil — grille avec icônes SEULEMENT (sans texte)
         return (
           <div className="container">
             <div className="header">
-              <div className="brand"><div style={{fontSize:28}}>🦄</div><div className="title">Appli de Léna</div></div>
-              <div className="pill">iPad / Téléphone • Sans défilement</div>
+              <div className="brand"><div style={{fontSize:28}}>🦄</div><div className="title">Appli de Léna — 2e primaire</div></div>
+              <div className="pill">Menu principal • Icônes</div>
             </div>
             <div className="card" style={{padding:16}}>
               <div className="grid cols-3">
-                <IconButton emoji="🧮" label="Mathématiques" onClick={()=>setScreen("math")}/>
-                <IconButton emoji="📚" label="Lecture" onClick={()=>setScreen("lecture")}/>
-                <IconButton emoji="✍️" label="Orthographe" onClick={()=>setScreen("orthographe")}/>
+                <button className="icon-btn" onClick={()=>setScreen("nederlands")} aria-label="Néerlandais" title="Néerlandais"><div className="icon-emoji">🇳🇱</div></button>
+                <button className="icon-btn" onClick={()=>setScreen("frans")} aria-label="Français (L2)" title="Français (L2)"><div className="icon-emoji">🇫🇷</div></button>
+                <button className="icon-btn" onClick={()=>setScreen("wiskunde")} aria-label="Mathématiques" title="Mathématiques"><div className="icon-emoji">🧮</div></button>
+                <button className="icon-btn" onClick={()=>setScreen("wereld")} aria-label="Moi et le monde" title="Moi et le monde"><div className="icon-emoji">🌍</div></button>
+                <button className="icon-btn" onClick={()=>setScreen("kunst")} aria-label="Arts & culture" title="Arts & culture"><div className="icon-emoji">🎨</div></button>
+                <button className="icon-btn" onClick={()=>setScreen("gezondheid")} aria-label="Santé" title="Santé"><div className="icon-emoji">🩺</div></button>
+                <button className="icon-btn" onClick={()=>setScreen("digital")} aria-label="Culture numérique" title="Culture numérique"><div className="icon-emoji">💻</div></button>
+                <button className="icon-btn" onClick={()=>setScreen("social")} aria-label="Socio‑relationnel" title="Socio‑relationnel"><div className="icon-emoji">🤝</div></button>
+                <button className="icon-btn" onClick={()=>setScreen("leer")} aria-label="Compétences d’apprentissage" title="Compétences d’apprentissage"><div className="icon-emoji">🧠</div></button>
               </div>
             </div>
           </div>
         );
       }
 
-      ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+      ReactDOM.createRoot(document.getElementById('root')).render(<App/>);(document.getElementById('root')).render(<App/>);
     </script>
   </body>
 </html>
