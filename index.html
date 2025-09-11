@@ -63,6 +63,8 @@
       /* mascot (feedback burbuja) */
       .mascot{position:fixed;left:16px;bottom:18px;background:#fff;border-radius:14px;padding:8px 12px;box-shadow:0 10px 24px rgba(0,0,0,.14);display:flex;align-items:center;gap:8px;font-weight:800;transform:translateY(16px);opacity:0;transition:transform .18s ease, opacity .18s ease;z-index:60}
       .mascot.show{transform:translateY(0);opacity:1}
+      .combo{position:fixed;right:16px;top:16px;background:linear-gradient(90deg,#f59e0b,#ec4899);color:#fff;border-radius:999px;padding:8px 12px;font-weight:900;box-shadow:0 12px 28px rgba(0,0,0,.14);transform:translateY(-10px) scale(.95);opacity:0;transition:transform .18s ease, opacity .18s ease;z-index:60}
+      .combo.show{transform:translateY(0) scale(1);opacity:1}
       /* dots base-10 */
       .ten,.unit{display:grid;grid-template-columns:repeat(10,10px);gap:6px;align-items:center}
       .unit{grid-template-columns:repeat(10,10px)}
@@ -200,13 +202,19 @@
       );
 
       // ===== Generic MCQ engine (with penalty)
+      // Helpers para respuestas tolerantes
+      const stripDiacritics = (s) => Array.from(String(s||'').normalize('NFD')).filter(ch => { const c=ch.charCodeAt(0); return !(c>=0x0300 && c<=0x036F); }).join('');
+      const collapseSpaces = (s) => s.trim().replace(/ +/g,' ');
+      const norm = (x) => collapseSpaces(stripDiacritics(String(x==null?'':x)).toLowerCase());
+      const eqAns = (a,b)=>{ const na=Number(a), nb=Number(b); if(!Number.isNaN(na) && !Number.isNaN(nb)) return na===nb; return norm(a)===norm(b); };
+
       function MCQGame({title, items, onExit, onWrongPenalty, onWin, onCorrect}){
         const [i,setI]=useState(0); const [ok,setOk]=useState(0); const [wrongCounts,setWrongCounts]=useState({});
         const total=items.length; const item=items[i];
         const opts = useMemo(()=> shuffle([...item.options]), [i]);
         const submit=(opt,ev)=>{
           const label = typeof opt==='string'? opt : (opt.label||'');
-          const good = label===item.answer;
+          const good = eqAns(label, item.answer);
           if(good){ onCorrect&&onCorrect(); setOk(x=>x+1); const r=ev.currentTarget.getBoundingClientRect(); confettiBurst(r.left+r.width/2, r.top+r.height/2); if(i+1<total) setI(i+1); else onWin(ok+1); }
           else { const c=(wrongCounts[i]||0)+1; setWrongCounts({...wrongCounts,[i]:c}); onWrongPenalty(c===1?1:3); }
         };
@@ -427,6 +435,46 @@
         {emoji:'👴',prompt:'Le papa de ton papa est…',options:['grand‑père','oncle','ami','frère'],answer:'grand‑père'},
         {emoji:'👶',prompt:'Le bébé est…',options:['bébé','tante','papi','mamy'],answer:'bébé'}
       ];
+
+      // ===== Vocabulario básico multilengua (ES · EN · NL)
+      const VOCAB_CORE=[
+        {emoji:'🍎', es:'manzana', en:'apple', nl:'appel'},
+        {emoji:'💧', es:'agua', en:'water', nl:'water'},
+        {emoji:'🍞', es:'pan', en:'bread', nl:'brood'},
+        {emoji:'🥛', es:'leche', en:'milk', nl:'melk'},
+        {emoji:'🐱', es:'gato', en:'cat', nl:'kat'},
+        {emoji:'🐶', es:'perro', en:'dog', nl:'hond'},
+        {emoji:'🏠', es:'casa', en:'house', nl:'huis'},
+        {emoji:'🏫', es:'escuela', en:'school', nl:'school'},
+        {emoji:'📚', es:'libro', en:'book', nl:'boek'},
+        {emoji:'👋', es:'hola', en:'hello', nl:'hallo'},
+        {emoji:'👋', es:'adiós', en:'goodbye', nl:'tot ziens'},
+        {emoji:'🙏', es:'por favor', en:'please', nl:'alsjeblieft'},
+        {emoji:'🙂', es:'gracias', en:'thank you', nl:'dank je'},
+        {emoji:'🔴', es:'rojo', en:'red', nl:'rood'},
+        {emoji:'🔵', es:'azul', en:'blue', nl:'blauw'},
+        {emoji:'🟢', es:'verde', en:'green', nl:'groen'},
+        {emoji:'1️⃣', es:'uno', en:'one', nl:'een'},
+        {emoji:'2️⃣', es:'dos', en:'two', nl:'twee'},
+        {emoji:'3️⃣', es:'tres', en:'three', nl:'drie'},
+        {emoji:'🔟', es:'diez', en:'ten', nl:'tien'}
+      ];
+      function VocabGame({target,onExit,onWrongPenalty,onWin,onCorrect}){
+        const [lvl,setLvl]=React.useState(0);
+        const targetName = target==='en'? 'Inglés' : target==='nl'? 'Holandés' : 'Español';
+        const sourceKey = target==='es'? 'en' : 'es';
+        if(!lvl){ return (
+          <div className="card"><button className="back" style={{marginBottom:10}} onClick={onExit}>← Retour</button>
+            <h2 style={{fontWeight:900,fontSize:22}}>Vocabulario · {targetName}</h2>
+            <p className="caption">Elige un nivel (6–15 palabras).</p>
+            <div className="row" style={{marginTop:8}}>{Array.from({length:5},(_,k)=>(<LevelPill key={k} onClick={()=>setLvl(k+1)}>Nivel {k+1}</LevelPill>))}</div>
+          </div>
+        ); }
+        const count=LEVEL_SIZES[lvl-1];
+        const makeItem=(it)=>{ const src=it[sourceKey]; const ans=it[target]; const others=shuffle(VOCAB_CORE.filter(o=> o!==it)).map(o=> o[target]); const opts=[ans]; for(let j=0;j<others.length && opts.length<4;j++){ if(!eqAns(others[j],ans)) opts.push(others[j]); } return { prompt:`${it.emoji} «${src}» → ${targetName}?`, options:shuffle(opts), answer:ans, emoji:it.emoji }; };
+        const items=takeN(VOCAB_CORE,count).map(makeItem);
+        return <MCQGame title={`Vocabulario · ${targetName} · Nivel ${lvl}`} items={items} onExit={onExit} onWrongPenalty={onWrongPenalty} onWin={(earned)=> onWin(earned, (lvl<5? ()=> setLvl(lvl+1): null))} onCorrect={onCorrect}/>;
+      }
 
       // ===== BankGame (genera 5 niveles a partir de un banco)
       function BankGame({titlePrefix, bank, onExit, onWrongPenalty, onWin, onCorrect}){
@@ -714,35 +762,43 @@
         const [layout,setLayout]=useState(()=> localStorage.getItem('layoutMode')||'center'); // 'center' | 'full'
         const toggleLayout=()=>{ const next= layout==='center'? 'full':'center'; setLayout(next); localStorage.setItem('layoutMode',next); };
 
+        const [soundOn,setSoundOn]=useState(()=> localStorage.getItem('soundOn')!=='0');
+        const toggleSound=()=>{ const v=!soundOn; setSoundOn(v); localStorage.setItem('soundOn', v?'1':'0'); };
+        const [streak,setStreak]=useState(0);
+        const [bestStreak,setBestStreak]=useState(()=> Number(localStorage.getItem('bestStreak')||'0'));
+        const [combo,setCombo]=useState({show:false,n:0,key:0});
+
         const goHome=()=> setScreen('home');
         const addBills=(n)=>{ const nb=bills+n; setBills(nb); localStorage.setItem('bills',String(nb)); };
-        const onWrongPenalty=(amount)=>{ const nb=Math.max(0,bills-amount); setBills(nb); localStorage.setItem('bills',String(nb)); setModal({open:true,type:'bad',title:'Oups… Essaie encore !',children:(<div>🦄 Tristounet… Tu perds <b>{amount}</b> billet{amount>1?'s':''} 💸</div>)}); };
-        const onWin=(earned,nextLevel)=>{ addBills(earned); setModal({open:true,type:'good',title:'Bravo !',children:(<div>Tu as gagné {Array.from({length:earned}).map((_,i)=>(<span key={i} className="money">💵</span>))}</div>), actions:[ nextLevel? {label:'Niveau suivant',primary:true,onClick:()=>{ setModal({open:false}); nextLevel(); }}: null, {label:'Menu principal',onClick:()=>{ setModal({open:false}); goHome(); }} ].filter(Boolean)}); };
+        const onWrongPenalty=(amount)=>{ if(soundOn) Sound.bad(); setStreak(0); const nb=Math.max(0,bills-amount); setBills(nb); localStorage.setItem('bills',String(nb)); setModal({open:true,type:'bad',title:'Oups… Essaie encore !',children:(<div>🦄 Tristounet… Tu perds <b>{amount}</b> billet{amount>1?'s':''} 💸</div>)}); };
+        const onWin=(earned,nextLevel)=>{ if(soundOn) Sound.good(); addBills(earned); setModal({open:true,type:'good',title:'Bravo !',children:(<div>Tu as gagné {Array.from({length:earned}).map((_,i)=>(<span key={i} className="money">💵</span>))}</div>), actions:[ nextLevel? {label:'Niveau suivant',primary:true,onClick:()=>{ setModal({open:false}); nextLevel(); }}: null, {label:'Menu principal',onClick:()=>{ setModal({open:false}); goHome(); }} ].filter(Boolean)}); };
+
+        const onCorrect=()=>{ if(soundOn) Sound.good(); const s=streak+1; setStreak(s); if(s>bestStreak){ setBestStreak(s); localStorage.setItem('bestStreak', String(s)); } setCombo({show:true,n:s,key:Date.now()}); setTimeout(()=> setCombo(c=>({...c,show:false})), 900); if(s%3===0){ addBills(1); } };
 
         const renderRoute=()=>{
-          if(screen==='quiz-add') return <ArithmeticQuiz mode="+" onExit={goHome} onWrongPenalty={onWrongPenalty} onWin={onWin}/>;
-          if(screen==='quiz-sub') return <ArithmeticQuiz mode="-" onExit={goHome} onWrongPenalty={onWrongPenalty} onWin={onWin}/>;
-          if(screen==='quiz-mul') return <ArithmeticQuiz mode="x" onExit={goHome} onWrongPenalty={onWrongPenalty} onWin={onWin}/>;
-          if(screen==='quiz-div') return <ArithmeticQuiz mode="/" onExit={goHome} onWrongPenalty={onWrongPenalty} onWin={onWin}/>;
-          if(screen==='quiz-mix') return <ArithmeticQuiz mode="mix" onExit={goHome} onWrongPenalty={onWrongPenalty} onWin={onWin}/>;
-          if(screen==='place-value') return <PlaceValue onExit={goHome} onWrongPenalty={onWrongPenalty} onWin={onWin}/>;
-          if(screen==='cloze') return <ClozeWithLevels onExit={goHome} onWrongPenalty={onWrongPenalty} onWin={onWin}/>;
-          if(screen==='saisons') return <BankGame titlePrefix="Moi et le monde · Saisons" bank={SAISONS_BANK} onExit={goHome} onWrongPenalty={onWrongPenalty} onWin={onWin}/>;
-          if(screen==='famille') return <BankGame titlePrefix="Moi et le monde · Famille" bank={FAMILLE_BANK} onExit={goHome} onWrongPenalty={onWrongPenalty} onWin={onWin}/>;
-          if(screen==='couleurs') return <BankGame titlePrefix="Arts · Couleurs" bank={COULEURS_BANK} onExit={goHome} onWrongPenalty={onWrongPenalty} onWin={onWin}/>;
-          if(screen==='souris') return <BankGame titlePrefix="Culture numérique · Souris & clavier" bank={DIGITAL_MOUSE_BANK} onExit={goHome} onWrongPenalty={onWrongPenalty} onWin={onWin}/>;
-          if(screen==='internet') return <BankGame titlePrefix="Culture numérique · Internet" bank={DIGITAL_NET_BANK} onExit={goHome} onWrongPenalty={onWrongPenalty} onWin={onWin}/>;
-          if(screen==='hygiene') return <BankGame titlePrefix="Santé · Hygiène" bank={SANTE_HYGIENE_BANK} onExit={goHome} onWrongPenalty={onWrongPenalty} onWin={onWin}/>;
-          if(screen==='alimentation') return <BankGame titlePrefix="Santé · Alimentation" bank={SANTE_FOOD_BANK} onExit={goHome} onWrongPenalty={onWrongPenalty} onWin={onWin}/>;
-          if(screen==='bienveillance') return <BankGame titlePrefix="Socio‑relationnel · Bienveillance" bank={SOCIAL_KINDNESS_BANK} onExit={goHome} onWrongPenalty={onWrongPenalty} onWin={onWin}/>;
-          if(screen==='nl-nombres') return <BankGame titlePrefix="Néerlandais · Getallen (Nombres)" bank={NL_NUMBERS_BANK} onExit={goHome} onWrongPenalty={onWrongPenalty} onWin={onWin}/>;
-          if(screen==='nl-salut') return <BankGame titlePrefix="Néerlandais · Groeten (Salutations)" bank={NL_GREETINGS_BANK} onExit={goHome} onWrongPenalty={onWrongPenalty} onWin={onWin}/>;
+          if(screen==='quiz-add') return <ArithmeticQuiz mode="+" onExit={goHome} onWrongPenalty={onWrongPenalty} onWin={onWin} onCorrect={onCorrect}/>;
+          if(screen==='quiz-sub') return <ArithmeticQuiz mode="-" onExit={goHome} onWrongPenalty={onWrongPenalty} onWin={onWin} onCorrect={onCorrect}/>;
+          if(screen==='quiz-mul') return <ArithmeticQuiz mode="x" onExit={goHome} onWrongPenalty={onWrongPenalty} onWin={onWin} onCorrect={onCorrect}/>;
+          if(screen==='quiz-div') return <ArithmeticQuiz mode="/" onExit={goHome} onWrongPenalty={onWrongPenalty} onWin={onWin} onCorrect={onCorrect}/>;
+          if(screen==='quiz-mix') return <ArithmeticQuiz mode="mix" onExit={goHome} onWrongPenalty={onWrongPenalty} onWin={onWin} onCorrect={onCorrect}/>;
+          if(screen==='place-value') return <PlaceValue onExit={goHome} onWrongPenalty={onWrongPenalty} onWin={onWin} onCorrect={onCorrect}/>;
+          if(screen==='cloze') return <ClozeWithLevels onExit={goHome} onWrongPenalty={onWrongPenalty} onWin={onWin} onCorrect={onCorrect}/>;
+          if(screen==='saisons') return <BankGame titlePrefix="Moi et le monde · Saisons" bank={SAISONS_BANK} onExit={goHome} onWrongPenalty={onWrongPenalty} onWin={onWin} onCorrect={onCorrect}/>;
+          if(screen==='famille') return <BankGame titlePrefix="Moi et le monde · Famille" bank={FAMILLE_BANK} onExit={goHome} onWrongPenalty={onWrongPenalty} onWin={onWin} onCorrect={onCorrect}/>;
+          if(screen==='couleurs') return <BankGame titlePrefix="Arts · Couleurs" bank={COULEURS_BANK} onExit={goHome} onWrongPenalty={onWrongPenalty} onWin={onWin} onCorrect={onCorrect}/>;
+          if(screen==='souris') return <BankGame titlePrefix="Culture numérique · Souris & clavier" bank={DIGITAL_MOUSE_BANK} onExit={goHome} onWrongPenalty={onWrongPenalty} onWin={onWin} onCorrect={onCorrect}/>;
+          if(screen==='internet') return <BankGame titlePrefix="Culture numérique · Internet" bank={DIGITAL_NET_BANK} onExit={goHome} onWrongPenalty={onWrongPenalty} onWin={onWin} onCorrect={onCorrect}/>;
+          if(screen==='hygiene') return <BankGame titlePrefix="Santé · Hygiène" bank={SANTE_HYGIENE_BANK} onExit={goHome} onWrongPenalty={onWrongPenalty} onWin={onWin} onCorrect={onCorrect}/>;
+          if(screen==='alimentation') return <BankGame titlePrefix="Santé · Alimentation" bank={SANTE_FOOD_BANK} onExit={goHome} onWrongPenalty={onWrongPenalty} onWin={onWin} onCorrect={onCorrect}/>;
+          if(screen==='bienveillance') return <BankGame titlePrefix="Socio‑relationnel · Bienveillance" bank={SOCIAL_KINDNESS_BANK} onExit={goHome} onWrongPenalty={onWrongPenalty} onWin={onWin} onCorrect={onCorrect}/>;
+          if(screen==='nl-nombres') return <BankGame titlePrefix="Néerlandais · Getallen (Nombres)" bank={NL_NUMBERS_BANK} onExit={goHome} onWrongPenalty={onWrongPenalty} onWin={onWin} onCorrect={onCorrect}/>;
+          if(screen==='nl-salut') return <BankGame titlePrefix="Néerlandais · Groeten (Salutations)" bank={NL_GREETINGS_BANK} onExit={goHome} onWrongPenalty={onWrongPenalty} onWin={onWin} onCorrect={onCorrect}/>;
           if(screen==='contes') return <TaleMaker onExit={goHome}/>;
-          if(screen==='number-line') return <NumberLineGame onExit={goHome} onWrongPenalty={onWrongPenalty} onWin={onWin}/>;
-          if(screen==='memory') return <MemoryGame onExit={goHome} onWrongPenalty={onWrongPenalty} onWin={onWin}/>;
-          if(screen==='equations') return <EquationsGame onExit={goHome} onWrongPenalty={onWrongPenalty} onWin={onWin}/>;
-          if(screen==='recall') return <RecallGame onExit={goHome} onWrongPenalty={onWrongPenalty} onWin={onWin}/>;
-          if(screen==='sudoku4') return <Sudoku4Plus onExit={goHome} onWrongPenalty={onWrongPenalty} onWin={onWin}/>;
+          if(screen==='number-line') return <NumberLineGame onExit={goHome} onWrongPenalty={onWrongPenalty} onWin={onWin} onCorrect={onCorrect}/>;
+          if(screen==='memory') return <MemoryGame onExit={goHome} onWrongPenalty={onWrongPenalty} onWin={onWin} onCorrect={onCorrect}/>;
+          if(screen==='equations') return <EquationsGame onExit={goHome} onWrongPenalty={onWrongPenalty} onWin={onWin} onCorrect={onCorrect}/>;
+          if(screen==='recall') return <RecallGame onExit={goHome} onWrongPenalty={onWrongPenalty} onWin={onWin} onCorrect={onCorrect}/>;
+          if(screen==='sudoku4') return <Sudoku4Plus onExit={goHome} onWrongPenalty={onWrongPenalty} onWin={onWin} onCorrect={onCorrect}/>;
           if(screen==='nederlands') return (
             <SubMenu title="Néerlandais — 2e primaire" onBack={goHome} items={[
               {key:'nl-lecture', emoji:'📖', label:'Lecture (FR) · Cloze', desc:'Complète la phrase', onClick:()=>setScreen('cloze')},
@@ -773,6 +829,16 @@
               {key:'famille', emoji:'👨‍👩‍👧', label:'Famille & communauté', desc:'Niveaux', onClick:()=>setScreen('famille')},
             ]}/>
           );
+          if(screen==='languages') return (
+            <SubMenu title="Lenguas / Languages" onBack={goHome} items={[
+              {key:'lang-es', emoji:'🇪🇸', label:'Aprendiendo Español',  desc:'Vocabulario básico', onClick:()=>setScreen('lang-es')},
+              {key:'lang-en', emoji:'🇬🇧', label:'Learning English',     desc:'Basic words',       onClick:()=>setScreen('lang-en')},
+              {key:'lang-nl', emoji:'🇳🇱', label:'Nederlands leren',     desc:'Basiswoorden',      onClick:()=>setScreen('lang-nl')},
+            ]}/>
+          );
+          if(screen==='lang-en') return <VocabGame target="en" onExit={goHome} onWrongPenalty={onWrongPenalty} onWin={onWin} onCorrect={onCorrect}/>;
+          if(screen==='lang-nl') return <VocabGame target="nl" onExit={goHome} onWrongPenalty={onWrongPenalty} onWin={onWin} onCorrect={onCorrect}/>;
+          if(screen==='lang-es') return <VocabGame target="es" onExit={goHome} onWrongPenalty={onWrongPenalty} onWin={onWin} onCorrect={onCorrect}/>;
           return null;
         };
 
@@ -781,6 +847,7 @@
             <div className="grid cols-3">
               <IconButton emoji="🇳🇱" label="Néerlandais" desc="Lecture, nombres, salutations" onClick={()=>setScreen('nederlands')}/>
               <IconButton emoji="🇫🇷" label="Français (L2)" desc="Mots, phrases, jeux" onClick={()=>setScreen('cloze')}/>
+              <IconButton emoji="🗣️" label="Lenguas" desc="ES · EN · NL" onClick={()=>setScreen('languages')}/>
               <IconButton emoji="🧮" label="Math · Mix" desc="+ − × ÷" onClick={()=>setScreen('quiz-mix')}/>
               <IconButton emoji="🧠" label="Mémoire" desc="Paires" onClick={()=>setScreen('memory')}/>
               <IconButton emoji="🎯" label="Droite numérique" desc="Add/Sub" onClick={()=>setScreen('number-line')}/>
@@ -805,6 +872,7 @@
                 <button className="back" onClick={toggleLayout} title={layout==='center'? 'Passer en plein écran (mise en page large)':'Revenir au centrage'}>
                   {layout==='center'? '🖥️ Pantalla completa':'📏 Centrado'}
                 </button>
+                <button className="back" onClick={toggleSound} title={soundOn? 'Silenciar':'Activer le son'}>{soundOn? '🔊 Sonido':'🔈 Silencio'}</button>
                 <div className="bill-purse" title="Billets">
                   <span>💵</span> <b>{bills}</b>
                 </div>
@@ -814,6 +882,7 @@
               {screen==='home'? <Home/> : renderRoute()}
             </main>
             <Modal {...modal} onClose={()=>setModal({open:false})}/>
+            <div className={"combo"+(combo.show?" show":"")} key={combo.key}>🔥 x{streak}</div>
           </div>
         );
       }
