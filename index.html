@@ -7,7 +7,6 @@
     <meta name="theme-color" content="#b06fff">
     <meta name="color-scheme" content="light dark">
 
-    <!-- Fonts para look infantil moderno -->
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;800;900&family=Fredoka:wght@600;800&display=swap" rel="stylesheet">
 
@@ -121,7 +120,8 @@
       .back{
         border:none;background:#fff;border-radius:14px;padding:10px 12px;
         box-shadow:0 6px 16px rgba(0,0,0,.06);
-        display:inline-flex;align-items:center;gap:8px;cursor:pointer
+        display:inline-flex;align-items:center;gap:8px;cursor:pointer;
+        position:relative; overflow:hidden;
       }
       .back.back-lg{padding:12px 16px;font-size:16px;border-radius:16px}
       .back:hover{transform:translateY(-1px)}
@@ -222,7 +222,6 @@
   <body>
     <noscript>Active JavaScript pour utiliser l’application.</noscript>
 
-    <!-- Sprite de icônes SVG (magia) -->
     <svg width="0" height="0" aria-hidden="true" focusable="false" style="position:absolute">
       <defs>
         <linearGradient id="grad-sugar" x1="0" x2="1" y1="0" y2="1">
@@ -236,7 +235,6 @@
 
     <div id="root"></div>
 
-    <!-- React 18 + Babel (modo sencillo para probar) -->
     <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -248,7 +246,7 @@
       const r = (min,max)=> Math.floor(Math.random()*(max-min+1))+min;
       const shuffle = (a)=>{const b=[...a]; for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1)); [b[i],b[j]]=[b[j],b[i]];} return b;};
       const takeN = (arr,n)=> shuffle(arr).slice(0,Math.min(n,arr.length));
-      const makeChoices=(correct)=>{const s=new Set([correct]); while(s.size<4){const d=Math.max(1,Math.round(Math.abs(correct)*0.2)+1); s.add(correct + (Math.random()<.5?-1:1)*r(1,d));} return shuffle([...s]).slice(0,4)};
+      const makeChoices=(correct, count=4)=>{const s=new Set([correct]); while(s.size<count){const d=Math.max(1,Math.round(Math.abs(correct)*0.2)+1); s.add(correct + (Math.random()<.5?-1:1)*r(1,d));} return shuffle([...s]).slice(0,count)};
 
       // Normalización de respuestas (tolerante)
       const stripDiacritics = (s) => Array.from(String(s||'').normalize('NFD')).filter(ch => { const c=ch.charCodeAt(0); return !(c>=0x0300 && c<=0x036F); }).join('');
@@ -317,7 +315,9 @@
         </div>
       );
       const LevelPill=({children,onClick})=> (
-        <button className="back" onClick={onClick} style={{background:'#ec4899',color:'#fff',position:'relative'}}>{children}</button>
+        <button className="back" onClick={onClick} style={{background:'#ec4899',color:'#fff',position:'relative'}}>
+            <span style={{fontSize:18,marginRight:8}}>🌟</span>{children}
+        </button>
       );
       const OptionButton=({index,emoji,label,onClick})=>{
         const handle=(e)=>{ e.currentTarget.classList.add('pop'); setTimeout(()=> e.currentTarget.classList.remove('pop'), 220); onClick(e); };
@@ -332,7 +332,7 @@
       const Modal=({open,type='info',title,children,actions=[],onClose})=> open? (
         <div className="modal-wrap" onClick={onClose}>
           <div className="modal" role="dialog" aria-modal="true" data-type={type} onClick={e=>e.stopPropagation()}>
-            <div className="big">{type==='bad'? '🦄😢':'🎉'}</div>
+            <div className="big">{type==='bad'? '😢':'🎉'}</div>
             <h3>{title}</h3>
             <div>{children}</div>
             <div className="actions">
@@ -377,7 +377,7 @@
             const rct=ev.currentTarget.getBoundingClientRect();
             confettiBurst(rct.left+rct.width/2, rct.top+rct.height/2);
             if(i+1<total) setI(i+1);
-            else onWin(ok+1);
+            else onWin(ok+1, (total<LEVEL_SIZES[4]? ()=>{setI(0); setOk(0); setWrongCounts({}); /* Level up logic handled by parent */ } : null) );
           } else {
             const c=(wrongCounts[i]||0)+1; setWrongCounts({...wrongCounts,[i]:c});
             onWrongPenalty(c===1?1:3);
@@ -389,7 +389,6 @@
               <span style={{fontSize:18}}>🦄</span> Retour
             </button>
             <h2 style={{fontWeight:900,fontSize:22,fontFamily:'Fredoka'}}>{title}</h2>
-            <div className="caption" style={{marginTop:2}}>{item.hint||''}</div>
             <div style={{fontSize:36,fontWeight:900,margin:'10px 0',textAlign:'center'}} aria-live="polite">
               {item.emoji? <span style={{marginRight:8}}>{item.emoji}</span>:null}{item.prompt}
             </div>
@@ -433,6 +432,15 @@
         const pool=useMemo(buildPool,[lvl]); const total=pool.length; const q=pool[i]||{};
         const choices=useMemo(()=> q.ans!=null?makeChoices(q.ans):[], [i,lvl]);
 
+        const levelUp = (earned)=>{
+          if(lvl < 5) {
+             setLvl(lvl+1); setI(0); setScore(0); setWrongCounts({});
+             onWin(earned, null); // Pass earned to parent, level transition handled here
+          } else {
+             onWin(earned, null); // Final level reached
+          }
+        };
+
         if(!lvl){ return (
           <div className="card">
             <button className="back" style={{marginBottom:10}} onClick={onExit}>🦄 Retour</button>
@@ -448,7 +456,7 @@
           if(good){
             onCorrect&&onCorrect(); setScore(s=>s+1);
             const rct=ev.currentTarget.getBoundingClientRect(); confettiBurst(rct.left+rct.width/2, rct.top+rct.height/2);
-            if(i+1<total) setI(i+1); else onWin(score+1, (lvl<5? ()=>{setLvl(lvl+1); setI(0); setScore(0);} : null));
+            if(i+1<total) setI(i+1); else levelUp(score+1);
           } else {
             const c=(wrongCounts[i]||0)+1; setWrongCounts({...wrongCounts,[i]:c}); onWrongPenalty(c===1?1:3);
           }
@@ -457,7 +465,7 @@
           <div className="card">
             <button className="back" style={{marginBottom:10}} onClick={onExit}>🦄 Retour</button>
             <h2 style={{fontWeight:900,fontSize:22,fontFamily:'Fredoka'}}>Mathématiques · {q.op||mode} · Niveau {lvl}</h2>
-            <div style={{fontSize:28,fontWeight:900,margin:'10px 0'}} aria-live="polite">{q.a} {q.op||mode} {q.b} = ?</div>
+            <div style={{fontSize:28,fontWeight:900,margin:'10px 0',textAlign:'center'}} aria-live="polite">{q.a} {q.op||mode} {q.b} = ?</div>
             {(q.op||mode)==='+' && <AdditionVisual a={q.a} b={q.b}/>}
             <Progress current={i} total={total}/>
             <div className="grid cols-3" style={{marginTop:12}}>
@@ -478,12 +486,21 @@
         const correct= target==='unités'?u: target==='dizaines'?d:c;
         const choices=useMemo(()=> lvl?makeChoices(correct):[], [i,target,lvl]);
 
+        const levelUp = (earned) => {
+          if (lvl < 5) {
+             setLvl(lvl + 1); setI(0); setScore(0); setWrongCounts({});
+             onWin(earned, null);
+          } else {
+             onWin(earned, null);
+          }
+        };
+
         const pick=(v,ev)=>{
           const good=Number(v)===correct;
           if(good){
             onCorrect&&onCorrect(); setScore(s=>s+1);
             const r=ev.currentTarget.getBoundingClientRect(); confettiBurst(r.left+r.width/2, r.top+r.height/2);
-            if(i+1<total) setI(i+1); else onWin(score+1, (lvl<5? ()=>{setLvl(lvl+1); setI(0); setScore(0);} : null));
+            if(i+1<total) setI(i+1); else levelUp(score+1);
           } else {
             const c=(wrongCounts[i]||0)+1; setWrongCounts({...wrongCounts,[i]:c}); onWrongPenalty(c===1?1:3);
           }
@@ -502,16 +519,17 @@
           <div className="card">
             <button className="back" style={{marginBottom:10}} onClick={onExit}>🦄 Retour</button>
             <h2 style={{fontWeight:900,fontSize:22,fontFamily:'Fredoka'}}>Unités · Dizaines · Centaines · Niveau {lvl}</h2>
-            <div className="back" style={{gap:8,marginBottom:8}}>Cible:
-              <select className="back" onChange={e=>setTarget(e.target.value)} value={target}>
-                <option value="unités">Unités</option><option value="dizaines">Dizaines</option><option value="centaines">Centaines</option>
-              </select>
+            <div className="row" style={{gap:8,marginBottom:8, flexWrap:'wrap'}}>
+              <div className="caption">Cible:</div>
+              <button className={"back "+ (target==='unités'?'primary-pill':'')} onClick={()=>setTarget('unités')} style={{background:target==='unités'? '#ec4899':'', color:target==='unités'?'#fff':''}}>Unités 🍬</button>
+              <button className={"back "+ (target==='dizaines'?'primary-pill':'')} onClick={()=>setTarget('dizaines')} style={{background:target==='dizaines'? '#ec4899':'', color:target==='dizaines'?'#fff':''}}>Dizaines 🔟</button>
+              <button className={"back "+ (target==='centaines'?'primary-pill':'')} onClick={()=>setTarget('centaines')} style={{background:target==='centaines'? '#ec4899':'', color:target==='centaines'?'#fff':''}}>Centaines 💯</button>
             </div>
-            <div style={{fontSize:28,fontWeight:900,margin:'10px 0'}} aria-live="polite">{n}</div>
+            <div style={{fontSize:28,fontWeight:900,margin:'10px 0',textAlign:'center'}} aria-live="polite">{n}</div>
             <DotsBaseTen n={n}/>
             <Progress current={i} total={total}/>
             <div className="grid cols-3" style={{marginTop:12}}>
-              {choices.map((c,idx)=> (<OptionButton key={idx} index={idx} emoji={'🔟'} label={String(c)} onClick={(e)=>pick(c,e)}/> ))}
+              {choices.map((c,idx)=> (<OptionButton key={idx} index={idx} emoji={'🔢'} label={String(c)} onClick={(e)=>pick(c,e)}/> ))}
             </div>
             <div className="caption" style={{marginTop:10}}>Question {i+1}/{total} — Score {score}</div>
           </div>
@@ -520,26 +538,26 @@
 
       /* ===== Cloze FR ===== */
       const CLOZE_BANK=[
-        { text:"Chaque matin, Léna ____ à l'école.", options:["va","vont","allez","aller"], answer:"va" },
-        { text:"Le chat ____ sur le canapé.", options:["dort","dorment","dormi","dors"], answer:"dort" },
-        { text:"Papa ____ un café.", options:["boit","boivent","boire","bu"], answer:"boit" },
-        { text:"Nous ____ dans la cour.", options:["jouons","joue","jouent","jouer"], answer:"jouons" },
-        { text:"Tu ____ le cartable.", options:["portes","portez","portent","porter"], answer:"portes" },
-        { text:"Ils ____ une chanson.", options:["chantent","chante","chantons","chanter"], answer:"chantent" },
-        { text:"La cloche ____ à neuf heures.", options:["sonne","sonnent","sonné","sonner"], answer:"sonne" },
-        { text:"La maîtresse ____ un livre.", options:["lit","lisent","lire","lis"], answer:"lit" },
-        { text:"Je ____ mon prénom.", options:["écris","écrit","écrivent","écrire"], answer:"écris" },
-        { text:"Vous ____ la porte.", options:["ouvrez","ouvres","ouvrent","ouvrir"], answer:"ouvrez" },
-        { text:"On ____ la récréation.", options:["commence","commencent","commencer","commencé"], answer:"commence" },
-        { text:"Elles ____ à la marelle.", options:["jouent","joue","jouons","jouer"], answer:"jouent" },
-        { text:"Il ____ ses chaussures.", options:["met","mets","mettent","mettre"], answer:"met" },
-        { text:"Tu ____ ton goûter.", options:["manges","mange","mangent","manger"], answer:"manges" },
-        { text:"Nous ____ la file.", options:["faisons","fait","font","faire"], answer:"faisons" },
-        { text:"Je ____ mon cahier.", options:["range","ranges","rangent","ranger"], answer:"range" },
-        { text:"Vous ____ bien.", options:["écoutez","écoute","écoutent","écouter"], answer:"écoutez" },
-        { text:"Le chien ____ vite.", options:["court","courent","courir","cours"], answer:"court" },
-        { text:"Les enfants ____ la main.", options:["lèvent","lève","levons","lever"], answer:"lèvent" },
-        { text:"Elle ____ sa gomme.", options:["prend","prends","prennent","prendre"], answer:"prend" }
+        { text:"Chaque matin, Léna ____ à l'école.", options:['va','vont','allez','aller'], answer:"va" },
+        { text:"Le chat ____ sur le canapé.", options:['dort','dorment','dormi','dors'], answer:"dort" },
+        { text:"Papa ____ un café.", options:['boit','boivent','boire','bu'], answer:"boit" },
+        { text:"Nous ____ dans la cour.", options:['jouons','joue','jouent','jouer'], answer:"jouons" },
+        { text:"Tu ____ le cartable.", options:['portes','portez','portent','porter'], answer:"portes" },
+        { text:"Ils ____ une chanson.", options:['chantent','chante','chantons','chanter'], answer:"chantent" },
+        { text:"La cloche ____ à neuf heures.", options:['sonne','sonnent','sonné','sonner'], answer:"sonne" },
+        { text:"La maîtresse ____ un livre.", options:['lit','lisent','lire','lis'], answer:"lit" },
+        { text:"Je ____ mon prénom.", options:['écris','écrit','écrivent','écrire'], answer:"écris" },
+        { text:"Vous ____ la porte.", options:['ouvrez','ouvres','ouvrent','ouvrir'], answer:"ouvrez" },
+        { text:"On ____ la récréation.", options:['commence','commencent','commencer','commencé'], answer:"commence" },
+        { text:"Elles ____ à la marelle.", options:['jouent','joue','jouons','jouer'], answer:"jouent" },
+        { text:"Il ____ ses chaussures.", options:['met','mets','mettent','mettre'], answer:"met" },
+        { text:"Tu ____ ton goûter.", options:['manges','mange','mangent','manger'], answer:"manges" },
+        { text:"Nous ____ la file.", options:['faisons','fait','font','faire'], answer:"faisons" },
+        { text:"Je ____ mon cahier.", options:['range','ranges','rangent','ranger'], answer:"range" },
+        { text:"Vous ____ bien.", options:['écoutez','écoute','écoutent','écouter'], answer:"écoutez" },
+        { text:"Le chien ____ vite.", options:['court','courent','courir','cours'], answer:"court" },
+        { text:"Les enfants ____ la main.", options:['lèvent','lève','levons','lever'], answer:"lèvent" },
+        { text:"Elle ____ sa gomme.", options:['prend','prends','prennent','prendre'], answer:"prend" }
       ];
       function ClozeWithLevels({onExit,onWrongPenalty,onWin,onCorrect}){
         const [lvl,setLvl]=useState(0);
@@ -555,7 +573,17 @@
         );}
         const count=LEVEL_SIZES[lvl-1];
         const items=takeN(CLOZE_BANK,count).map(x=>({prompt:x.text.replace('____','_____'), options:shuffle(x.options), answer:x.answer, emoji:'📖'}));
-        return <MCQGame title={`Lecture · Niveau ${lvl}`} items={items} onExit={onExit} onWrongPenalty={onWrongPenalty} onWin={(earned)=> onWin(earned, (lvl<5? ()=> setLvl(lvl+1): null))} onCorrect={onCorrect}/>;
+
+        const levelUp = (earned) => {
+          if (lvl < 5) {
+             setLvl(lvl + 1);
+             onWin(earned, null);
+          } else {
+             onWin(earned, null);
+          }
+        };
+
+        return <MCQGame title={`Lecture · Niveau ${lvl}`} items={items} onExit={onExit} onWrongPenalty={onWrongPenalty} onWin={(earned)=> levelUp(earned)} onCorrect={onCorrect}/>;
       }
 
       /* ===== Bancos (saisons, couleurs, digital, santé, social, NL, famille) ===== */
@@ -681,7 +709,9 @@
       function VocabGame({target,onExit,onWrongPenalty,onWin,onCorrect}){
         const [lvl,setLvl]=React.useState(0);
         const targetName = target==='en'? 'Anglais' : target==='nl'? 'Néerlandais' : 'Espagnol';
-        const sourceKey = target==='es'? 'en' : 'es';
+        const sourceKey = target==='es'? 'en' : target==='en'? 'es' : 'es'; // Si target es NL, la fuente es ES; si target es EN, la fuente es ES; si target es ES, la fuente es EN
+        const correctedSourceKey = target==='nl'?'es':target==='en'?'es':target==='es'?'en':'es'; // Corrected source key logic
+
         if(!lvl){ return (
           <div className="card"><button className="back" style={{marginBottom:10}} onClick={onExit}>🦄 Retour</button>
             <h2 style={{fontWeight:900,fontSize:22,fontFamily:'Fredoka'}}>Vocabulaire · {targetName}</h2>
@@ -691,7 +721,7 @@
         ); }
         const count=LEVEL_SIZES[lvl-1];
         const makeItem=(it)=>{
-          const src=it[sourceKey];
+          const src=it[correctedSourceKey]; // Use corrected key
           const ans=it[target];
           let pool = shuffle(VOCAB_CORE.map(o=> o[target]).filter(v=> v && !eqAns(v, ans)));
           const opts=[ans, ...pool.slice(0,3)];
@@ -708,7 +738,17 @@
           }
           return x;
         });
-        return <MCQGame title={`Vocabulaire · ${targetName} · Niveau ${lvl}`} items={items} onExit={onExit} onWrongPenalty={onWrongPenalty} onWin={(earned)=> onWin(earned, (lvl<5? ()=> setLvl(lvl+1): null))} onCorrect={onCorrect}/>;
+        
+        const levelUp = (earned) => {
+          if (lvl < 5) {
+             setLvl(lvl + 1);
+             onWin(earned, null);
+          } else {
+             onWin(earned, null);
+          }
+        };
+
+        return <MCQGame title={`Vocabulaire · ${targetName} · Niveau ${lvl}`} items={items} onExit={onExit} onWrongPenalty={onWrongPenalty} onWin={(earned)=> levelUp(earned)} onCorrect={onCorrect}/>;
       }
 
       // Motor genérico para bancos
@@ -724,7 +764,17 @@
         const items = takeN(bank, LEVEL_SIZES[lvl-1]).map(x=>({
           prompt:x.prompt, options:x.options, answer:x.answer, emoji:x.emoji
         }));
-        return <MCQGame title={`${titlePrefix} (Niv. ${lvl})`} items={items} onExit={onExit} onWrongPenalty={onWrongPenalty} onWin={(earned)=> onWin(earned, (lvl<5? ()=> setLvl(lvl+1): null))} onCorrect={onCorrect}/>;
+
+        const levelUp = (earned) => {
+          if (lvl < 5) {
+             setLvl(lvl + 1);
+             onWin(earned, null);
+          } else {
+             onWin(earned, null);
+          }
+        };
+
+        return <MCQGame title={`${titlePrefix} (Niv. ${lvl})`} items={items} onExit={onExit} onWrongPenalty={onWrongPenalty} onWin={(earned)=> levelUp(earned)} onCorrect={onCorrect}/>;
       }
 
       // Droite numérique
@@ -742,12 +792,21 @@
         const pool=useMemo(build,[lvl]); const total=pool.length; const q=pool[i]||{};
         const choices=useMemo(()=> q.ans!=null? makeChoices(q.ans) : [], [i,lvl]);
 
+        const levelUp = (earned) => {
+          if (lvl < 5) {
+             setLvl(lvl + 1); setI(0); setScore(0); setWrongCounts({});
+             onWin(earned, null);
+          } else {
+             onWin(earned, null);
+          }
+        };
+
         const pick=(v,ev)=>{
           const good=Number(v)===q.ans;
           if(good){
             onCorrect&&onCorrect(); setScore(s=>s+1);
             const rct=ev.currentTarget.getBoundingClientRect(); confettiBurst(rct.left+rct.width/2, rct.top+rct.height/2);
-            if(i+1<total) setI(i+1); else onWin(score+1, (lvl<5? ()=>{setLvl(lvl+1); setI(0); setScore(0);} : null));
+            if(i+1<total) setI(i+1); else levelUp(score+1);
           } else {
             const c=(wrongCounts[i]||0)+1; setWrongCounts({...wrongCounts,[i]:c}); onWrongPenalty(c===1?1:3);
           }
@@ -761,7 +820,7 @@
               <div className="number-line">
                 {ticks.map((t,idx)=> <span key={idx} className={'tick'+(t===pos?' on':'')+(t>pos && t<=end && op==='+'?' step':'')+(t<pos && t>=end && op==='-'?' step':'')}></span>)}
               </div>
-              <div className="row"><span className="back">Départ: {pos}</span><span className="back">Pas: {b}</span><span className="back">Arrivée: ?</span></div>
+              <div className="row" style={{justifyContent:'center', gap:10}}><span className="back">Départ: {pos}</span><span className="back">Pas: {b}</span><span className="back">Arrivée: ?</span></div>
             </div>
           );
         };
@@ -776,13 +835,13 @@
           <div className="card">
             <button className="back" style={{marginBottom:10}} onClick={onExit}>🦄 Retour</button>
             <h2 style={{fontWeight:900,fontSize:22,fontFamily:'Fredoka'}}>Droite numérique · Niveau {lvl}</h2>
-            <div style={{fontSize:28,fontWeight:900,margin:'10px 0'}}>{q.a} {q.op} {q.b} = ?</div>
+            <div style={{fontSize:28,fontWeight:900,margin:'10px 0',textAlign:'center'}} aria-live="polite">{q.a} {q.op} {q.b} = ?</div>
             {renderLine(q.a,q.b,q.op)}
             <Progress current={i} total={total}/>
             <div className="grid cols-3" style={{marginTop:12}}>
               {choices.map((c,idx)=> (<OptionButton key={idx} index={idx} emoji={'🎯'} label={String(c)} onClick={(e)=>pick(c,e)}/> ))}
             </div>
-            <div className="caption">Question {i+1}/{total} — Score {score}</div>
+            <div className="caption" style={{marginTop:10}}>Question {i+1}/{total} — Score {score}</div>
           </div>
         );
       }
@@ -804,6 +863,16 @@
           }
           return shuffle(arr);
         };
+
+        const levelUp = (earned) => {
+          if (lvl < 5) {
+             setLvl(lvl + 1);
+             onWin(earned, null);
+          } else {
+             onWin(earned, null);
+          }
+        };
+
         if(!lvl){ return (
           <div className="card"><button className="back back-lg" onClick={onExit} style={{marginBottom:10}}>🦄 Retour</button>
             <h2 style={{fontWeight:900,fontSize:22,fontFamily:'Fredoka'}}>Mémoire</h2>
@@ -820,7 +889,7 @@
             const [a,b]=now;
             if(cards[a].match===cards[b].id){
               onCorrect&&onCorrect(); setSolved({...solved,[a]:1,[b]:1}); setOpen([]); setScore(s=>s+1);
-              if(Object.keys(solved).length+2===cards.length) onWin(3);
+              if(Object.keys(solved).length+2===cards.length) levelUp(3);
             } else {
               setTimeout(()=> setOpen([]), 450);
               const w=wrong+1; setWrong(w); onWrongPenalty(w===1?1:3);
@@ -831,13 +900,13 @@
           <div className="card">
             <button className="back" onClick={onExit} style={{marginBottom:10}}>🦄 Retour</button>
             <h2 style={{fontWeight:900,fontSize:22,fontFamily:'Fredoka'}}>Mémoire · Niveau {lvl}</h2>
-            <div className="card-wrap" style={{gridTemplateColumns:'repeat(4,minmax(0,1fr))'}}>
+            <div className="card-wrap" style={{gridTemplateColumns:`repeat(${Math.min(4, sizeForLevel/2)},minmax(0,1fr))`}}>
               {cards.map((c,idx)=>{
                 const isOpen=open.includes(idx)||solved[idx];
                 return (
                   <div key={idx} className={'card-flip'+(isOpen?' is-open':'')} onClick={()=>click(idx)}>
                     <div className="face front"/>
-                    <div className="face backface"><span className="lbl" style={{fontSize:20,fontFamily:'Fredoka'}}>{c.label}</span></div>
+                    <div className="face backface"><span className="lbl" style={{fontSize:18,fontFamily:'Fredoka'}}>{c.label}</span></div>
                   </div>
                 )
               })}
@@ -852,6 +921,7 @@
         if(!lvl){ return (
           <div className="card"><button className="back" onClick={onExit} style={{marginBottom:10}}>🦄 Retour</button>
             <h2 style={{fontWeight:900,fontSize:22,fontFamily:'Fredoka'}}>Équations</h2>
+            <p className="caption">Trouve le nombre ou l\'opérateur manquant.</p>
             <div className="row" style={{marginTop:8}}>{Array.from({length:5},(_,k)=>(<LevelPill key={k} onClick={()=>setLvl(k+1)}>Niveau {k+1}</LevelPill>))}</div>
           </div>
         );}
@@ -859,25 +929,35 @@
           const arr=[]; const n=LEVEL_SIZES[lvl-1];
           for(let k=0;k<n;k++){
             const a=r(1,10), b=r(1,10);
-            if(lvl<=2){
+            if(lvl<=2){ // Niveau 1-2: trouver le nombre
               const ans=a+b; const text=`__ + ${b} = ${ans}`;
               arr.push({prompt:text, options:makeChoices(a).map(x=>String(x)), answer:String(a), emoji:'➕'});
-            } else if(lvl===3){
+            } else if(lvl===3){ // Niveau 3: trouver le nombre (opérations mixtes)
               const op=['+','-'][r(0,1)];
               const ans= op==='+'?a+b: (Math.max(a,b)-Math.min(a,b));
               const bigger=Math.max(a,b), smaller=Math.min(a,b);
               const text=`${bigger} ${op==='-'?'-':op} ${smaller} = __`;
               arr.push({prompt:text, options:makeChoices(ans).map(x=>String(x)), answer:String(ans), emoji:'🧮'});
-            } else {
-              const ops=['+','-','x']; const op=ops[r(0,2)];
-              const ans= op==='+'?a+b: op==='-'? (Math.max(a,b)-Math.min(a,b)): a*b;
+            } else { // Niveau 4-5: trouver l'opérateur
+              const ops=['+','-','x'][r(0,2)]; // Division removed for simplicity at this level
+              const ans= ops==='+'?a+b: ops==='-'? (Math.max(a,b)-Math.min(a,b)): a*b;
               const text=`${a} __ ${b} = ${ans}`;
-              arr.push({prompt:text, options:['+','-','x','/'], answer:op, emoji:'❓'});
+              arr.push({prompt:text, options:['+','-','x','÷'], answer:ops, emoji:'❓'});
             }
           }
           return arr;
         },[lvl]);
-        return <MCQGame title={`Équations · Niveau ${lvl}`} items={items} onExit={onExit} onWrongPenalty={onWrongPenalty} onWin={onWin} onCorrect={onCorrect}/>;
+
+        const levelUp = (earned) => {
+          if (lvl < 5) {
+             setLvl(lvl + 1);
+             onWin(earned, null);
+          } else {
+             onWin(earned, null);
+          }
+        };
+
+        return <MCQGame title={`Équations · Niveau ${lvl}`} items={items} onExit={onExit} onWrongPenalty={onWrongPenalty} onWin={(earned)=> levelUp(earned)} onCorrect={onCorrect}/>;
       }
 
       // Rappel (orden croissant)
@@ -886,15 +966,29 @@
         const len= lvl===1?3: lvl===2?4: lvl===3?5: lvl===4?6:7;
         const [seq,setSeq]=useState([]); const [visible,setVisible]=useState(true); const [next,setNext]=useState([]);
         useEffect(()=>{ if(!lvl) return; const s=shuffle(Array.from({length:9},(_,k)=>k+1)).slice(0,len).sort((a,b)=>a-b); setSeq(s); setVisible(true); setNext([...s]); const t=setTimeout(()=> setVisible(false), 1700+lvl*400); return ()=>clearTimeout(t); },[lvl]);
+
+        const levelUp = (earned) => {
+          if (lvl < 5) {
+             setLvl(lvl + 1);
+             onWin(earned, null);
+          } else {
+             onWin(earned, null);
+          }
+        };
+
         const click=(n)=>{
           if(!next.length) return; const expect=next[0];
-          if(n===expect){ const rest=next.slice(1); setNext(rest); if(!rest.length) onWin(3); }
+          if(n===expect){
+            const rest=next.slice(1);
+            setNext(rest);
+            if(!rest.length) levelUp(3);
+          }
           else { onWrongPenalty(next.length===len?1:3); }
         };
         if(!lvl){ return (
           <div className="card"><button className="back" onClick={onExit} style={{marginBottom:10}}>🦄 Retour</button>
             <h2 style={{fontWeight:900,fontSize:22,fontFamily:'Fredoka'}}>Mémoire · Rappel</h2>
-            <p className="caption">Regarde les nombres puis touche dans l’ordre croissant.</p>
+            <p className="caption">Regarde les nombres puis touche-les dans l’ordre croissant.</p>
             <div className="row" style={{marginTop:8}}>{Array.from({length:5},(_,k)=>(<LevelPill key={k} onClick={()=>setLvl(k+1)}>Niveau {k+1}</LevelPill>))}</div>
           </div>
         );}
@@ -903,11 +997,12 @@
           <div className="card">
             <button className="back" onClick={onExit} style={{marginBottom:10}}>🦄 Retour</button>
             <h2 style={{fontWeight:900,fontSize:22,fontFamily:'Fredoka'}}>Rappel · Niveau {lvl}</h2>
-            <div className="board cols-4" style={{gridTemplateColumns:'repeat(3,80px)', justifyContent:'center'}}>
+            <div className="board cols-4" style={{gridTemplateColumns:'repeat(3,80px)', justifyContent:'center', margin:'10px 0'}}>
               {pool.map(n=> (
-                <div key={n} className={'tile'} onClick={()=> click(n)}>{ visible && seq.includes(n)? n : ''}</div>
+                <div key={n} className={'tile' + (visible && seq.includes(n) ? ' sel' : '')} onClick={()=> click(n)}>{ visible && seq.includes(n)? n : ''}</div>
               ))}
             </div>
+            <Progress current={len-next.length} total={len}/>
           </div>
         );
       }
@@ -940,9 +1035,11 @@
         const isFixed=(r,c)=> (puzzles[index] && puzzles[index].fixed.has(`${r}-${c}`));
         const conflicts=useMemo(()=>{
           const conf=new Set(); const g=grid;
+          // Check rows
           for(let i=0;i<4;i++){ const seen=new Map(); for(let j=0;j<4;j++){ const v=g[i][j]; if(!v) continue; if(seen.has(v)){ conf.add(`${i}-${j}`); conf.add(`${i}-${seen.get(v)}`);} else seen.set(v,j);} }
+          // Check columns
           for(let j=0;j<4;j++){ const seen=new Map(); for(let i=0;i<4;i++){ const v=g[i][j]; if(!v) continue; if(seen.has(v)){ conf.add(`${i}-${j}`); conf.add(`${seen.get(v)}-${j}`);} else seen.set(v,i);} }
-          for(let br=0;br<br2;){break} // (guard to satisfy linter)
+          // Check 2x2 blocks
           for(let br=0;br<2;br++) for(let bc=0;bc<2;bc++){
             const seen=new Map();
             for(let i=0;i<2;i++) for(let j=0;j<2;j++){
@@ -961,8 +1058,13 @@
         const isComplete=()=> grid.every(row=> row.every(v=> v>0));
         const check=()=>{
           if(conflicts.size){ onWrongPenalty(1); return; }
-          if(isComplete()){ onWin(4, index<4? ()=> setIndex(index+1): null); }
-          else { onWrongPenalty(1); }
+          if(isComplete()){
+             if(index < puzzles.length - 1) {
+                 onWin(4, ()=> setIndex(index+1)); // Pass callback to move to next puzzle
+             } else {
+                 onWin(4, null); // Last puzzle
+             }
+          } else { onWrongPenalty(1); }
         };
 
         if(!level){
@@ -1027,8 +1129,8 @@
           <div className="card"><button className="back" style={{marginBottom:10}} onClick={onExit}>🦄 Retour</button>
             <h2 style={{fontWeight:900,fontSize:22,fontFamily:'Fredoka'}}>Contes ✨</h2>
             <p className="caption">Histoires (2–3 min) avec texte grand + emojis.</p>
-            <div style={{fontSize:22,lineHeight:1.8,marginTop:10}}>{paras.map((p,i)=>(<p key={i} style={{margin:'10px 0'}}>{p}</p>))}</div>
-            <div className="row" style={{marginTop:8}}><button className="back" onClick={()=>setParas(mk())}>Nouveau conte</button></div>
+            <div style={{fontSize:20,lineHeight:1.8,marginTop:10, textAlign:'left', padding:'0 10px'}}>{paras.map((p,i)=>(<p key={i} style={{margin:'10px 0'}}>{p}</p>))}</div>
+            <div className="row" style={{marginTop:8, justifyContent:'center'}}><button className="back" onClick={()=>setParas(mk())}>Nouvelle histoire</button></div>
           </div>
         );
       }
@@ -1085,13 +1187,15 @@
           const nb=Math.max(0,bills-amount); setBills(nb); localStorage.setItem('bills',String(nb));
           setModal({open:true,type:'bad',title:'Oups… Essaie encore !',children:(<div>🦄 Tristounet… Tu perds <b>{amount}</b> billet{amount>1?'s':''} 💸</div>)});
         };
-        const onWin=(earned,nextLevel)=>{
+        const onWin=(earned,nextLevelCallback)=>{
           if(soundOn) Sound.good();
           addBills(earned);
           setModal({open:true,type:'good',title:'Bravo !',
             children:(<div>Tu as gagné {Array.from({length:earned}).map((_,i)=>(<span key={i} className="money">💵</span>))}</div>),
-            actions:[ nextLevel? {label:'Niveau suivant',primary:true,onClick:()=>{ setModal({open:false}); nextLevel(); }}: null,
-                      {label:'Menu principal',onClick:()=>{ setModal({open:false}); goHome(); }} ].filter(Boolean)
+            actions:[
+              nextLevelCallback ? {label:'Niveau suivant',primary:true,onClick:()=>{ setModal({open:false}); nextLevelCallback(); }} : null,
+              {label:'Menu principal',onClick:()=>{ setModal({open:false}); goHome(); }}
+            ].filter(Boolean)
           });
         };
         const onCorrect=()=>{
@@ -1099,7 +1203,7 @@
           const s=streak+1; setStreak(s);
           if(s>bestStreak){ setBestStreak(s); localStorage.setItem('bestStreak', String(s)); }
           setCombo({show:true,n:s,key:Date.now()}); setTimeout(()=> setCombo(c=>({...c,show:false})), 900);
-          if(s%3===0){ addBills(1); }
+          if(s%3===0){ addBills(1); } // Bonus bill every 3 correct answers
         };
 
         const toggleLayout=()=>{ const next= layout==='center'? 'full':'center'; setLayout(next); localStorage.setItem('layoutMode',next); };
@@ -1151,6 +1255,8 @@
           if(screen==='equations') return <EquationsGame onExit={goHome} onWrongPenalty={onWrongPenalty} onWin={onWin} onCorrect={onCorrect}/>;
           if(screen==='recall') return <RecallGame onExit={goHome} onWrongPenalty={onWrongPenalty} onWin={onWin}/>;
           if(screen==='sudoku4') return <Sudoku4Plus onExit={goHome} onWrongPenalty={onWrongPenalty} onWin={onWin}/>;
+
+          // Submenus
           if(screen==='nederlands') return (
             <SubMenu title="Néerlandais — 2e primaire" onBack={goHome} items={[
               {key:'nl-lecture', emoji:'📖', label:'Lecture (FR) · Cloze', desc:'Complète la phrase', onClick:()=>setScreen('cloze')},
@@ -1188,10 +1294,20 @@
               {key:'lang-nl', emoji:'🇳🇱', label:'Néerlandais',desc:'Basiswoorden',        onClick:()=>setScreen('lang-nl')},
             ]}/>
           );
+
+          // Specific Vocab Games
           if(screen==='lang-en') return <VocabGame target="en" onExit={goHome} onWrongPenalty={onWrongPenalty} onWin={onWin} onCorrect={onCorrect}/>;
           if(screen==='lang-nl') return <VocabGame target="nl" onExit={goHome} onWrongPenalty={onWrongPenalty} onWin={onWin} onCorrect={onCorrect}/>;
           if(screen==='lang-es') return <VocabGame target="es" onExit={goHome} onWrongPenalty={onWrongPenalty} onWin={onWin} onCorrect={onCorrect}/>;
-          return null;
+
+          // Math sub-menu items directing to specific quizzes
+          if(screen==='quiz-add') return <ArithmeticQuiz mode="+" onExit={goHome} onWrongPenalty={onWrongPenalty} onWin={onWin} onCorrect={onCorrect}/>;
+          if(screen==='quiz-sub') return <ArithmeticQuiz mode="-" onExit={goHome} onWrongPenalty={onWrongPenalty} onWin={onWin} onCorrect={onCorrect}/>;
+          if(screen==='quiz-mul') return <ArithmeticQuiz mode="x" onExit={goHome} onWrongPenalty={onWrongPenalty} onWin={onWin} onCorrect={onCorrect}/>;
+          if(screen==='quiz-div') return <ArithmeticQuiz mode="/" onExit={goHome} onWrongPenalty={onWrongPenalty} onWin={onWin} onCorrect={onCorrect}/>;
+
+
+          return null; // Default case
         };
 
         return (
