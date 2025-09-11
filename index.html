@@ -1,3 +1,4 @@
+
 <!doctype html>
 <html lang="fr" dir="ltr">
   <head>
@@ -169,7 +170,10 @@
       .money{display:inline-block;margin:2px;font-size:22px;animation:jump .3s ease-in-out}
       @keyframes jump{0%{transform:translateY(6px)}50%{transform:translateY(-2px)}100%{transform:translateY(0)}}
 
-      .number-line{display:none} /* UPDATE: ocultamos estilos innecesarios tras eliminar la Droite numérique */
+      .number-line{display:flex;gap:6px;align-items:center;margin:8px 0}
+      .tick{width:14px;height:14px;border-radius:3px;background:#fff;box-shadow:0 1px 0 rgba(0,0,0,.1)}
+      .tick.on{background:#22c55e}
+      .tick.step{background:#a78bfa}
 
       .board{display:grid;gap:8px}
       .board.cols-4{grid-template-columns:repeat(4,60px)}
@@ -214,20 +218,6 @@
       /* Scrollbar cute */
       ::-webkit-scrollbar{height:10px;width:10px}
       ::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#a78bfa,#ec4899);border-radius:999px}
-
-      /* UPDATE: Pregunta grande centrada + Retour unicornio grande + loaders + micro-animaciones y táctil ≥44px */
-      .question{font-family:"Fredoka",system-ui;font-weight:900;font-size:clamp(28px,4vw,32px);text-align:center;line-height:1.2;margin:10px 0}
-      .back.back-retour{display:inline-flex;align-items:center;gap:10px}
-      .back.back-retour .uni{font-size:48px;line-height:1}
-
-      .skel{position:relative;overflow:hidden;background:rgba(255,255,255,.55);border-radius:12px;min-height:80px}
-      .skel::after{content:"";position:absolute;inset:0;transform:translateX(-100%);
-        background:linear-gradient(90deg,transparent,rgba(255,255,255,.6),transparent);
-        animation:skel 1.2s infinite}
-      @keyframes skel{to{transform:translateX(100%)}}
-
-      .icon-btn,.opt,.back,.card{transition-duration:160ms} /* 120–200ms */
-      .key,.opt,.icon-btn,.back{min-height:44px;min-width:44px}
     </style>
   </head>
   <body>
@@ -253,15 +243,6 @@
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
     <script type="text/babel">
-      // UPDATE: QA MANUAL
-      // 1) Mathématiques → probar 5 modos con 10 niveles; +/− con llevadas/préstamos.
-      // 2) Mémoire → 2×3, 4×4, 4×5; modos ii/wi/ww; ⏱️ y 🔢 opcionales; sin repetición en sesión.
-      // 3) Équations → niveles 1–5 suma/resta; 6–10 mult/div; modal con explicación.
-      // 4) Contes → lectura centrada + botón “Leer” si TTS.
-      // 5) Sudoku → 4×4/6×6/9×9; “💡 Pista”; solución única; ruta ‘sudoku4’ intacta.
-      // 6) Droite numérique eliminada (tarjeta y ruta).
-      // 7) Accesibilidad táctil ≥44px; animaciones 160ms; skeleton en Memory.
-
       const { useState, useMemo, useEffect, useRef } = React;
 
       /* ===================== Utils ===================== */
@@ -330,26 +311,6 @@
       }
       window.addEventListener('pointerdown', (e) => sparkleAt(e.clientX, e.clientY, 6));
 
-      /* ===================== SIN REPETICIÓN POR PARTIDA ===================== */
-      // UPDATE: usedIds + resetSession + pickUnique
-      const usedIds = new Set();
-      function resetSession(){ usedIds.clear(); }
-      function pickUnique(pool, count, idOf = (it)=> it.id ?? it.prompt ?? JSON.stringify(it)){
-        const out=[]; const seen=new Set();
-        for(const item of shuffle(pool)){
-          const id=idOf(item);
-          if(!usedIds.has(id) && !seen.has(id)){
-            seen.add(id); usedIds.add(id); out.push(item);
-            if(out.length>=count) break;
-          }
-        }
-        while(out.length < Math.min(count, pool.length)){
-          const it = pool[out.length]; const id=idOf(it);
-          if(!seen.has(id)){ seen.add(id); out.push(it); } else break;
-        }
-        return out;
-      }
-
       /* ===================== UI bits ===================== */
       const Progress=({current,total})=> (
         <div className="progress" aria-label="progression">
@@ -381,3 +342,890 @@
               )) : <button className="back" onClick={onClose}>OK</button>}
             </div>
           </div>
+        </div>
+      ): null;
+
+      /* ===== Visual base-10 ===== */
+      const DotsBaseTen=({n})=>{
+        const d=Math.floor(n/10)%10, u=n%10;
+        return (
+          <div style={{display:'flex',gap:14,alignItems:'flex-start',margin:'6px 0 10px'}}>
+            {d>0 && <div><div className="caption" style={{fontWeight:700}}>Dizaines</div><div className="ten">{Array.from({length:d*10}).map((_,i)=>(<span key={i} className="dot"/>))}</div></div>}
+            {u>0 && <div><div className="caption" style={{fontWeight:700}}>Unités</div><div className="unit">{Array.from({length:u}).map((_,i)=>(<span key={i} className="dot"/>))}</div></div>}
+          </div>
+        );
+      };
+      const AdditionVisual=({a,b})=> (
+        <div className="row" style={{alignItems:'flex-start'}}>
+          <div><div className="caption" style={{fontWeight:700}}>A ({a})</div><DotsBaseTen n={a}/></div>
+          <div style={{fontSize:22,alignSelf:'center'}}>+</div>
+          <div><div className="caption" style={{fontWeight:700}}>B ({b})</div><DotsBaseTen n={b}/></div>
+          <div style={{fontSize:22,alignSelf:'center'}}>= ?</div>
+        </div>
+      );
+
+      /* ===================== Núcleo MCQ genérico ===================== */
+      function MCQGame({title, items, onExit, onWrongPenalty, onWin, onCorrect}){
+        const [i,setI]=useState(0); const [ok,setOk]=useState(0); const [wrongCounts,setWrongCounts]=useState({});
+        const total=items.length; const item=items[i];
+        const opts = useMemo(()=> shuffle([...item.options]), [i, item]);
+        const submit=(opt,ev)=>{
+          const label = typeof opt==='string'? opt : (opt.label||'');
+          const good = eqAns(label, item.answer);
+          if(good){
+            onCorrect&&onCorrect();
+            setOk(x=>x+1);
+            const rct=ev.currentTarget.getBoundingClientRect();
+            confettiBurst(rct.left+rct.width/2, rct.top+rct.height/2);
+            if(i+1<total) setI(i+1);
+            else onWin(ok+1);
+          } else {
+            const c=(wrongCounts[i]||0)+1; setWrongCounts({...wrongCounts,[i]:c});
+            onWrongPenalty(c===1?1:3);
+          }
+        };
+        return (
+          <div className="card">
+            <button className="back back-lg" style={{marginBottom:10, position:'relative'}} onClick={onExit}>
+              <span style={{fontSize:18}}>🦄</span> Retour
+            </button>
+            <h2 style={{fontWeight:900,fontSize:22,fontFamily:'Fredoka'}}>{title}</h2>
+            <div className="caption" style={{marginTop:2}}>{item.hint||''}</div>
+            <div style={{fontSize:36,fontWeight:900,margin:'10px 0',textAlign:'center'}} aria-live="polite">
+              {item.emoji? <span style={{marginRight:8}}>{item.emoji}</span>:null}{item.prompt}
+            </div>
+            <Progress current={i} total={total}/>
+            <div className="grid cols-3" style={{marginTop:12}}>
+              {opts.map((opt,idx)=>{
+                const lbl=typeof opt==='string'?opt:(opt.label||'');
+                const emo=(typeof opt==='object'&&opt.emoji)?opt.emoji:null;
+                return <OptionButton key={lbl+idx} index={idx} emoji={emo} label={lbl} onClick={(e)=>submit(opt,e)}/>
+              })}
+            </div>
+            <div className="caption" style={{marginTop:10}}>Question {i+1}/{total} — Score {ok}</div>
+          </div>
+        );
+      }
+
+      /* ===================== Niveles / Juegos ===================== */
+      const LEVEL_SIZES=[6,8,10,12,15];
+
+      // Aritmética
+      function ArithmeticQuiz({mode='+', onExit, onWrongPenalty, onWin, onCorrect}){
+        const presets={
+          1:{count:LEVEL_SIZES[0],minA:1,maxA:10,minB:1,maxB:10},
+          2:{count:LEVEL_SIZES[1],minA:1,maxA:20,minB:1,maxB:20},
+          3:{count:LEVEL_SIZES[2],minA:1,maxA:50,minB:1,maxB:50},
+          4:{count:LEVEL_SIZES[3],minA:10,maxA:80,minB:1,maxB:60},
+          5:{count:LEVEL_SIZES[4],minA:10,maxA:100,minB:1,maxB:100},
+        };
+        const [lvl,setLvl]=useState(0);
+        const cfg=presets[lvl];
+        const pickOp=()=> ['+','-','x','/'][r(0,3)];
+        const buildPool=()=>{ if(!cfg) return []; const q=[]; for(let i=0;i<cfg.count;i++){
+            let a=r(cfg.minA,cfg.maxA), b=r(cfg.minB,cfg.maxB), ans, op=(mode==='mix'?pickOp():mode);
+            if(op==='x') ans=a*b;
+            if(op==='+') ans=a+b;
+            if(op==='-'){ if(a<b) [a,b]=[b,a]; ans=a-b;}
+            if(op==='/'){ b=Math.max(1,r(cfg.minB,cfg.maxB)); const k=r(cfg.minA,cfg.maxA); a=k*b; ans=k;}
+            q.push({a,b,ans,op});
+          } return q; };
+        const [i,setI]=useState(0); const [score,setScore]=useState(0); const [wrongCounts,setWrongCounts]=useState({});
+        const pool=useMemo(buildPool,[lvl]); const total=pool.length; const q=pool[i]||{};
+        const choices=useMemo(()=> q.ans!=null?makeChoices(q.ans):[], [i,lvl]);
+
+        if(!lvl){ return (
+          <div className="card">
+            <button className="back" style={{marginBottom:10}} onClick={onExit}>🦄 Retour</button>
+            <h2 style={{fontWeight:900,fontSize:22,fontFamily:'Fredoka'}}>Mathématiques · {mode==='+'?'Additions':mode==='-'?'Soustractions':mode==='x'?'Multiplications':mode==='/'?'Divisions':'Mix'}</h2>
+            <p className="caption">Choisis un niveau.</p>
+            <div className="row" style={{marginTop:8}}>
+              {Array.from({length:5},(_,k)=>(<LevelPill key={k} onClick={()=>setLvl(k+1)}>Niveau {k+1}</LevelPill>))}
+            </div>
+          </div>
+        );}
+        const pick=(v,ev)=>{
+          const good=Number(v)===q.ans;
+          if(good){
+            onCorrect&&onCorrect(); setScore(s=>s+1);
+            const rct=ev.currentTarget.getBoundingClientRect(); confettiBurst(rct.left+rct.width/2, rct.top+rct.height/2);
+            if(i+1<total) setI(i+1); else onWin(score+1, (lvl<5? ()=>{setLvl(lvl+1); setI(0); setScore(0);} : null));
+          } else {
+            const c=(wrongCounts[i]||0)+1; setWrongCounts({...wrongCounts,[i]:c}); onWrongPenalty(c===1?1:3);
+          }
+        };
+        return (
+          <div className="card">
+            <button className="back" style={{marginBottom:10}} onClick={onExit}>🦄 Retour</button>
+            <h2 style={{fontWeight:900,fontSize:22,fontFamily:'Fredoka'}}>Mathématiques · {q.op||mode} · Niveau {lvl}</h2>
+            <div style={{fontSize:28,fontWeight:900,margin:'10px 0'}} aria-live="polite">{q.a} {q.op||mode} {q.b} = ?</div>
+            {(q.op||mode)==='+' && <AdditionVisual a={q.a} b={q.b}/>}
+            <Progress current={i} total={total}/>
+            <div className="grid cols-3" style={{marginTop:12}}>
+              {choices.map((c,idx)=> (<OptionButton key={idx} index={idx} emoji={'🔢'} label={String(c)} onClick={(e)=>pick(c,e)}/> ))}
+            </div>
+            <div className="caption" style={{marginTop:10}}>Question {i+1}/{total} — Score {score}</div>
+          </div>
+        );
+      }
+
+      // Place Value
+      function PlaceValue({onExit,onWrongPenalty,onWin,onCorrect}){
+        const presets={1:{count:LEVEL_SIZES[0],min:10,max:99},2:{count:LEVEL_SIZES[1],min:100,max:999},3:{count:LEVEL_SIZES[2],min:100,max:999},4:{count:LEVEL_SIZES[3],min:100,max:999},5:{count:LEVEL_SIZES[4],min:100,max:999}};
+        const [lvl,setLvl]=useState(0); const [i,setI]=useState(0); const [score,setScore]=useState(0); const [wrongCounts,setWrongCounts]=useState({}); const [target,setTarget]=useState('dizaines');
+        const cfg=presets[lvl];
+        const pool=useMemo(()=> cfg? Array.from({length:cfg.count},()=> r(cfg.min,cfg.max)) : [], [lvl]);
+        const total=pool.length; const n=pool[i]||0; const u=n%10, d=Math.floor(n/10)%10, c=Math.floor(n/100)%10;
+        const correct= target==='unités'?u: target==='dizaines'?d:c;
+        const choices=useMemo(()=> lvl?makeChoices(correct):[], [i,target,lvl]);
+
+        const pick=(v,ev)=>{
+          const good=Number(v)===correct;
+          if(good){
+            onCorrect&&onCorrect(); setScore(s=>s+1);
+            const r=ev.currentTarget.getBoundingClientRect(); confettiBurst(r.left+r.width/2, r.top+r.height/2);
+            if(i+1<total) setI(i+1); else onWin(score+1, (lvl<5? ()=>{setLvl(lvl+1); setI(0); setScore(0);} : null));
+          } else {
+            const c=(wrongCounts[i]||0)+1; setWrongCounts({...wrongCounts,[i]:c}); onWrongPenalty(c===1?1:3);
+          }
+        };
+        if(!lvl){ return (
+          <div className="card">
+            <button className="back" style={{marginBottom:10}} onClick={onExit}>🦄 Retour</button>
+            <h2 style={{fontWeight:900,fontSize:22,fontFamily:'Fredoka'}}>Unités · Dizaines · Centaines</h2>
+            <p className="caption">Choisis un niveau.</p>
+            <div className="row" style={{marginTop:8}}>
+              {Array.from({length:5},(_,k)=>(<LevelPill key={k} onClick={()=>setLvl(k+1)}>Niveau {k+1}</LevelPill>))}
+            </div>
+          </div>
+        );}
+        return (
+          <div className="card">
+            <button className="back" style={{marginBottom:10}} onClick={onExit}>🦄 Retour</button>
+            <h2 style={{fontWeight:900,fontSize:22,fontFamily:'Fredoka'}}>Unités · Dizaines · Centaines · Niveau {lvl}</h2>
+            <div className="back" style={{gap:8,marginBottom:8}}>Cible:
+              <select className="back" onChange={e=>setTarget(e.target.value)} value={target}>
+                <option value="unités">Unités</option><option value="dizaines">Dizaines</option><option value="centaines">Centaines</option>
+              </select>
+            </div>
+            <div style={{fontSize:28,fontWeight:900,margin:'10px 0'}} aria-live="polite">{n}</div>
+            <DotsBaseTen n={n}/>
+            <Progress current={i} total={total}/>
+            <div className="grid cols-3" style={{marginTop:12}}>
+              {choices.map((c,idx)=> (<OptionButton key={idx} index={idx} emoji={'🔟'} label={String(c)} onClick={(e)=>pick(c,e)}/> ))}
+            </div>
+            <div className="caption" style={{marginTop:10}}>Question {i+1}/{total} — Score {score}</div>
+          </div>
+        );
+      }
+
+      /* ===== Cloze FR ===== */
+      const CLOZE_BANK=[
+        { text:"Chaque matin, Léna ____ à l'école.", options:["va","vont","allez","aller"], answer:"va" },
+        { text:"Le chat ____ sur le canapé.", options:["dort","dorment","dormi","dors"], answer:"dort" },
+        { text:"Papa ____ un café.", options:["boit","boivent","boire","bu"], answer:"boit" },
+        { text:"Nous ____ dans la cour.", options:["jouons","joue","jouent","jouer"], answer:"jouons" },
+        { text:"Tu ____ le cartable.", options:["portes","portez","portent","porter"], answer:"portes" },
+        { text:"Ils ____ une chanson.", options:["chantent","chante","chantons","chanter"], answer:"chantent" },
+        { text:"La cloche ____ à neuf heures.", options:["sonne","sonnent","sonné","sonner"], answer:"sonne" },
+        { text:"La maîtresse ____ un livre.", options:["lit","lisent","lire","lis"], answer:"lit" },
+        { text:"Je ____ mon prénom.", options:["écris","écrit","écrivent","écrire"], answer:"écris" },
+        { text:"Vous ____ la porte.", options:["ouvrez","ouvres","ouvrent","ouvrir"], answer:"ouvrez" },
+        { text:"On ____ la récréation.", options:["commence","commencent","commencer","commencé"], answer:"commence" },
+        { text:"Elles ____ à la marelle.", options:["jouent","joue","jouons","jouer"], answer:"jouent" },
+        { text:"Il ____ ses chaussures.", options:["met","mets","mettent","mettre"], answer:"met" },
+        { text:"Tu ____ ton goûter.", options:["manges","mange","mangent","manger"], answer:"manges" },
+        { text:"Nous ____ la file.", options:["faisons","fait","font","faire"], answer:"faisons" },
+        { text:"Je ____ mon cahier.", options:["range","ranges","rangent","ranger"], answer:"range" },
+        { text:"Vous ____ bien.", options:["écoutez","écoute","écoutent","écouter"], answer:"écoutez" },
+        { text:"Le chien ____ vite.", options:["court","courent","courir","cours"], answer:"court" },
+        { text:"Les enfants ____ la main.", options:["lèvent","lève","levons","lever"], answer:"lèvent" },
+        { text:"Elle ____ sa gomme.", options:["prend","prends","prennent","prendre"], answer:"prend" }
+      ];
+      function ClozeWithLevels({onExit,onWrongPenalty,onWin,onCorrect}){
+        const [lvl,setLvl]=useState(0);
+        if(!lvl){return (
+          <div className="card">
+            <button className="back" style={{marginBottom:10}} onClick={onExit}>🦄 Retour</button>
+            <h2 style={{fontWeight:900,fontSize:22,fontFamily:'Fredoka'}}>Lecture · Choisis le mot</h2>
+            <p className="caption">Choisis un niveau.</p>
+            <div className="row" style={{marginTop:8}}>
+              {Array.from({length:5},(_,k)=>(<LevelPill key={k} onClick={()=>setLvl(k+1)}>Niveau {k+1}</LevelPill>))}
+            </div>
+          </div>
+        );}
+        const count=LEVEL_SIZES[lvl-1];
+        const items=takeN(CLOZE_BANK,count).map(x=>({prompt:x.text.replace('____','_____'), options:shuffle(x.options), answer:x.answer, emoji:'📖'}));
+        return <MCQGame title={`Lecture · Niveau ${lvl}`} items={items} onExit={onExit} onWrongPenalty={onWrongPenalty} onWin={(earned)=> onWin(earned, (lvl<5? ()=> setLvl(lvl+1): null))} onCorrect={onCorrect}/>;
+      }
+
+      /* ===== Bancos (saisons, couleurs, digital, santé, social, NL, famille) ===== */
+      const SAISONS_BANK=[
+        {emoji:'🌸',prompt:'Quelle saison ? (fleurs, abeilles 🐝)',options:['Printemps','Été','Automne','Hiver'],answer:'Printemps'},
+        {emoji:'❄️',prompt:'Quelle saison ? (neige, gants 🧤)',options:['Hiver','Été','Printemps','Automne'],answer:'Hiver'},
+        {emoji:'🍂',prompt:'Je fais tomber les feuilles 🍁. Qui suis-je ?',options:['Automne','Été','Printemps','Hiver'],answer:'Automne'},
+        {emoji:'☀️',prompt:'Je ris très chaud 😎, la mer brille 🌊.',options:['Été','Printemps','Automne','Hiver'],answer:'Été'},
+        {emoji:'🌧️',prompt:'Beaucoup de pluie et bottes 🥾 ?',options:['Printemps','Été','Automne','Hiver'],answer:'Printemps'},
+        {emoji:'⛄',prompt:'Bonhomme de neige ?',options:['Hiver','Automne','Été','Printemps'],answer:'Hiver'},
+        {emoji:'🌻',prompt:'Tournesols au soleil.',options:['Été','Automne','Printemps','Hiver'],answer:'Été'},
+        {emoji:'🍎',prompt:'On cueille des pommes.',options:['Automne','Été','Hiver','Printemps'],answer:'Automne'},
+        {emoji:'🦋',prompt:'Papillons reviennent 🦋',options:['Printemps','Hiver','Été','Automne'],answer:'Printemps'},
+        {emoji:'🎿',prompt:'Ski à la montagne.',options:['Hiver','Été','Automne','Printemps'],answer:'Hiver'},
+        {emoji:'🏖️',prompt:'Plage et glaces 🍦',options:['Été','Printemps','Automne','Hiver'],answer:'Été'},
+        {emoji:'🍁',prompt:'Feuilles orange 🍁',options:['Automne','Été','Hiver','Printemps'],answer:'Automne'}
+      ];
+      const COULEURS_BANK=[
+        {emoji:'🔵🟡',prompt:'Bleu + Jaune = ?',options:['Vert','Rouge','Violet','Orange'],answer:'Vert'},
+        {emoji:'🔴🔵',prompt:'Rouge + Bleu = ?',options:['Violet','Orange','Vert','Marron'],answer:'Violet'},
+        {emoji:'🔴🟡',prompt:'Rouge + Jaune = ?',options:['Orange','Vert','Marron','Violet'],answer:'Orange'},
+        {emoji:'⚪🔴',prompt:'Blanc + Rouge = ?',options:['Rose','Violet','Orange','Marron'],answer:'Rose'},
+        {emoji:'⚪⚫',prompt:'Blanc + Noir = ?',options:['Gris','Marron','Violet','Orange'],answer:'Gris'},
+        {emoji:'🟢🟡',prompt:'Vert + Jaune = ?',options:['Vert clair','Marron','Rose','Gris'],answer:'Vert clair'},
+        {emoji:'🔵⚪',prompt:'Bleu + Blanc = ?',options:['Bleu clair','Vert','Gris','Orange'],answer:'Bleu clair'},
+        {emoji:'🔴⚫',prompt:'Rouge + Noir = ?',options:['Bordeaux','Orange','Violet','Rose'],answer:'Bordeaux'},
+        {emoji:'🟠🔵',prompt:'Orange + Bleu = ?',options:['Marron','Vert','Gris','Rose'],answer:'Marron'}
+      ];
+      const DIGITAL_MOUSE_BANK=[
+        {emoji:'🖱️',prompt:'Quel bouton pour cliquer ?',options:['Gauche','Droite','Molette','Aucun'],answer:'Gauche'},
+        {emoji:'⌨️',prompt:'Quelle touche pour espace ?',options:['Espace','Entrée','Tab','CTRL'],answer:'Espace'},
+        {emoji:'🖱️',prompt:'Double-clic sert à…',options:['Ouvrir','Éteindre','Imprimer','Coller'],answer:'Ouvrir'},
+        {emoji:'⌨️',prompt:'Quelle touche pour nouvelle ligne ?',options:['Entrée','Espace','Tab','Shift'],answer:'Entrée'},
+        {emoji:'🖱️',prompt:'Pour déplacer un objet on…',options:['Cliquer-glisser','Double-clic','Scroll','Alt'],answer:'Cliquer-glisser'},
+        {emoji:'⌨️',prompt:'CTRL + C sert à…',options:['Copier','Coller','Couper','Fermer'],answer:'Copier'},
+        {emoji:'⌨️',prompt:'CTRL + V sert à…',options:['Coller','Copier','Zoom','Fermer'],answer:'Coller'}
+      ];
+      const DIGITAL_NET_BANK=[
+        {emoji:'🔒',prompt:'Partages-tu ton mot de passe ?',options:['Non','Oui','Parfois','Avec amis'],answer:'Non'},
+        {emoji:'🧑‍💻',prompt:'Un inconnu parle en ligne…',options:['Parler avec un adulte','Donner ton adresse','Envoyer des photos','Ignorer souvent'],answer:'Parler avec un adulte'},
+        {emoji:'📧',prompt:'Un email bizarre : tu…',options:['Ne cliques pas','Cliques le lien','Donnes infos','Télécharges'],answer:'Ne cliques pas'},
+        {emoji:'🕵️',prompt:'Infos personnelles ?',options:['Ne pas partager','Partager','Mettre sur profil','Envoyer'],answer:'Ne pas partager'},
+        {emoji:'🛡️',prompt:'Sites sûrs ont souvent…',options:['https','http','hpts','ftp'],answer:'https'},
+        {emoji:'📣',prompt:'Une pub crie “TU AS GAGNÉ !!!”',options:['Méfie-toi','Clique vite','Réponds','Donne email'],answer:'Méfie-toi'},
+        {emoji:'📵',prompt:'Temps d’écran ?',options:['Faire des pauses','Jamais de pause','La nuit seulement','Toujours'],answer:'Faire des pauses'}
+      ];
+      const SANTE_HYGIENE_BANK=[
+        {emoji:'🧼',prompt:'Avant de manger je…',options:['Me lave les mains','Cours','Crie','Dors'],answer:'Me lave les mains'},
+        {emoji:'🪥',prompt:'Brossage des dents : combien ?',options:['2','0','1','5'],answer:'2'},
+        {emoji:'🤧',prompt:'Je tousse : je…',options:['Dans mon coude','Dans ma main','Par terre','Sans couvrir'],answer:'Dans mon coude'},
+        {emoji:'🛁',prompt:'Je dois me laver…',options:['Régulièrement','Jamais','Une fois/an','Quand il pleut'],answer:'Régulièrement'},
+        {emoji:'🧴',prompt:'Le gel hydro sert à…',options:['Nettoyer les mains','Boire','Cuisiner','Peindre'],answer:'Nettoyer les mains'},
+        {emoji:'🧦',prompt:'Changer de chaussettes…',options:['Chaque jour','Jamais','Après 1 mois','Seulement l’été'],answer:'Chaque jour'}
+      ];
+      const SANTE_FOOD_BANK=[
+        {emoji:'🍎🍫',prompt:'Le plus sain ?',options:['Pomme','Chocolat','Bonbons','Gâteau'],answer:'Pomme'},
+        {emoji:'🥤💧',prompt:'Meilleure boisson ?',options:['Eau','Soda','Sirop','Limonade'],answer:'Eau'},
+        {emoji:'🥦🍟',prompt:'Énergie longue…',options:['Légumes','Frites','Chips','Bonbons'],answer:'Légumes'},
+        {emoji:'🍞🍬',prompt:'Petit-déj équilibré ?',options:['Pain + fruit','Bonbons','Chips','Rien'],answer:'Pain + fruit'},
+        {emoji:'🍽️',prompt:'Assiette idéale ?',options:['Couleurs variées','Seulement frites','Seulement sucré','Aucune'],answer:'Couleurs variées'},
+        {emoji:'🍊',prompt:'Vitamine C ?',options:['Orange','Bonbon','Gâteau','Frites'],answer:'Orange'},
+        {emoji:'🐟',prompt:'Bon pour le cerveau ?',options:['Poisson','Bonbon','Soda','Chips'],answer:'Poisson'}
+      ];
+      const SOCIAL_KINDNESS_BANK=[
+        {emoji:'🙂',prompt:'Un ami est triste, tu…',options:['Écoutes et aides','Te moques','L’ignores','Ricanes'],answer:'Écoutes et aides'},
+        {emoji:'🤝',prompt:'Dans un jeu, tu…',options:['Partages','Prends tout','Pousses','Cries'],answer:'Partages'},
+        {emoji:'🗣️',prompt:'Tu veux parler : tu…',options:['Lèves la main','Cries','Coupe la parole','Chantes'],answer:'Lèves la main'},
+        {emoji:'💬',prompt:'Politesse ?',options:["S’il te plaît","Donne !","Vite !","Non"],answer:"S’il te plaît"},
+        {emoji:'🧘',prompt:'En colère : tu…',options:['Respires et parles','Pousses','Casses','Cries'],answer:'Respires et parles'},
+        {emoji:'🙌',prompt:'Un ami réussit : tu…',options:['Félicites','Ignores','Te fâches','Te moques'],answer:'Félicites'}
+      ];
+      const NL_NUMBERS_BANK=[
+        {emoji:'1️⃣',prompt:'“een” = ?',options:['1','2','3','4'],answer:'1'},
+        {emoji:'2️⃣',prompt:'“twee” = ?',options:['2','4','10','3'],answer:'2'},
+        {emoji:'5️⃣',prompt:'“vijf” = ?',options:['5','6','8','4'],answer:'5'},
+        {emoji:'8️⃣',prompt:'“acht” = ?',options:['8','7','9','6'],answer:'8'},
+        {emoji:'🔢',prompt:'“tien” = ?',options:['10','12','20','2'],answer:'10'},
+        {emoji:'🔢',prompt:'“twintig” = ?',options:['20','12','22','2'],answer:'20'},
+        {emoji:'🔢',prompt:'“drie” = ?',options:['3','2','4','5'],answer:'3'},
+        {emoji:'🔢',prompt:'“vier” = ?',options:['4','3','5','6'],answer:'4'}
+      ];
+      const NL_GREETINGS_BANK=[
+        {emoji:'👋',prompt:'“Hola” en NL ?',options:['Hallo','Adiós','Merci','Bonjour'],answer:'Hallo'},
+        {emoji:'🌞',prompt:'“Buenos días” ?',options:['Goeiemorgen','Goeienavond','Hallo','Dank je'],answer:'Goeiemorgen'},
+        {emoji:'🌙',prompt:'“Buenas noches” (salut) ?',options:['Goedenacht','Tot ziens','Hallo','Dank je'],answer:'Goedenacht'},
+        {emoji:'👋',prompt:'“Adiós” ?',options:['Tot ziens','Hallo','Dank je','Alsjeblieft'],answer:'Tot ziens'},
+        {emoji:'🙂',prompt:'“Por favor” (FR : s’il te plaît) ?',options:['Alsjeblieft','Dank je','Aub','Graag'],answer:'Alsjeblieft'},
+        {emoji:'🙏',prompt:'“Gracias” ?',options:['Dank je','Tot ziens','Hoi','Alsjeblieft'],answer:'Dank je'}
+      ];
+      const FAMILLE_BANK=[
+        {emoji:'👩',prompt:'La maman est…',options:['maman','papa','tante','frère'],answer:'maman'},
+        {emoji:'👨',prompt:'Le papa est…',options:['papa','maman','tante','soeur'],answer:'papa'},
+        {emoji:'👧',prompt:'Ta sœur est…',options:['soeur','frère','oncle','papa'],answer:'soeur'},
+        {emoji:'👦',prompt:'Ton frère est…',options:['frère','grand-mère','mère','tante'],answer:'frère'},
+        {emoji:'👵',prompt:'La maman de ta maman est…',options:['grand-mère','tante','cousine','amie'],answer:'grand-mère'},
+        {emoji:'👴',prompt:'Le papa de ton papa est…',options:['grand-père','oncle','ami','frère'],answer:'grand-père'},
+        {emoji:'👶',prompt:'Le bébé est…',options:['bébé','tante','papi','mamy'],answer:'bébé'}
+      ];
+
+      /* ===== Vocabulario multi-idioma (ES · EN · NL) ===== */
+      const VOCAB_CORE=[
+        {emoji:'🍎', es:'manzana', en:'apple', nl:'appel'},
+        {emoji:'💧', es:'agua', en:'water', nl:'water'},
+        {emoji:'🍞', es:'pan', en:'bread', nl:'brood'},
+        {emoji:'🥛', es:'leche', en:'milk', nl:'melk'},
+        {emoji:'🐱', es:'gato', en:'cat', nl:'kat'},
+        {emoji:'🐶', es:'perro', en:'dog', nl:'hond'},
+        {emoji:'🏠', es:'casa', en:'house', nl:'huis'},
+        {emoji:'🏫', es:'escuela', en:'school', nl:'school'},
+        {emoji:'📚', es:'libro', en:'book', nl:'boek'},
+        {emoji:'👋', es:'hola', en:'hello', nl:'hallo'},
+        {emoji:'👋', es:'adiós', en:'goodbye', nl:'tot ziens'},
+        {emoji:'🙏', es:'por favor', en:'please', nl:'alsjeblieft'},
+        {emoji:'🙂', es:'gracias', en:'thank you', nl:'dank je'},
+        {emoji:'🔴', es:'rojo', en:'red', nl:'rood'},
+        {emoji:'🔵', es:'azul', en:'blue', nl:'blauw'},
+        {emoji:'🟢', es:'verde', en:'green', nl:'groen'},
+        {emoji:'1️⃣', es:'uno', en:'one', nl:'een'},
+        {emoji:'2️⃣', es:'dos', en:'two', nl:'twee'},
+        {emoji:'3️⃣', es:'tres', en:'three', nl:'drie'},
+        {emoji:'🔟', es:'diez', en:'ten', nl:'tien'}
+      ];
+      function VocabGame({target,onExit,onWrongPenalty,onWin,onCorrect}){
+        const [lvl,setLvl]=React.useState(0);
+        const targetName = target==='en'? 'Anglais' : target==='nl'? 'Néerlandais' : 'Espagnol';
+        const sourceKey = target==='es'? 'en' : 'es';
+        if(!lvl){ return (
+          <div className="card"><button className="back" style={{marginBottom:10}} onClick={onExit}>🦄 Retour</button>
+            <h2 style={{fontWeight:900,fontSize:22,fontFamily:'Fredoka'}}>Vocabulaire · {targetName}</h2>
+            <p className="caption">Choisis un niveau (6–15 mots).</p>
+            <div className="row" style={{marginTop:8}}>{Array.from({length:5},(_,k)=>(<LevelPill key={k} onClick={()=>setLvl(k+1)}>Niveau {k+1}</LevelPill>))}</div>
+          </div>
+        ); }
+        const count=LEVEL_SIZES[lvl-1];
+        const makeItem=(it)=>{
+          const src=it[sourceKey];
+          const ans=it[target];
+          let pool = shuffle(VOCAB_CORE.map(o=> o[target]).filter(v=> v && !eqAns(v, ans)));
+          const opts=[ans, ...pool.slice(0,3)];
+          const uniq=[]; for(const o of opts){ if(!uniq.some(u=>eqAns(u,o))) uniq.push(o); }
+          while(uniq.length<4){
+            const fb = pool.shift() || VOCAB_CORE[Math.floor(Math.random()*VOCAB_CORE.length)][target];
+            if(fb && !uniq.some(u=>eqAns(u,fb))) uniq.push(fb);
+          }
+          return { prompt:`«${src}» → ${targetName}?`, options:shuffle(uniq.slice(0,4)), answer:ans, emoji:it.emoji };
+        };
+        const items=takeN(VOCAB_CORE,count).map(makeItem).map(x=>{
+          if(!x.options.some(o=> eqAns(o,x.answer))){
+            x={...x, options: shuffle([x.answer, ...x.options]).slice(0,4)};
+          }
+          return x;
+        });
+        return <MCQGame title={`Vocabulaire · ${targetName} · Niveau ${lvl}`} items={items} onExit={onExit} onWrongPenalty={onWrongPenalty} onWin={(earned)=> onWin(earned, (lvl<5? ()=> setLvl(lvl+1): null))} onCorrect={onCorrect}/>;
+      }
+
+      // Motor genérico para bancos
+      function BankGame({titlePrefix, bank, onExit, onWrongPenalty, onWin, onCorrect}){
+        const [lvl,setLvl]=useState(0);
+        if(!lvl){ return (
+          <div className="card"><button className="back" style={{marginBottom:10}} onClick={onExit}>🦄 Retour</button>
+            <h2 style={{fontWeight:900,fontSize:22,fontFamily:'Fredoka'}}>{titlePrefix}</h2>
+            <p className="caption">Choisis un niveau.</p>
+            <div className="row" style={{marginTop:8}}>{Array.from({length:5},(_,k)=>(<LevelPill key={k} onClick={()=>setLvl(k+1)}>Niveau {k+1}</LevelPill>))}</div>
+          </div>
+        ); }
+        const items = takeN(bank, LEVEL_SIZES[lvl-1]).map(x=>({
+          prompt:x.prompt, options:x.options, answer:x.answer, emoji:x.emoji
+        }));
+        return <MCQGame title={`${titlePrefix} (Niv. ${lvl})`} items={items} onExit={onExit} onWrongPenalty={onWrongPenalty} onWin={(earned)=> onWin(earned, (lvl<5? ()=> setLvl(lvl+1): null))} onCorrect={onCorrect}/>;
+      }
+
+      // Droite numérique
+      function NumberLineGame({onExit,onWrongPenalty,onWin,onCorrect}){
+        const presets={1:{count:LEVEL_SIZES[0],max:10},2:{count:LEVEL_SIZES[1],max:20},3:{count:LEVEL_SIZES[2],max:20},4:{count:LEVEL_SIZES[3],max:30},5:{count:LEVEL_SIZES[4],max:40}};
+        const [lvl,setLvl]=useState(0);
+        const cfg=presets[lvl];
+        const build=()=>{ if(!cfg) return []; const arr=[]; for(let i=0;i<cfg.count;i++){
+            let a=r(0,Math.floor(cfg.max/2)), b=r(1,Math.floor(cfg.max/2));
+            const op=(Math.random()<.5?'+':'-');
+            if(op==='-'){ const aa=Math.max(a,b); const bb=Math.min(a,b); a=aa; b=bb; }
+            const ans= op==='+'? a+b : a-b; arr.push({a,b,op,ans});
+          } return arr; };
+        const [i,setI]=useState(0), [score,setScore]=useState(0), [wrongCounts,setWrongCounts]=useState({});
+        const pool=useMemo(build,[lvl]); const total=pool.length; const q=pool[i]||{};
+        const choices=useMemo(()=> q.ans!=null? makeChoices(q.ans) : [], [i,lvl]);
+
+        const pick=(v,ev)=>{
+          const good=Number(v)===q.ans;
+          if(good){
+            onCorrect&&onCorrect(); setScore(s=>s+1);
+            const rct=ev.currentTarget.getBoundingClientRect(); confettiBurst(rct.left+rct.width/2, rct.top+rct.height/2);
+            if(i+1<total) setI(i+1); else onWin(score+1, (lvl<5? ()=>{setLvl(lvl+1); setI(0); setScore(0);} : null));
+          } else {
+            const c=(wrongCounts[i]||0)+1; setWrongCounts({...wrongCounts,[i]:c}); onWrongPenalty(c===1?1:3);
+          }
+        };
+        const renderLine=(a,b,op)=>{
+          const max=(cfg&&cfg.max)||10;
+          const ticks=Array.from({length:max+1},(_,k)=>k);
+          const pos=a; const end= op==='+'? a+b : a-b;
+          return (
+            <div>
+              <div className="number-line">
+                {ticks.map((t,idx)=> <span key={idx} className={'tick'+(t===pos?' on':'')+(t>pos && t<=end && op==='+'?' step':'')+(t<pos && t>=end && op==='-'?' step':'')}></span>)}
+              </div>
+              <div className="row"><span className="back">Départ: {pos}</span><span className="back">Pas: {b}</span><span className="back">Arrivée: ?</span></div>
+            </div>
+          );
+        };
+        if(!lvl){ return (
+          <div className="card"><button className="back" style={{marginBottom:10}} onClick={onExit}>🦄 Retour</button>
+            <h2 style={{fontWeight:900,fontSize:22,fontFamily:'Fredoka'}}>Droite numérique</h2>
+            <p className="caption">Avance/recul sur la droite pour trouver le résultat.</p>
+            <div className="row" style={{marginTop:8}}>{Array.from({length:5},(_,k)=>(<LevelPill key={k} onClick={()=>setLvl(k+1)}>Niveau {k+1}</LevelPill>))}</div>
+          </div>
+        );}
+        return (
+          <div className="card">
+            <button className="back" style={{marginBottom:10}} onClick={onExit}>🦄 Retour</button>
+            <h2 style={{fontWeight:900,fontSize:22,fontFamily:'Fredoka'}}>Droite numérique · Niveau {lvl}</h2>
+            <div style={{fontSize:28,fontWeight:900,margin:'10px 0'}}>{q.a} {q.op} {q.b} = ?</div>
+            {renderLine(q.a,q.b,q.op)}
+            <Progress current={i} total={total}/>
+            <div className="grid cols-3" style={{marginTop:12}}>
+              {choices.map((c,idx)=> (<OptionButton key={idx} index={idx} emoji={'🎯'} label={String(c)} onClick={(e)=>pick(c,e)}/> ))}
+            </div>
+            <div className="caption">Question {i+1}/{total} — Score {score}</div>
+          </div>
+        );
+      }
+
+      // Mémoire (paires)
+      function MemoryGame({onExit,onWrongPenalty,onWin,onCorrect}){
+        const [lvl,setLvl]=useState(0);
+        const sizeForLevel = lvl===1?4: lvl===2?6: lvl===3?8: lvl===4?10:12;
+        const mkPairs=(n)=>{
+          const arr=[];
+          for(let i=0;i<n;i++){
+            const a=r(1,9), b=r(1,9);
+            const op = lvl>=3?(['+','-','x'][r(0,2)]) : (lvl===2?(['+','-'][r(0,1)]):'+');
+            let exp=`${a}+${b}`, val=a+b;
+            if(op==='-'){ const aa=Math.max(a,b), bb=Math.min(a,b); exp=`${aa}-${bb}`; val=aa-bb; }
+            if(op==='x'){ exp=`${a}×${b}`; val=a*b; }
+            const id=`${exp}=${val}`;
+            arr.push({id, label:exp, match:id+'r'}); arr.push({id:id+'r', label:String(val), match:id});
+          }
+          return shuffle(arr);
+        };
+        if(!lvl){ return (
+          <div className="card"><button className="back back-lg" onClick={onExit} style={{marginBottom:10}}>🦄 Retour</button>
+            <h2 style={{fontWeight:900,fontSize:22,fontFamily:'Fredoka'}}>Mémoire</h2>
+            <p className="caption">Retourne les cartes et associe opération ↔ résultat.</p>
+            <div className="row" style={{marginTop:8}}>{Array.from({length:5},(_,k)=>(<LevelPill key={k} onClick={()=>setLvl(k+1)}>Niveau {k+1}</LevelPill>))}</div>
+          </div>
+        );}
+        const [cards,setCards]=useState(mkPairs(sizeForLevel));
+        const [open,setOpen]=useState([]); const [solved,setSolved]=useState({}); const [score,setScore]=useState(0); const [wrong,setWrong]=useState(0);
+        const click=(idx)=>{
+          if(solved[idx]||open.includes(idx)) return;
+          const now=[...open,idx]; setOpen(now);
+          if(now.length===2){
+            const [a,b]=now;
+            if(cards[a].match===cards[b].id){
+              onCorrect&&onCorrect(); setSolved({...solved,[a]:1,[b]:1}); setOpen([]); setScore(s=>s+1);
+              if(Object.keys(solved).length+2===cards.length) onWin(3);
+            } else {
+              setTimeout(()=> setOpen([]), 450);
+              const w=wrong+1; setWrong(w); onWrongPenalty(w===1?1:3);
+            }
+          }
+        };
+        return (
+          <div className="card">
+            <button className="back" onClick={onExit} style={{marginBottom:10}}>🦄 Retour</button>
+            <h2 style={{fontWeight:900,fontSize:22,fontFamily:'Fredoka'}}>Mémoire · Niveau {lvl}</h2>
+            <div className="card-wrap" style={{gridTemplateColumns:'repeat(4,minmax(0,1fr))'}}>
+              {cards.map((c,idx)=>{
+                const isOpen=open.includes(idx)||solved[idx];
+                return (
+                  <div key={idx} className={'card-flip'+(isOpen?' is-open':'')} onClick={()=>click(idx)}>
+                    <div className="face front"/>
+                    <div className="face backface"><span className="lbl" style={{fontSize:20,fontFamily:'Fredoka'}}>{c.label}</span></div>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        );
+      }
+
+      // Équations
+      function EquationsGame({onExit,onWrongPenalty,onWin,onCorrect}){
+        const [lvl,setLvl]=useState(0);
+        if(!lvl){ return (
+          <div className="card"><button className="back" onClick={onExit} style={{marginBottom:10}}>🦄 Retour</button>
+            <h2 style={{fontWeight:900,fontSize:22,fontFamily:'Fredoka'}}>Équations</h2>
+            <div className="row" style={{marginTop:8}}>{Array.from({length:5},(_,k)=>(<LevelPill key={k} onClick={()=>setLvl(k+1)}>Niveau {k+1}</LevelPill>))}</div>
+          </div>
+        );}
+        const items=useMemo(()=>{
+          const arr=[]; const n=LEVEL_SIZES[lvl-1];
+          for(let k=0;k<n;k++){
+            const a=r(1,10), b=r(1,10);
+            if(lvl<=2){
+              const ans=a+b; const text=`__ + ${b} = ${ans}`;
+              arr.push({prompt:text, options:makeChoices(a).map(x=>String(x)), answer:String(a), emoji:'➕'});
+            } else if(lvl===3){
+              const op=['+','-'][r(0,1)];
+              const ans= op==='+'?a+b: (Math.max(a,b)-Math.min(a,b));
+              const bigger=Math.max(a,b), smaller=Math.min(a,b);
+              const text=`${bigger} ${op==='-'?'-':op} ${smaller} = __`;
+              arr.push({prompt:text, options:makeChoices(ans).map(x=>String(x)), answer:String(ans), emoji:'🧮'});
+            } else {
+              const ops=['+','-','x']; const op=ops[r(0,2)];
+              const ans= op==='+'?a+b: op==='-'? (Math.max(a,b)-Math.min(a,b)): a*b;
+              const text=`${a} __ ${b} = ${ans}`;
+              arr.push({prompt:text, options:['+','-','x','/'], answer:op, emoji:'❓'});
+            }
+          }
+          return arr;
+        },[lvl]);
+        return <MCQGame title={`Équations · Niveau ${lvl}`} items={items} onExit={onExit} onWrongPenalty={onWrongPenalty} onWin={onWin} onCorrect={onCorrect}/>;
+      }
+
+      // Rappel (orden croissant)
+      function RecallGame({onExit,onWrongPenalty,onWin}){
+        const [lvl,setLvl]=useState(0);
+        const len= lvl===1?3: lvl===2?4: lvl===3?5: lvl===4?6:7;
+        const [seq,setSeq]=useState([]); const [visible,setVisible]=useState(true); const [next,setNext]=useState([]);
+        useEffect(()=>{ if(!lvl) return; const s=shuffle(Array.from({length:9},(_,k)=>k+1)).slice(0,len).sort((a,b)=>a-b); setSeq(s); setVisible(true); setNext([...s]); const t=setTimeout(()=> setVisible(false), 1700+lvl*400); return ()=>clearTimeout(t); },[lvl]);
+        const click=(n)=>{
+          if(!next.length) return; const expect=next[0];
+          if(n===expect){ const rest=next.slice(1); setNext(rest); if(!rest.length) onWin(3); }
+          else { onWrongPenalty(next.length===len?1:3); }
+        };
+        if(!lvl){ return (
+          <div className="card"><button className="back" onClick={onExit} style={{marginBottom:10}}>🦄 Retour</button>
+            <h2 style={{fontWeight:900,fontSize:22,fontFamily:'Fredoka'}}>Mémoire · Rappel</h2>
+            <p className="caption">Regarde les nombres puis touche dans l’ordre croissant.</p>
+            <div className="row" style={{marginTop:8}}>{Array.from({length:5},(_,k)=>(<LevelPill key={k} onClick={()=>setLvl(k+1)}>Niveau {k+1}</LevelPill>))}</div>
+          </div>
+        );}
+        const pool=Array.from({length:9},(_,k)=>k+1);
+        return (
+          <div className="card">
+            <button className="back" onClick={onExit} style={{marginBottom:10}}>🦄 Retour</button>
+            <h2 style={{fontWeight:900,fontSize:22,fontFamily:'Fredoka'}}>Rappel · Niveau {lvl}</h2>
+            <div className="board cols-4" style={{gridTemplateColumns:'repeat(3,80px)', justifyContent:'center'}}>
+              {pool.map(n=> (
+                <div key={n} className={'tile'} onClick={()=> click(n)}>{ visible && seq.includes(n)? n : ''}</div>
+              ))}
+            </div>
+          </div>
+        );
+      }
+
+      // Sudoku 4×4
+      function Sudoku4Plus({onExit,onWrongPenalty,onWin}){
+        const [level,setLevel]=useState(0);
+        const [puzzles,setPuzzles]=useState([]);
+        const [index,setIndex]=useState(0);
+        const [sel,setSel]=useState(null);
+
+        const base=[[1,2,3,4],[3,4,1,2],[2,1,4,3],[4,3,2,1]];
+        const clone=(g)=> g.map(r=>r.slice());
+        const permuteNumbers=(g)=>{ const map=shuffle([1,2,3,4]); const m=new Map([[1,map[0]],[2,map[1]],[3,map[2]],[4,map[3]]]); return g.map(row=>row.map(v=>m.get(v))); };
+        const swapRowsInBand=(g)=>{ const band=r(0,1)*2; const i1=band+r(0,1), i2=band+(1-i1%2); const ng=clone(g); [ng[i1],ng[i2]]=[ng[i2],ng[i1]]; return ng; };
+        const swapColsInStack=(g)=>{ const stack=r(0,1)*2; const c1=stack+r(0,1), c2=stack+(1-c1%2); const ng=clone(g); for(let i=0;i<4;i++){ [ng[i][c1],ng[i][c2]]=[ng[i][c2],ng[i][c1]]; } return ng; };
+        const shuffleGrid=()=>{ let g=clone(base); for(let i=0;i<r(2,5);i++){ g=permuteNumbers(g); g=swapRowsInBand(g); g=swapColsInStack(g); } return g; };
+        const makePuzzle=(difficulty)=>{
+          const full=shuffleGrid(); const holes = difficulty===1? r(4,6) : difficulty===2? r(6,8) : r(8,10);
+          const g=clone(full); const cells=shuffle(Array.from({length:16},(_,k)=>[Math.floor(k/4),k%4]));
+          for(let k=0;k<holes;k++){ const [i,j]=cells[k]; g[i][j]=0; }
+          const fixed=new Set(); for(let i=0;i<4;i++) for(let j=0;j<4;j++) if(g[i][j]!==0) fixed.add(`${i}-${j}`);
+          return {start:g, fixed, solution:full};
+        };
+        const startLevel=(lvl)=>{ setLevel(lvl); setIndex(0); const list=Array.from({length:5},()=> makePuzzle(lvl)); setPuzzles(list); };
+
+        const [grid,setGrid]=useState([[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]]);
+        useEffect(()=>{ if(level>0 && puzzles.length){ setGrid(clone(puzzles[index].start)); setSel(null);} },[level,index,puzzles]);
+
+        const isFixed=(r,c)=> (puzzles[index] && puzzles[index].fixed.has(`${r}-${c}`));
+        const conflicts=useMemo(()=>{
+          const conf=new Set(); const g=grid;
+          for(let i=0;i<4;i++){ const seen=new Map(); for(let j=0;j<4;j++){ const v=g[i][j]; if(!v) continue; if(seen.has(v)){ conf.add(`${i}-${j}`); conf.add(`${i}-${seen.get(v)}`);} else seen.set(v,j);} }
+          for(let j=0;j<4;j++){ const seen=new Map(); for(let i=0;i<4;i++){ const v=g[i][j]; if(!v) continue; if(seen.has(v)){ conf.add(`${i}-${j}`); conf.add(`${seen.get(v)}-${j}`);} else seen.set(v,i);} }
+          for(let br=0;br<br2;){break} // (guard to satisfy linter)
+          for(let br=0;br<2;br++) for(let bc=0;bc<2;bc++){
+            const seen=new Map();
+            for(let i=0;i<2;i++) for(let j=0;j<2;j++){
+              const r0=br*2+i, c0=bc*2+j; const v=g[r0][c0]; if(!v) continue;
+              if(seen.has(v)){ const [ri,ci]=seen.get(v); conf.add(`${r0}-${c0}`); conf.add(`${ri}-${ci}`);} else seen.set(v,[r0,c0]);
+            }
+          }
+          return conf;
+        },[grid,index]);
+
+        const select=(r,c)=>{ if(level===0) return; setSel({r,c}); };
+        const setVal=(n)=>{ if(!sel) return; const {r,c}=sel; if(isFixed(r,c)) return; const ng=grid.map(row=>row.slice()); ng[r][c]=n; setGrid(ng); };
+        const clearVal=()=>{ if(!sel) return; const {r,c}=sel; if(isFixed(r,c)) return; const ng=grid.map(row=>row.slice()); ng[r][c]=0; setGrid(ng); };
+        useEffect(()=>{ const onKey=(e)=>{ if(!sel) return; if(['1','2','3','4'].includes(e.key)) setVal(Number(e.key)); if(e.key==='Backspace' || e.key==='Delete' || e.key==='0') clearVal(); }; window.addEventListener('keydown',onKey); return ()=> window.removeEventListener('keydown',onKey); },[sel,grid]);
+
+        const isComplete=()=> grid.every(row=> row.every(v=> v>0));
+        const check=()=>{
+          if(conflicts.size){ onWrongPenalty(1); return; }
+          if(isComplete()){ onWin(4, index<4? ()=> setIndex(index+1): null); }
+          else { onWrongPenalty(1); }
+        };
+
+        if(!level){
+          return (
+            <div className="card">
+              <button className="back" onClick={onExit} style={{marginBottom:10}}>🦄 Retour</button>
+              <h2 style={{fontWeight:900,fontSize:22,fontFamily:'Fredoka'}}>Sudoku 4×4</h2>
+              <p className="caption">Choisis une difficulté. Chaque niveau contient 5 puzzles.</p>
+              <div className="row" style={{marginTop:8}}>
+                <LevelPill onClick={()=>startLevel(1)}>Facile</LevelPill>
+                <LevelPill onClick={()=>startLevel(2)}>Moyen</LevelPill>
+                <LevelPill onClick={()=>startLevel(3)}>Difficile</LevelPill>
+              </div>
+            </div>
+          );
+        }
+        return (
+          <div className="card">
+            <div className="row" style={{justifyContent:'space-between', width:'100%'}}>
+              <button className="back" onClick={()=>{setLevel(0); setPuzzles([]);}}>🦄 Niveaux</button>
+              <div className="back">Puzzle {index+1}/5</div>
+            </div>
+            <h2 style={{fontWeight:900,fontSize:22,fontFamily:'Fredoka'}}>Sudoku 4×4 — {level===1?'Facile':level===2?'Moyen':'Difficile'}</h2>
+            <div className="board cols-4" style={{margin:'8px 0'}}>
+              {grid.map((row,r)=> row.map((v,c)=>{
+                const key=`${r}-${c}`; const fixed=isFixed(r,c);
+                const isSel=sel&&sel.r===r&&sel.c===c; const bad=conflicts.has(key);
+                return (
+                  <div key={key} className={'tile'+(fixed?' fixed':'')+(isSel?' sel':'')+(bad?' err':'')} onClick={()=>select(r,c)}>{v||''}</div>
+                );
+              }))}
+            </div>
+            <div className="keypad" role="group" aria-label="Clavier Sudoku">
+              {[1,2,3,4].map(n=> <button key={n} className="key" onClick={()=>setVal(n)}>{n}</button>)}
+              <button className="key" onClick={clearVal}>Effacer</button>
+              <button className="key" onClick={check} style={{background:'#10b981',color:'#fff'}}>Vérifier</button>
+              <button className="key" onClick={()=> setIndex(Math.min(index+1,4))}>Sauter</button>
+            </div>
+          </div>
+        );
+      }
+
+      // Contes
+      function TaleMaker({onExit}){
+        const lieux=['la forêt de l’Aurore 🌲','le village de Brindille 🏡','le bord de la mer 🌊','la montagne bleue ⛰️'];
+        const heros=['Léna 🦄','Milo 🐻','Zoé 🦊','Nino 🐼'];
+        const amis=['un écureuil curieux 🐿️','un chat qui parle 🐱💬','une luciole brillante 🔆','un petit robot 🤖'];
+        const quetes=['retrouver une étoile perdue ⭐','apprendre le secret des saisons 🌸☀️🍂❄️','rendre des couleurs à un tableau 🎨','offrir un sourire à quelqu’un de triste 😊➡️🙂'];
+        const obstacles=['un pont cassé 🌉','un brouillard épais 🌫️','une énigme à résoudre 🔍','un vent capricieux 💨'];
+        const moral=['le courage grandit quand on le partage 💪🤝','un petit geste peut illuminer le monde ✨','on apprend en aidant les autres 👩‍🏫','la patience ouvre toutes les portes 🗝️'];
+        const pick=a=>a[r(0,a.length-1)];
+        const mk=()=>{const L=pick(lieux), H=pick(heros), A=pick(amis), Q=pick(quetes), O=pick(obstacles), M=pick(moral); const name=H.split(' ')[0]; return [
+          `${H} habite près de ${L}. Chaque matin, ${name} dit « bonjour ! » aux oiseaux 🐦 et au soleil ☀️.`,
+          `Un jour, ${name} rencontre ${A}. Ensemble, ils décident de ${Q}. Ils préparent un sac 🎒, une gourde 🥤 et un grand sourire 😄.`,
+          `Le chemin est long… Ils chantent 🎶, sautent par-dessus les flaques 💧 et partagent une pomme 🍎.`,
+          `Soudain, ils doivent franchir ${O}. Ils respirent profondément 🧘 et essayent encore 💫.`,
+          `Grâce à leur entraide 🤝, la route s’ouvre ✨. Au loin, une lumière les guide 🔔.`,
+          `Au coucher du soleil 🌇, ils réussissent leur mission. Ils comprennent que ${M}.`
+        ];};
+        const [paras,setParas]=useState(mk());
+        return (
+          <div className="card"><button className="back" style={{marginBottom:10}} onClick={onExit}>🦄 Retour</button>
+            <h2 style={{fontWeight:900,fontSize:22,fontFamily:'Fredoka'}}>Contes ✨</h2>
+            <p className="caption">Histoires (2–3 min) avec texte grand + emojis.</p>
+            <div style={{fontSize:22,lineHeight:1.8,marginTop:10}}>{paras.map((p,i)=>(<p key={i} style={{margin:'10px 0'}}>{p}</p>))}</div>
+            <div className="row" style={{marginTop:8}}><button className="back" onClick={()=>setParas(mk())}>Nouveau conte</button></div>
+          </div>
+        );
+      }
+
+      /* ===================== Submenus / IconButton ===================== */
+      function IconButton({emoji,label,desc,onClick}){
+        return (
+          <button className="icon-btn" onClick={onClick} aria-label={label} title={label}>
+            <div className="icon-emoji">{emoji}</div>
+            <div className="icon-label">{label}</div>
+            {desc && <div className="icon-desc">{desc}</div>}
+          </button>
+        );
+      }
+      function SubMenu({title,items,onBack}){
+        return (
+          <div className="card">
+            <button className="back" style={{marginBottom:10}} onClick={onBack}>🦄 Retour</button>
+            <h2 style={{fontWeight:900,fontSize:22,fontFamily:'Fredoka'}}>{title}</h2>
+            <div className="grid cols-3" style={{marginTop:8}}>
+              {items.map(it=>(
+                <button key={it.key} className="icon-btn" onClick={it.onClick} aria-label={it.label} title={it.label}>
+                  <div className="icon-emoji">{it.emoji}</div>
+                  <div className="icon-label">{it.label}</div>
+                  {it.desc && <div className="icon-desc">{it.desc}</div>}
+                </button>
+              ))}
+            </div>
+          </div>
+        );
+      }
+
+      /* ===================== App root ===================== */
+      function App(){
+        const [screen,setScreen]=useState('home');
+        const [bills,setBills]=useState(()=> Number(localStorage.getItem('bills')||'0'));
+        const [modal,setModal]=useState({open:false});
+        const [layout,setLayout]=useState(()=> localStorage.getItem('layoutMode')||'center'); // 'center' | 'full'
+        const [soundOn,setSoundOn]=useState(()=> localStorage.getItem('soundOn')!=='0');
+        const [streak,setStreak]=useState(0);
+        const [bestStreak,setBestStreak]=useState(()=> Number(localStorage.getItem('bestStreak')||'0'));
+        const [combo,setCombo]=useState({show:false,n:0,key:0});
+        const [dark,setDark]=useState(()=> localStorage.getItem('theme')==='dark');
+        const [party,setParty]=useState(false);
+
+        useEffect(()=>{ document.documentElement.setAttribute('data-theme', dark?'dark':'light'); localStorage.setItem('theme', dark?'dark':'light'); },[dark]);
+        useEffect(()=>{ document.documentElement.setAttribute('data-party', party?'on':'off'); },[party]);
+
+        const goHome=()=> setScreen('home');
+        const addBills=(n)=>{ const nb=bills+n; setBills(nb); localStorage.setItem('bills',String(nb)); };
+        const onWrongPenalty=(amount)=>{
+          if(soundOn) Sound.bad();
+          setStreak(0);
+          const nb=Math.max(0,bills-amount); setBills(nb); localStorage.setItem('bills',String(nb));
+          setModal({open:true,type:'bad',title:'Oups… Essaie encore !',children:(<div>🦄 Tristounet… Tu perds <b>{amount}</b> billet{amount>1?'s':''} 💸</div>)});
+        };
+        const onWin=(earned,nextLevel)=>{
+          if(soundOn) Sound.good();
+          addBills(earned);
+          setModal({open:true,type:'good',title:'Bravo !',
+            children:(<div>Tu as gagné {Array.from({length:earned}).map((_,i)=>(<span key={i} className="money">💵</span>))}</div>),
+            actions:[ nextLevel? {label:'Niveau suivant',primary:true,onClick:()=>{ setModal({open:false}); nextLevel(); }}: null,
+                      {label:'Menu principal',onClick:()=>{ setModal({open:false}); goHome(); }} ].filter(Boolean)
+          });
+        };
+        const onCorrect=()=>{
+          if(soundOn) Sound.good();
+          const s=streak+1; setStreak(s);
+          if(s>bestStreak){ setBestStreak(s); localStorage.setItem('bestStreak', String(s)); }
+          setCombo({show:true,n:s,key:Date.now()}); setTimeout(()=> setCombo(c=>({...c,show:false})), 900);
+          if(s%3===0){ addBills(1); }
+        };
+
+        const toggleLayout=()=>{ const next= layout==='center'? 'full':'center'; setLayout(next); localStorage.setItem('layoutMode',next); };
+        const toggleSound=()=>{ const v=!soundOn; setSoundOn(v); localStorage.setItem('soundOn', v?'1':'0'); };
+
+        const Home=()=> (
+          <div className="card">
+            <div className="grid cols-3">
+              <IconButton emoji="🇳🇱" label="Néerlandais" desc="Lecture, nombres, salutations" onClick={()=>setScreen('nederlands')}/>
+              <IconButton emoji="🇫🇷" label="Français (L2)" desc="Mots, phrases, jeux" onClick={()=>setScreen('cloze')}/>
+              <IconButton emoji="🗣️" label="Langues" desc="ES · EN · NL" onClick={()=>setScreen('languages')}/>
+              <IconButton emoji="🧮" label="Math · Mix" desc="+ − × ÷" onClick={()=>setScreen('quiz-mix')}/>
+              <IconButton emoji="🧠" label="Mémoire" desc="Paires" onClick={()=>setScreen('memory')}/>
+              <IconButton emoji="🎯" label="Droite numérique" desc="Add/Sub" onClick={()=>setScreen('number-line')}/>
+              <IconButton emoji="∎" label="Équations" desc="Nombre manquant" onClick={()=>setScreen('equations')}/>
+              <IconButton emoji="👁️‍🗨️" label="Rappel" desc="Ordre croissant" onClick={()=>setScreen('recall')}/>
+              <IconButton emoji="🔟" label="Unités·Dizaines" desc="Base 10" onClick={()=>setScreen('place-value')}/>
+              <IconButton emoji="🌍" label="Moi et le monde" desc="Saisons, famille" onClick={()=>setScreen('wereld')}/>
+              <IconButton emoji="🎨" label="Arts & couleurs" desc="Mélanges" onClick={()=>setScreen('couleurs')}/>
+              <IconButton emoji="🩺" label="Santé" desc="Hygiène, alimentation" onClick={()=>setScreen('sante')}/>
+              <IconButton emoji="💻" label="Culture numérique" desc="Souris, Internet" onClick={()=>setScreen('digital')}/>
+              <IconButton emoji="📚" label="Contes" desc="Histoires à lire" onClick={()=>setScreen('contes')}/>
+              <IconButton emoji="🧩" label="Sudoku 4×4" desc="Mini sudoku" onClick={()=>setScreen('sudoku4')}/>
+            </div>
+          </div>
+        );
+
+        const renderRoute=()=>{
+          if(screen==='quiz-add') return <ArithmeticQuiz mode="+" onExit={goHome} onWrongPenalty={onWrongPenalty} onWin={onWin} onCorrect={onCorrect}/>;
+          if(screen==='quiz-sub') return <ArithmeticQuiz mode="-" onExit={goHome} onWrongPenalty={onWrongPenalty} onWin={onWin} onCorrect={onCorrect}/>;
+          if(screen==='quiz-mul') return <ArithmeticQuiz mode="x" onExit={goHome} onWrongPenalty={onWrongPenalty} onWin={onWin} onCorrect={onCorrect}/>;
+          if(screen==='quiz-div') return <ArithmeticQuiz mode="/" onExit={goHome} onWrongPenalty={onWrongPenalty} onWin={onWin} onCorrect={onCorrect}/>;
+          if(screen==='quiz-mix') return <ArithmeticQuiz mode="mix" onExit={goHome} onWrongPenalty={onWrongPenalty} onWin={onWin} onCorrect={onCorrect}/>;
+          if(screen==='place-value') return <PlaceValue onExit={goHome} onWrongPenalty={onWrongPenalty} onWin={onWin} onCorrect={onCorrect}/>;
+          if(screen==='cloze') return <ClozeWithLevels onExit={goHome} onWrongPenalty={onWrongPenalty} onWin={onWin} onCorrect={onCorrect}/>;
+          if(screen==='saisons') return <BankGame titlePrefix="Moi et le monde · Saisons" bank={SAISONS_BANK} onExit={goHome} onWrongPenalty={onWrongPenalty} onWin={onWin} onCorrect={onCorrect}/>;
+          if(screen==='famille') return <BankGame titlePrefix="Moi et le monde · Famille" bank={FAMILLE_BANK} onExit={goHome} onWrongPenalty={onWrongPenalty} onWin={onWin} onCorrect={onCorrect}/>;
+          if(screen==='couleurs') return <BankGame titlePrefix="Arts · Couleurs" bank={COULEURS_BANK} onExit={goHome} onWrongPenalty={onWrongPenalty} onWin={onWin} onCorrect={onCorrect}/>;
+          if(screen==='souris') return <BankGame titlePrefix="Culture numérique · Souris & clavier" bank={DIGITAL_MOUSE_BANK} onExit={goHome} onWrongPenalty={onWrongPenalty} onWin={onWin} onCorrect={onCorrect}/>;
+          if(screen==='internet') return <BankGame titlePrefix="Culture numérique · Internet" bank={DIGITAL_NET_BANK} onExit={goHome} onWrongPenalty={onWrongPenalty} onWin={onWin} onCorrect={onCorrect}/>;
+          if(screen==='hygiene') return <BankGame titlePrefix="Santé · Hygiène" bank={SANTE_HYGIENE_BANK} onExit={goHome} onWrongPenalty={onWrongPenalty} onWin={onWin} onCorrect={onCorrect}/>;
+          if(screen==='alimentation') return <BankGame titlePrefix="Santé · Alimentation" bank={SANTE_FOOD_BANK} onExit={goHome} onWrongPenalty={onWrongPenalty} onWin={onWin} onCorrect={onCorrect}/>;
+          if(screen==='bienveillance') return <BankGame titlePrefix="Socio-relationnel · Bienveillance" bank={SOCIAL_KINDNESS_BANK} onExit={goHome} onWrongPenalty={onWrongPenalty} onWin={onWin} onCorrect={onCorrect}/>;
+          if(screen==='nl-nombres') return <BankGame titlePrefix="Néerlandais · Getallen (Nombres)" bank={NL_NUMBERS_BANK} onExit={goHome} onWrongPenalty={onWrongPenalty} onWin={onWin} onCorrect={onCorrect}/>;
+          if(screen==='nl-salut') return <BankGame titlePrefix="Néerlandais · Groeten (Salutations)" bank={NL_GREETINGS_BANK} onExit={goHome} onWrongPenalty={onWrongPenalty} onWin={onWin} onCorrect={onCorrect}/>;
+          if(screen==='contes') return <TaleMaker onExit={goHome}/>;
+          if(screen==='number-line') return <NumberLineGame onExit={goHome} onWrongPenalty={onWrongPenalty} onWin={onWin} onCorrect={onCorrect}/>;
+          if(screen==='memory') return <MemoryGame onExit={goHome} onWrongPenalty={onWrongPenalty} onWin={onWin} onCorrect={onCorrect}/>;
+          if(screen==='equations') return <EquationsGame onExit={goHome} onWrongPenalty={onWrongPenalty} onWin={onWin} onCorrect={onCorrect}/>;
+          if(screen==='recall') return <RecallGame onExit={goHome} onWrongPenalty={onWrongPenalty} onWin={onWin}/>;
+          if(screen==='sudoku4') return <Sudoku4Plus onExit={goHome} onWrongPenalty={onWrongPenalty} onWin={onWin}/>;
+          if(screen==='nederlands') return (
+            <SubMenu title="Néerlandais — 2e primaire" onBack={goHome} items={[
+              {key:'nl-lecture', emoji:'📖', label:'Lecture (FR) · Cloze', desc:'Complète la phrase', onClick:()=>setScreen('cloze')},
+              {key:'nl-nombres', emoji:'🔢', label:'Getallen (Nombres)', desc:'1 à 20', onClick:()=>setScreen('nl-nombres')},
+              {key:'nl-salut', emoji:'👋', label:'Groeten (Salutations)', desc:'Bonjour, Au revoir…', onClick:()=>setScreen('nl-salut')},
+            ]}/>
+          );
+          if(screen==='digital') return (
+            <SubMenu title="Culture numérique — 2e primaire" onBack={goHome} items={[
+              {key:'souris', emoji:'🖱️', label:'Souris & clavier', desc:'Niveaux', onClick:()=>setScreen('souris')},
+              {key:'internet', emoji:'🌐', label:'Internet', desc:'Sécurité & usage', onClick:()=>setScreen('internet')},
+            ]}/>
+          );
+          if(screen==='sante') return (
+            <SubMenu title="Santé — 2e primaire" onBack={goHome} items={[
+              {key:'hygiene', emoji:'🧼', label:'Hygiène', desc:'Lavage des mains, dents', onClick:()=>setScreen('hygiene')},
+              {key:'alimentation', emoji:'🥦', label:'Alimentation', desc:'Choix sains', onClick:()=>setScreen('alimentation')},
+            ]}/>
+          );
+          if(screen==='social') return (
+            <SubMenu title="Socio-relationnel — 2e primaire" onBack={goHome} items={[
+              {key:'bienveillance', emoji:'🙂', label:'Bienveillance', desc:'Niveaux', onClick:()=>setScreen('bienveillance')},
+            ]}/>
+          );
+          if(screen==='wereld') return (
+            <SubMenu title="Moi et le monde — 2e primaire" onBack={goHome} items={[
+              {key:'saisons', emoji:'⛅', label:'Saisons', desc:'Niveaux', onClick:()=>setScreen('saisons')},
+              {key:'famille', emoji:'👨‍👩‍👧', label:'Famille & communauté', desc:'Niveaux', onClick:()=>setScreen('famille')},
+            ]}/>
+          );
+          if(screen==='languages') return (
+            <SubMenu title="Langues" onBack={goHome} items={[
+              {key:'lang-es', emoji:'🇪🇸', label:'Espagnol',  desc:'Vocabulaire de base', onClick:()=>setScreen('lang-es')},
+              {key:'lang-en', emoji:'🇬🇧', label:'Anglais',   desc:'Basic words',         onClick:()=>setScreen('lang-en')},
+              {key:'lang-nl', emoji:'🇳🇱', label:'Néerlandais',desc:'Basiswoorden',        onClick:()=>setScreen('lang-nl')},
+            ]}/>
+          );
+          if(screen==='lang-en') return <VocabGame target="en" onExit={goHome} onWrongPenalty={onWrongPenalty} onWin={onWin} onCorrect={onCorrect}/>;
+          if(screen==='lang-nl') return <VocabGame target="nl" onExit={goHome} onWrongPenalty={onWrongPenalty} onWin={onWin} onCorrect={onCorrect}/>;
+          if(screen==='lang-es') return <VocabGame target="es" onExit={goHome} onWrongPenalty={onWrongPenalty} onWin={onWin} onCorrect={onCorrect}/>;
+          return null;
+        };
+
+        return (
+          <div className={'container '+(layout==='full'?'full':'')}>
+            <div className="header">
+              <div className="brand">
+                <div className="brand-badge" aria-hidden="true">
+                  <svg width="20" height="20" viewBox="0 0 64 64" aria-hidden="true"><use href="#ico-star"/></svg>
+                </div>
+                <div className="title">Appli de Léna — 2e primaire</div>
+              </div>
+              <div className="row">
+                <button className="back" onClick={()=>setDark(d=>!d)} title={dark? 'Thème sombre activé':'Activer le thème sombre'}>🌙 Thème</button>
+                <button className="back" onClick={()=>setParty(p=>!p)} title="Mode Fête">🎉 {party?'Fête ON':'Fête'}</button>
+                <button className="back" onClick={toggleLayout} title={layout==='center'? 'Passer en plein écran':'Revenir au centrage'}>
+                  {layout==='center'? '🖥️ Plein écran':'📏 Centré'}
+                </button>
+                <button className="back" onClick={toggleSound} title={soundOn? 'Couper le son':'Activer le son'}>{soundOn? '🔊 Son':'🔈 Muet'}</button>
+                <div className="bill-purse" title="Billets">
+                  <span>💵</span> <b>{bills}</b>
+                </div>
+              </div>
+            </div>
+            <main className={'stage '+(screen==='home'?'home ':'')+(layout==='full'?'full':'center')}>
+              {screen==='home'? <Home/> : renderRoute()}
+            </main>
+            <Modal {...modal} onClose={()=>setModal({open:false})}/>
+            <div className={"combo"+(combo.show?" show":"")} key={combo.key}>🔥 x{streak}</div>
+          </div>
+        );
+      }
+
+      ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+    </script>
+  </body>
+</html>
