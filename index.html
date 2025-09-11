@@ -165,7 +165,7 @@
         return (
           <button className="opt" onClick={handle} aria-label={label}>
             <span className="badge">{String.fromCharCode(65+index)}</span>
-            <span className="emo">{emoji}</span>
+            {emoji ? <span className="emo">{emoji}</span> : null}
             <span className="lbl">{label}</span>
           </button>
         );
@@ -220,13 +220,13 @@
         };
         return (
           <div className="card">
-            <button className="back" style={{marginBottom:10}} onClick={onExit}>← Retour</button>
+            <button className="back" style={{marginBottom:10}} onClick={onExit}>🦄 Retour</button>
             <h2 style={{fontWeight:900,fontSize:22}}>{title}</h2>
             <div className="caption" style={{marginTop:2}}>{item.hint||''}</div>
-            <div style={{fontSize:18,fontWeight:800,margin:'10px 0'}} aria-live="polite">{item.emoji? <span style={{marginRight:8}}>{item.emoji}</span>:null}{item.prompt}</div>
+            <div style={{fontSize:36,fontWeight:900,margin:'10px 0',textAlign:'center'}} aria-live="polite">{item.emoji? <span style={{marginRight:8}}>{item.emoji}</span>:null}{item.prompt}</div>
             <Progress current={i} total={total}/>
             <div className="grid cols-3" style={{marginTop:12}}>
-              {opts.map((opt,idx)=>{ const lbl=typeof opt==='string'?opt:(opt.label||''); const emo=(typeof opt==='object'&&opt.emoji)?opt.emoji:'✅'; return <OptionButton key={lbl+idx} index={idx} emoji={emo} label={lbl} onClick={(e)=>submit(opt,e)}/> })}
+              {opts.map((opt,idx)=>{ const lbl=typeof opt==='string'?opt:(opt.label||''); const emo=(typeof opt==='object'&&opt.emoji)?opt.emoji:null; return <OptionButton key={lbl+idx} index={idx} emoji={emo} label={lbl} onClick={(e)=>submit(opt,e)}/> })}
             </div>
             <div className="caption" style={{marginTop:10}}>Question {i+1}/{total} — Score {ok}</div>
           </div>
@@ -253,7 +253,7 @@
         const pool=useMemo(buildPool,[lvl]); const total=pool.length; const q=pool[i]||{};
         const choices=useMemo(()=> q.ans!=null?makeChoices(q.ans):[], [i,lvl]);
         if(!lvl){ return (
-          <div className="card"><button className="back" style={{marginBottom:10}} onClick={onExit}>← Retour</button>
+          <div className="card"><button className="back" style={{marginBottom:10}} onClick={onExit}>🦄 Retour</button>
             <h2 style={{fontWeight:900,fontSize:22}}>Mathématiques · {mode==='+'?'Additions':mode==='-'?'Soustractions':mode==='x'?'Multiplications':mode==='/'?'Divisions':'Mix'}</h2>
             <p className="caption">Choisis un niveau.</p>
             <div className="row" style={{marginTop:8}}>
@@ -263,7 +263,7 @@
         const pick=(v,ev)=>{ const good=Number(v)===q.ans; if(good){ onCorrect&&onCorrect(); setScore(s=>s+1); const rct=ev.currentTarget.getBoundingClientRect(); confettiBurst(rct.left+rct.width/2, rct.top+rct.height/2); if(i+1<total) setI(i+1); else onWin(score+1, (lvl<5? ()=>{setLvl(lvl+1); setI(0); setScore(0);} : null)); } else { const c=(wrongCounts[i]||0)+1; setWrongCounts({...wrongCounts,[i]:c}); onWrongPenalty(c===1?1:3); } };
         return (
           <div className="card">
-            <button className="back" style={{marginBottom:10}} onClick={onExit}>← Retour</button>
+            <button className="back" style={{marginBottom:10}} onClick={onExit}>🦄 Retour</button>
             <h2 style={{fontWeight:900,fontSize:22}}>Mathématiques · {q.op||mode} · Niveau {lvl}</h2>
             <div style={{fontSize:28,fontWeight:900,margin:'10px 0'}} aria-live="polite">{q.a} {q.op||mode} {q.b} = ?</div>
             {(q.op||mode)==='+' && <AdditionVisual a={q.a} b={q.b}/>} 
@@ -285,7 +285,7 @@
         const pick=(v,ev)=>{ const good=Number(v)===correct; if(good){ onCorrect&&onCorrect(); setScore(s=>s+1); const r=ev.currentTarget.getBoundingClientRect(); confettiBurst(r.left+r.width/2, r.top+r.height/2); if(i+1<total) setI(i+1); else onWin(score+1, (lvl<5? ()=>{setLvl(lvl+1); setI(0); setScore(0);} : null)); } else { const c=(wrongCounts[i]||0)+1; setWrongCounts({...wrongCounts,[i]:c}); onWrongPenalty(c===1?1:3); } };
         if(!lvl){ return (
           <div className="card">
-            <button className="back" style={{marginBottom:10}} onClick={onExit}>← Retour</button>
+            <button className="back" style={{marginBottom:10}} onClick={onExit}>🦄 Retour</button>
             <h2 style={{fontWeight:900,fontSize:22}}>Unités · Dizaines · Centaines</h2>
             <p className="caption">Choisis un niveau.</p>
             <div className="row" style={{marginTop:8}}>
@@ -294,7 +294,7 @@
           </div> ); }
         return (
           <div className="card">
-            <button className="back" style={{marginBottom:10}} onClick={onExit}>← Retour</button>
+            <button className="back" style={{marginBottom:10}} onClick={onExit}>🦄 Retour</button>
             <h2 style={{fontWeight:900,fontSize:22}}>Unités · Dizaines · Centaines · Niveau {lvl}</h2>
             <div className="back" style={{gap:8,marginBottom:8}}>Cible: <select className="back" onChange={e=>setTarget(e.target.value)} value={target}><option value="unités">Unités</option><option value="dizaines">Dizaines</option><option value="centaines">Centaines</option></select></div>
             <div style={{fontSize:28,fontWeight:900,margin:'10px 0'}} aria-live="polite">{n}</div>
@@ -333,7 +333,7 @@
       ];
       function ClozeWithLevels({onExit,onWrongPenalty,onWin,onCorrect}){
         const [lvl,setLvl]=useState(0); if(!lvl){return (
-          <div className="card"><button className="back" style={{marginBottom:10}} onClick={onExit}>← Retour</button><h2 style={{fontWeight:900,fontSize:22}}>Lecture · Choisis le mot</h2><p className="caption">Choisis un niveau.</p><div className="row" style={{marginTop:8}}>{Array.from({length:5},(_,k)=>(<LevelPill key={k} onClick={()=>setLvl(k+1)}>Niveau {k+1}</LevelPill>))}</div></div> );}
+          <div className="card"><button className="back" style={{marginBottom:10}} onClick={onExit}>🦄 Retour</button><h2 style={{fontWeight:900,fontSize:22}}>Lecture · Choisis le mot</h2><p className="caption">Choisis un niveau.</p><div className="row" style={{marginTop:8}}>{Array.from({length:5},(_,k)=>(<LevelPill key={k} onClick={()=>setLvl(k+1)}>Niveau {k+1}</LevelPill>))}</div></div> );}
         const sizes=LEVEL_SIZES; const count=sizes[lvl-1];
         const items=takeN(CLOZE_BANK,count).map(x=>({prompt:x.text.replace('____','_____'), options:shuffle(x.options), answer:x.answer, emoji:'📖'}));
         return <MCQGame title={`Lecture · Niveau ${lvl}`} items={items} onExit={onExit} onWrongPenalty={onWrongPenalty} onWin={(earned)=> onWin(earned, (lvl<5? ()=> setLvl(lvl+1): null))} onCorrect={onCorrect}/>;
@@ -464,15 +464,30 @@
         const targetName = target==='en'? 'Inglés' : target==='nl'? 'Holandés' : 'Español';
         const sourceKey = target==='es'? 'en' : 'es';
         if(!lvl){ return (
-          <div className="card"><button className="back" style={{marginBottom:10}} onClick={onExit}>← Retour</button>
+          <div className="card"><button className="back" style={{marginBottom:10}} onClick={onExit}>🦄 Retour</button>
             <h2 style={{fontWeight:900,fontSize:22}}>Vocabulario · {targetName}</h2>
             <p className="caption">Elige un nivel (6–15 palabras).</p>
             <div className="row" style={{marginTop:8}}>{Array.from({length:5},(_,k)=>(<LevelPill key={k} onClick={()=>setLvl(k+1)}>Nivel {k+1}</LevelPill>))}</div>
           </div>
         ); }
         const count=LEVEL_SIZES[lvl-1];
-        const makeItem=(it)=>{ const src=it[sourceKey]; const ans=it[target]; const others=shuffle(VOCAB_CORE.filter(o=> o!==it)).map(o=> o[target]); const opts=[ans]; for(let j=0;j<others.length && opts.length<4;j++){ if(!eqAns(others[j],ans)) opts.push(others[j]); } return { prompt:`${it.emoji} «${src}» → ${targetName}?`, options:shuffle(opts), answer:ans, emoji:it.emoji }; };
-        const items=takeN(VOCAB_CORE,count).map(makeItem);
+        const makeItem=(it)=>{
+          const src=it[sourceKey];
+          const ans=it[target];
+          let pool = shuffle(VOCAB_CORE.map(o=> o[target]).filter(v=> v && !eqAns(v, ans)));
+          const opts=[ans, ...pool.slice(0,3)];
+          // Únicos y siempre con respuesta incluida
+          const uniq=[]; for(const o of opts){ if(!uniq.some(u=>eqAns(u,o))) uniq.push(o); }
+          while(uniq.length<4){ const fb = pool.shift() || VOCAB_CORE[Math.floor(Math.random()*VOCAB_CORE.length)][target]; if(fb && !uniq.some(u=>eqAns(u,fb))) uniq.push(fb); }
+          return { prompt:`«${src}» → ${targetName}?`, options:shuffle(uniq.slice(0,4)), answer:ans, emoji:it.emoji };
+        };
+        const items=takeN(VOCAB_CORE,count).map(makeItem).map(x=>{
+          // Garantía adicional: respuesta presente
+          if(!x.options.some(o=> eqAns(o,x.answer))){
+            x={...x, options: shuffle([x.answer, ...x.options]).slice(0,4)};
+          }
+          return x;
+        });
         return <MCQGame title={`Vocabulario · ${targetName} · Nivel ${lvl}`} items={items} onExit={onExit} onWrongPenalty={onWrongPenalty} onWin={(earned)=> onWin(earned, (lvl<5? ()=> setLvl(lvl+1): null))} onCorrect={onCorrect}/>;
       }
 
@@ -480,7 +495,7 @@
       function BankGame({titlePrefix, bank, onExit, onWrongPenalty, onWin, onCorrect}){
         const [lvl,setLvl]=useState(0);
         if(!lvl){ return (
-          <div className="card"><button className="back" style={{marginBottom:10}} onClick={onExit}>← Retour</button>
+          <div className="card"><button className="back" style={{marginBottom:10}} onClick={onExit}>🦄 Retour</button>
             <h2 style={{fontWeight:900,fontSize:22}}>{titlePrefix}</h2>
             <p className="caption">Choisis un niveau.</p>
             <div className="row" style={{marginTop:8}}>{Array.from({length:5},(_,k)=>(<LevelPill key={k} onClick={()=>setLvl(k+1)}>Niveau {k+1}</LevelPill>))}</div>
@@ -510,14 +525,14 @@
           </div>
         ); };
         if(!lvl){ return (
-          <div className="card"><button className="back" style={{marginBottom:10}} onClick={onExit}>← Retour</button>
+          <div className="card"><button className="back" style={{marginBottom:10}} onClick={onExit}>🦄 Retour</button>
             <h2 style={{fontWeight:900,fontSize:22}}>Droite numérique</h2>
             <p className="caption">Avance/recul sur la droite pour trouver le résultat.</p>
             <div className="row" style={{marginTop:8}}>{Array.from({length:5},(_,k)=>(<LevelPill key={k} onClick={()=>setLvl(k+1)}>Niveau {k+1}</LevelPill>))}</div>
           </div> ); }
         return (
           <div className="card">
-            <button className="back" style={{marginBottom:10}} onClick={onExit}>← Retour</button>
+            <button className="back" style={{marginBottom:10}} onClick={onExit}>🦄 Retour</button>
             <h2 style={{fontWeight:900,fontSize:22}}>Droite numérique · Niveau {lvl}</h2>
             <div style={{fontSize:28,fontWeight:900,margin:'10px 0'}}>{q.a} {q.op} {q.b} = ?</div>
             {renderLine(q.a,q.b,q.op)}
@@ -539,7 +554,7 @@
           return shuffle(arr);
         };
         if(!lvl){ return (
-          <div className="card"><button className="back" onClick={onExit} style={{marginBottom:10}}>← Retour</button>
+          <div className="card"><button className="back" onClick={onExit} style={{marginBottom:10}}>🦄 Retour</button>
             <h2 style={{fontWeight:900,fontSize:22}}>Mémoire</h2>
             <p className="caption">Retourne les cartes et associe opération ↔ résultat.</p>
             <div className="row" style={{marginTop:8}}>{Array.from({length:5},(_,k)=>(<LevelPill key={k} onClick={()=>setLvl(k+1)}>Niveau {k+1}</LevelPill>))}</div>
@@ -551,7 +566,7 @@
         };
         return (
           <div className="card">
-            <button className="back" onClick={onExit} style={{marginBottom:10}}>← Retour</button>
+            <button className="back" onClick={onExit} style={{marginBottom:10}}>🦄 Retour</button>
             <h2 style={{fontWeight:900,fontSize:22}}>Mémoire · Niveau {lvl}</h2>
             <div className="card-wrap" style={{gridTemplateColumns:'repeat(4,minmax(0,1fr))'}}>
               {cards.map((c,idx)=>{
@@ -571,7 +586,7 @@
       // ===== Equations (missing number/operator) (5 niveles)
       function EquationsGame({onExit,onWrongPenalty,onWin,onCorrect}){
         const [lvl,setLvl]=useState(0); if(!lvl){ return (
-          <div className="card"><button className="back" onClick={onExit} style={{marginBottom:10}}>← Retour</button>
+          <div className="card"><button className="back" onClick={onExit} style={{marginBottom:10}}>🦄 Retour</button>
             <h2 style={{fontWeight:900,fontSize:22}}>Équations</h2>
             <div className="row" style={{marginTop:8}}>{Array.from({length:5},(_,k)=>(<LevelPill key={k} onClick={()=>setLvl(k+1)}>Niveau {k+1}</LevelPill>))}</div>
           </div> ); }
@@ -591,7 +606,7 @@
         const click=(n)=>{ if(!next.length) return; const expect=next[0]; if(n===expect){ const rest=next.slice(1); setNext(rest); if(!rest.length) onWin(3); } else { onWrongPenalty(next.length===len?1:3); }
         };
         if(!lvl){ return (
-          <div className="card"><button className="back" onClick={onExit} style={{marginBottom:10}}>← Retour</button>
+          <div className="card"><button className="back" onClick={onExit} style={{marginBottom:10}}>🦄 Retour</button>
             <h2 style={{fontWeight:900,fontSize:22}}>Mémoire · Rappel</h2>
             <p className="caption">Regarde les nombres puis touche dans l’ordre croissant.</p>
             <div className="row" style={{marginTop:8}}>{Array.from({length:5},(_,k)=>(<LevelPill key={k} onClick={()=>setLvl(k+1)}>Niveau {k+1}</LevelPill>))}</div>
@@ -600,7 +615,7 @@
         const pool=Array.from({length:9},(_,k)=>k+1);
         return (
           <div className="card">
-            <button className="back" onClick={onExit} style={{marginBottom:10}}>← Retour</button>
+            <button className="back" onClick={onExit} style={{marginBottom:10}}>🦄 Retour</button>
             <h2 style={{fontWeight:900,fontSize:22}}>Rappel · Niveau {lvl}</h2>
             <div className="board cols-4" style={{gridTemplateColumns:'repeat(3,80px)', justifyContent:'center'}}>
               {pool.map(n=> (
@@ -668,7 +683,7 @@
         if(!level){
           return (
             <div className="card">
-              <button className="back" onClick={onExit} style={{marginBottom:10}}>← Retour</button>
+              <button className="back" onClick={onExit} style={{marginBottom:10}}>🦄 Retour</button>
               <h2 style={{fontWeight:900,fontSize:22}}>Sudoku 4×4 (amélioré)</h2>
               <p className="caption">Choisis une difficulté. Chaque niveau contient 5 puzzles.</p>
               <div className="row" style={{marginTop:8}}>
@@ -683,7 +698,7 @@
         return (
           <div className="card">
             <div className="row" style={{justifyContent:'space-between', width:'100%'}}>
-              <button className="back" onClick={()=>{setLevel(0); setPuzzles([]);}}>← Niveaux</button>
+              <button className="back" onClick={()=>{setLevel(0); setPuzzles([]);}}>🦄 Niveaux</button>
               <div className="back">Puzzle {index+1}/5</div>
             </div>
             <h2 style={{fontWeight:900,fontSize:22}}>Sudoku 4×4 — {level===1?'Facile':level===2?'Moyen':'Difficile'}</h2>
@@ -717,7 +732,7 @@
         const mk=()=>{const L=pick(lieux), H=pick(heros), A=pick(amis), Q=pick(quetes), O=pick(obstacles), M=pick(moral); const name=H.split(' ')[0]; return [ `${H} habite près de ${L}. Chaque matin, ${name} dit « bonjour ! » aux oiseaux 🐦 et au soleil ☀️.`, `Un jour, ${name} rencontre ${A}. Ensemble, ils décident de ${Q}. Ils préparent un sac 🎒, une gourde 🥤 et un grand sourire 😄.`, `Le chemin est long… Ils chantent 🎶, sautent par‑dessus les flaques 💧 et partagent une pomme 🍎.`, `Soudain, ils doivent franchir ${O}. Ils respirent profondément 🧘 et essayent encore 💫.`, `Grâce à leur entraide 🤝, la route s’ouvre ✨. Au loin, une lumière les guide 🔔.`, `Au coucher du soleil 🌇, ils réussissent leur mission. Ils comprennent que ${M}.` ]; };
         const [paras,setParas]=useState(mk());
         return (
-          <div className="card"><button className="back" style={{marginBottom:10}} onClick={onExit}>← Retour</button>
+          <div className="card"><button className="back" style={{marginBottom:10}} onClick={onExit}>🦄 Retour</button>
             <h2 style={{fontWeight:900,fontSize:22}}>Contes ✨</h2>
             <p className="caption">Histoires (2–3 min) avec texte grand + emojis.</p>
             <div style={{fontSize:22,lineHeight:1.8,marginTop:10}}>{paras.map((p,i)=>(<p key={i} style={{margin:'10px 0'}}>{p}</p>))}</div>
@@ -739,7 +754,7 @@
       function SubMenu({title,items,onBack}){
         return (
           <div className="card">
-            <button className="back" style={{marginBottom:10}} onClick={onBack}>← Retour</button>
+            <button className="back" style={{marginBottom:10}} onClick={onBack}>🦄 Retour</button>
             <h2 style={{fontWeight:900,fontSize:22}}>{title}</h2>
             <div className="grid cols-3" style={{marginTop:8}}>
               {items.map(it=>(
