@@ -1,1346 +1,907 @@
-<!doctype html>
-<html lang="fr" dir="ltr">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Appli de Léna — 2e primaire (édition magique)</title>
-    <meta name="theme-color" content="#b06fff">
-    <meta name="color-scheme" content="light dark">
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"/>
+<title>Appli de Léna — Menu magique 🦄</title>
+<meta name="theme-color" content="#b06fff"/>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700;900&family=Nunito:wght@600;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  /* Mantengo tus variables base (no renombro): */
+  --bg:#fdf2ff; --bg2:#fae8ff; --card:rgba(255,255,255,.94); --cardHi:rgba(255,255,255,.88);
+  --ink:#2d2252; --muted:#6b5b7a;
+  --p1:#b06fff; --p2:#ff8dc7; --p3:#7be0e6; --ok:#22c55e; --bad:#ef4444; --warn:#ffd27e;
+  --radius:22px; --shadow:0 12px 28px rgba(176,111,255,.18);
+  --h:76px;
+  --icon-size:36px;
+  --ring:#ff9bd6;
+  --bg-speed:26s;
+}
+/* Tema oscuro */
+@media (prefers-color-scheme: dark){
+  :root{ --bg:#100d18; --bg2:#1b1632; --card:rgba(255,255,255,.08); --cardHi:rgba(255,255,255,.06); --ink:#efe8ff; --muted:#cdbef0; --shadow:0 10px 28px rgba(0,0,0,.45); --ring:#ffbde0; }
+}
+html[data-theme="dark"]{
+  --bg:#0f0c17; --bg2:#201a3a; --card:rgba(255,255,255,.08); --cardHi:rgba(255,255,255,.06);
+  --ink:#efe8ff; --muted:#cdbef0; --shadow:0 10px 28px rgba(0,0,0,.5); --ring:#ffbde0;
+}
+/* Modo fiesta */
+html[data-party="on"]{ --bg-speed:14s; filter:saturate(1.15); }
 
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;800;900&family=Fredoka:wght@600;800&display=swap" rel="stylesheet">
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0; color:var(--ink);
+  font-family:"Nunito", ui-rounded, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, "Helvetica Neue", Arial;
+  -webkit-font-smoothing:antialiased;
+  background:linear-gradient(135deg,var(--bg),var(--bg2),#e9d5ff);
+  background-size:200% 200%; animation:bg-pan var(--bg-speed) linear infinite;
+  overflow:hidden;
+}
+@keyframes bg-pan{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
 
-    <style>
-      :root{
-        /* Pastel multicolor (clair) */
-        --bg-1:#fdf2ff; --bg-2:#fae8ff; --bg-3:#e9d5ff; --fg:#2d2252;
-        --card:rgba(255,255,255,.94); --muted:#6b5b7a; --ring:#ff9bd6;
-        --good:#22c55e; --bad:#ef4444;
-        --lila:#b06fff; --rose:#ff8dc7; --menta:#7be0e6; --miel:#ffd27e;
-        --icon-size:36px;
-        --shadow:0 12px 28px rgba(176,111,255,.18);
-        --radius:22px;
-        --bg-speed: 26s;
+/* ===== Header pill bar (glass + rainbow) ===== */
+header{height:var(--h); display:flex; align-items:center; justify-content:center; padding:10px}
+#bar{
+  width:min(1140px, 96vw); height:100%; padding:0 14px; display:flex; align-items:center; justify-content:space-between; gap:10px;
+  border-radius:24px; background:linear-gradient(180deg, rgba(255,255,255,.96), rgba(255,255,255,.78));
+  box-shadow:var(--shadow); backdrop-filter:saturate(1.3) blur(8px);
+}
+#brand{display:flex; align-items:center; gap:12px}
+#brand .logo{
+  width:46px;height:46px;border-radius:14px;display:grid;place-items:center;
+  background: conic-gradient(from 140deg, var(--p1), var(--p2), var(--warn), var(--p3), var(--p1));
+  box-shadow: var(--shadow); animation:spinBadge 8s linear infinite;
+  position:relative; overflow:hidden;
+}
+#brand .logo::after{content:"🦄";font-size:26px; filter:drop-shadow(0 2px 4px rgba(0,0,0,.12))}
+@keyframes spinBadge{to{transform:rotate(1turn)}}
+#brand .title{line-height:1}
+#brand .title .t1{font-size:13px}
+#brand .title .t2{
+  font-size:22px; font-weight:900; font-family:"Fredoka";
+  background: linear-gradient(90deg,#ec4899,#f59e0b,#10b981,#3b82f6,#8b5cf6);
+  -webkit-background-clip:text; background-clip:text; color:transparent; letter-spacing:.2px;
+  text-shadow: 0 2px 8px rgba(176,111,255,.08);
+}
+#controls{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.chip{
+  border:1px solid transparent;
+  background: linear-gradient(#fff,#fff) padding-box,
+             linear-gradient(135deg,#ec4899,#f59e0b,#10b981,#3b82f6,#8b5cf6) border-box;
+  background-size:100% 100%,300% 300%; animation: rainbow 8s linear infinite;
+  color:#1f213a; border-radius:22px; padding:10px 14px; font-weight:800; display:inline-flex; align-items:center; gap:8px; cursor:pointer; user-select:none;
+  box-shadow:0 6px 14px rgba(0,0,0,.06);
+}
+@keyframes rainbow{0%{background-position:0% 0%,0% 0%}100%{background-position:0% 0%,300% 300%}}
+.chip.ghost{background:var(--card); color:var(--ink); border:1px solid rgba(167,139,250,.25)}
+.chip.badge{background:var(--card); color:var(--muted); border:1px solid rgba(167,139,250,.25)}
+#coinChip{border:2px dashed var(--ring); background:#fff; color:#111}
+
+/* ===== Layout ===== */
+main{position:absolute; inset:var(--h) 0 0 0; display:grid; grid-template-rows: 1fr}
+#home{overflow:auto; padding:24px}
+#homeInner{width:min(1140px, 96vw); margin:0 auto}
+#grid{display:grid; grid-template-columns: repeat(3, minmax(220px,1fr)); gap:14px; margin-top:14px}
+@media (max-width: 980px){ #grid{grid-template-columns:repeat(2, minmax(220px,1fr))} }
+@media (max-width: 640px){ #grid{grid-template-columns:1fr} }
+
+/* ===== Menu cards ===== */
+.card{
+  position:relative; overflow:hidden;
+  border:1px solid transparent;
+  background: linear-gradient(var(--card), var(--card)) padding-box,
+             linear-gradient(135deg,var(--p2),var(--warn),var(--ok),#3b82f6,var(--p1)) border-box;
+  background-size:100% 100%,300% 300%; animation: rainbow 8s linear infinite;
+  border-radius: var(--radius); padding:18px; box-shadow:0 10px 24px rgba(0,0,0,.10);
+  transition: transform .12s, box-shadow .12s, filter .12s;
+  display:flex; flex-direction:column; gap:10px;
+}
+.card:hover{ transform: translateY(-4px) scale(1.02); box-shadow:0 14px 30px rgba(0,0,0,.14); filter:saturate(1.05) }
+.cardHeader{display:flex; gap:12px; align-items:center}
+.icon{
+  --halo: radial-gradient(closest-side, rgba(236,72,153,.22), transparent);
+  width:56px;height:56px;border-radius:16px; display:grid;place-items:center; font-size:28px;
+  background:#fff; color:#111; border:1px solid rgba(167,139,250,.25);
+  box-shadow:0 6px 16px rgba(0,0,0,.10), 0 0 0 10px rgba(236,72,153,.06);
+  position:relative; isolation:isolate; animation:float 4.5s ease-in-out infinite;
+}
+.icon::before{
+  content:""; position:absolute; inset:-12px; z-index:-1; border-radius:20px; background:var(--halo); filter:blur(8px);
+}
+@keyframes float{0%{transform:translateY(0)}50%{transform:translateY(-6px)}100%{transform:translateY(0)}}
+.ctitle{font-weight:900; font-size:19px; font-family:"Fredoka"; letter-spacing:.2px}
+.csub{font-size:12px; color:var(--muted)}
+.badge{
+  position:absolute; top:10px; right:10px; display:flex; gap:6px; align-items:center;
+  background:#fff; color:#6b6b8f; border:1px solid rgba(167,139,250,.25);
+  border-radius:999px; padding:4px 8px; font-size:12px; font-weight:900; box-shadow:0 2px 8px rgba(0,0,0,.06)
+}
+.badge .stars{display:flex; gap:2px; align-items:center}
+.stars .s{font-size:14px; filter: drop-shadow(0 2px 4px rgba(0,0,0,.08))}
+.stars .off{opacity:.35}
+
+.card .bar{height:6px; width:36%; border-radius:6px; background:linear-gradient(90deg,var(--p1),var(--p2),var(--p3))}
+.subs{display:grid; grid-template-columns:repeat(2,minmax(120px,1fr)); gap:8px; margin-top:6px}
+.sub{
+  border:1px solid transparent; position:relative; overflow:hidden;
+  background: linear-gradient(#fff,#fff) padding-box,
+             linear-gradient(135deg,var(--p2),var(--warn),var(--ok),#3b82f6,var(--p1)) border-box;
+  background-size:100% 100%,300% 300%; animation: rainbow 8s linear infinite;
+  color:#1f213a; border-radius:14px; padding:10px 12px; font-weight:900; cursor:pointer; text-align:center;
+  box-shadow:0 6px 14px rgba(0,0,0,.06); transition: transform .08s;
+}
+.sub .stars{position:absolute; left:8px; top:6px}
+.sub:hover{ transform: translateY(-2px) scale(1.02); }
+.card.collapsed .subs{display:none}
+
+/* ===== Stage ===== */
+#stage{display:none; grid-template-rows:auto 8px 1fr auto; height:100%;}
+#stageTop{
+  display:flex; align-items:center; justify-content:space-between; padding:12px 16px;
+  background: var(--card); color: var(--ink);
+  border-bottom:1px solid rgba(167,139,250,.25); box-shadow:0 6px 16px rgba(0,0,0,.06);
+}
+#breadcrumbs{font-weight:900}
+#progress{height:8px; background: linear-gradient(90deg, rgba(167,139,250,.25), rgba(236,72,153,.25)); border-top:1px solid rgba(167,139,250,.25); overflow:hidden}
+#barProg{height:100%; width:0%; background: linear-gradient(90deg, var(--p1), var(--p2), var(--warn)); transition: width .2s}
+#content{padding:16px; overflow:auto; position:relative}
+.prompt{font-size:22px; font-weight:900; line-height:1.25; display:flex; align-items:center; gap:10px}
+.spark{font-size:24px}
+.small{font-size:13px; color:var(--muted)}
+.ok{color:var(--ok)} .bad{color:var(--bad)}
+
+/* ===== MCQ Options ===== */
+.options{display:grid; grid-template-columns:repeat(2,minmax(200px,1fr)); gap:12px; margin-top:14px}
+@media (max-width:720px){.options{grid-template-columns:1fr}}
+.option{
+  position:relative; border:1px solid rgba(167,139,250,.25);
+  background: linear-gradient(180deg,#fff,#fdf2f8); color:#1f213a;
+  border-radius:16px; padding:16px; min-height:96px; display:flex; align-items:center; justify-content:center; gap:8px;
+  box-shadow:0 10px 20px rgba(0,0,0,.06); cursor:pointer; transition:transform .08s;
+  font-size:15px; font-weight:900; font-family:"Fredoka", system-ui;
+}
+.option:active{transform:scale(.98)}
+.option.correct{outline:3px solid var(--ok); outline-offset: 2px; animation:popbtn .22s ease}
+.option.wrong{outline:3px solid var(--bad); outline-offset: 2px; animation:shake .35s}
+@keyframes popbtn{0%{transform:scale(.98)}70%{transform:scale(1.03)}100%{transform:scale(1)}}
+@keyframes shake{10%{transform:translateX(-4px)}20%{transform:translateX(4px)}30%{transform:translateX(-3px)}40%{transform:translateX(3px)}60%{transform:translateX(2px)}100%{transform:translateX(0)}}
+.optColor{width:24px;height:24px;border-radius:8px;border:2px solid #0001;display:inline-block;margin-right:8px;vertical-align:-5px}
+
+/* Inputs / ordenación */
+.answerBox{display:flex; gap:8px; align-items:center; margin-top:12px}
+.answerBox input, textarea{width:100%; padding:12px 14px; border-radius:12px; border:2px solid rgba(167,139,250,.25); background:#fff; color:#111; font-size:18px}
+.chips{display:flex; gap:8px; flex-wrap:wrap}
+.draggable{user-select:none;background:#fff;border:2px dashed rgba(167,139,250,.45);padding:10px 12px;border-radius:12px;cursor:grab;box-shadow:0 6px 14px rgba(0,0,0,.06)}
+.dropzone{min-height:60px;background:#f9f9ff;border:2px dashed rgba(167,139,250,.45);border-radius:12px;padding:8px}
+
+/* Memory flip */
+.memoryGrid{display:grid; grid-template-columns:repeat(4,minmax(60px,1fr)); gap:10px; margin-top:12px}
+.cardMem{height:110px; position:relative; border-radius:14px; cursor:pointer; perspective:600px}
+.cardMem .front,.cardMem .back{
+  position:absolute; inset:0; display:flex; align-items:center; justify-content:center; border-radius:14px; backface-visibility:hidden;
+  background:#fff; color:#111; box-shadow:0 8px 18px rgba(0,0,0,.08); transition:transform .25s
+}
+.cardMem .back{ transform:rotateY(180deg); }
+.cardMem.flipped .front{ transform:rotateY(180deg); }
+.cardMem.flipped .back{ transform:rotateY(0deg); }
+.pairGood{outline:4px solid var(--ok)}
+
+/* Sudoku */
+.sudoku{display:grid; grid-template-columns:repeat(4,60px); gap:8px; margin-top:10px}
+.sudoku input{width:60px;height:60px;text-align:center;font-weight:900;font-size:20px;border-radius:12px;border:1px solid rgba(167,139,250,.35); background:#fff; color:#111; box-shadow:0 8px 18px rgba(0,0,0,.08)}
+.fixed{background:#f3f4f6 !important; color:#6b7280}
+
+/* Footer/Buttons */
+#stageBottom{padding:10px 16px; display:flex; justify-content:space-between; align-items:center; gap:8px; background: var(--card); color: var(--ink); border-top:1px solid rgba(167,139,250,.25)}
+.btn{appearance:none;border:1px solid transparent;border-radius:12px;padding:10px 14px;font-weight:900;cursor:pointer;box-shadow:0 6px 16px rgba(0,0,0,.06)}
+.btn.p{background:linear-gradient(90deg,var(--p1),var(--p2)); color:#fff}
+.btn.g{background:#fff;color:#1f213a;border:1px solid rgba(167,139,250,.25)}
+.btn.s{background:linear-gradient(90deg,var(--ok),#34d399); color:#021}
+.btn.d{background:linear-gradient(90deg,var(--bad),#f97393); color:#fff}
+
+/* Flashcards */
+.cards{display:grid; grid-template-columns:repeat(2,minmax(200px,1fr)); gap:12px}
+.flash{background:#fff;border:1px solid rgba(167,139,250,.25);border-radius:14px;padding:14px;position:relative;min-height:90px; box-shadow:0 10px 20px rgba(0,0,0,.06); color:#111}
+.flash .q{font-weight:900}
+.flash .a{position:absolute; inset:0; display:grid; place-items:center; font-weight:900; background:#0002; border-radius:14px; opacity:0; transition:opacity .2s}
+.flash.show .a{opacity:1}
+
+/* Drawing */
+#drawWrap{border:1px dashed rgba(167,139,250,.35); border-radius:16px; padding:10px; display:grid; grid-template-columns:1fr 160px; gap:10px; margin-top:10px; background:var(--card)}
+#canvas{background:#fff;border-radius:12px;touch-action:none;border:1px solid rgba(167,139,250,.25)}
+#palette{display:grid; grid-template-columns:repeat(2,1fr); gap:8px}
+.sw{height:40px;border-radius:10px;border:2px solid #0003}
+.sw.sel{outline:3px solid rgba(0,0,0,.15)}
+#thick{width:100%}
+
+/* Modal + confetti */
+#modal{position:fixed; inset:0; background:rgba(15,23,42,.38); display:none; place-items:center; z-index:60; animation:fade .15s}
+#modal .box{background:#fff; color:#1f213a; border-radius:18px; width:min(720px,92vw); padding:18px; box-shadow:0 24px 60px rgba(0,0,0,.25); animation:pop .2s; text-align:center}
+#modal h3{margin:8px 0 6px; font-size:18px; font-weight:900; font-family:"Fredoka", system-ui}
+@keyframes fade{from{opacity:0}to{opacity:1}}@keyframes pop{from{transform:scale(.92)}to{transform:scale(1)}}
+#fx{position:fixed; inset:0; pointer-events:none; z-index:50}
+
+/* Sparkles (click) + scrollbar */
+.sparkle{position:fixed; pointer-events:none; width:12px; height:12px; transform:translate(-50%,-50%) scale(.6);
+  background:conic-gradient(from 0deg, var(--p1), var(--p2), var(--warn), var(--p3), var(--p1));
+  clip-path:polygon(50% 0%,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%);
+  opacity:.9; filter:drop-shadow(0 6px 12px rgba(176,111,255,.35)); animation:spark-pop .8s ease-out forwards}
+@keyframes spark-pop{0%{opacity:0; transform:translate(-50%,-50%) scale(.4) rotate(0)}50%{opacity:1}100%{opacity:0; transform:translate(-50%,-80%) scale(1.6) rotate(40deg)}}
+::-webkit-scrollbar { height:10px; width:10px; } ::-webkit-scrollbar-thumb { background: linear-gradient(180deg,var(--p1),var(--p2)); border-radius:999px; }
+
+/* Reduce motion */
+@media (prefers-reduced-motion: reduce){
+  #brand .logo, .card{ animation:none } body{ animation:none } .cardMem .front,.cardMem .back{ transition:none }
+}
+</style>
+</head>
+<body>
+<header>
+  <div id="bar">
+    <div id="brand">
+      <div class="logo" aria-hidden="true"></div>
+      <div class="title">
+        <div class="t1">Appli de Léna — 2e primaire</div>
+        <div class="t2">Monde licorne magique</div>
+      </div>
+    </div>
+    <div id="controls">
+      <div id="coinChip" class="chip">🪙 <span id="coins">0</span></div>
+      <div class="chip badge">Niv. <span id="lvl">1</span></div>
+      <div id="soundChip" class="chip">🔊 <b id="soundState">ON</b></div>
+      <div id="themeChip" class="chip ghost">🌙/☀️ Thème</div>
+      <div id="partyChip" class="chip ghost">🎉 Fête</div>
+      <div id="fsChip" class="chip ghost">⛶ Plein écran</div>
+      <div id="homeChip" class="chip ghost">🏠 Menu</div>
+      <div id="avatarChip" class="chip">🙂 <span id="avatarName">Invité</span></div>
+      <button id="btnFlash" class="chip">⚡ Révision</button>
+      <button id="btnShop" class="chip">🛍️ Boutique</button>
+      <button id="btnScores" class="chip">🏆 Scores</button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <!-- Home menu grid -->
+  <section id="home">
+    <div id="homeInner">
+      <div class="small">Choisis un thème. Les sous-thèmes apparaissent <b>à l’intérieur</b> de chaque carte. Les ⭐ montrent tes progrès.</div>
+      <div id="grid"></div>
+    </div>
+  </section>
+
+  <!-- Stage (exercises) -->
+  <section id="stage">
+    <div id="stageTop">
+      <div id="breadcrumbs">Accueil</div>
+      <div style="display:flex; align-items:center; gap:10px;"><div id="uni" aria-label="licorne">🦄</div></div>
+    </div>
+    <div id="progress"><div id="barProg"></div></div>
+    <div id="content"></div>
+    <div id="stageBottom">
+      <div class="small" id="tip">Astuce : active le mode plein écran pour mieux jouer</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button id="btnPrev" class="btn g">⟵ Précédent</button>
+        <button id="btnSkip" class="btn g">Passer</button>
+        <button id="btnCheck" class="btn p">Valider</button>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- Modal -->
+<div id="modal">
+  <div class="box">
+    <h3 id="modalTitle">Titre</h3>
+    <div id="modalBody">…</div>
+    <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;justify-content:center">
+      <button id="modalClose" class="btn s">OK</button>
+    </div>
+  </div>
+</div>
+
+<canvas id="fx"></canvas>
+
+<script>
+/* =========================================================
+   Appli de Léna — Menu con estrellas y efectos ✨
+   ========================================================= */
+(() => {
+  const $=s=>document.querySelector(s), $$=s=>Array.from(document.querySelectorAll(s));
+  const rnd=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
+  const shuffle=arr=>arr.sort(()=>Math.random()-.5);
+  const choice=arr=>arr[Math.floor(Math.random()*arr.length)];
+  const clamp=(x,a,b)=>Math.min(b,Math.max(a,x));
+  const strip=s=>(s||"").normalize("NFD").replace(/\p{Diacritic}/gu,"").replace(/\s+/g," ").trim().toLowerCase();
+
+  const STORE="lena_menu_v3";
+  const state={
+    level:1,totalLevels:15,coins:0,sound:true, theme:null, party:false,
+    user:{name:"Invité"},
+    area:null,sub:null,
+    progress:{done:0,total:5},
+    asked:new Set(),
+    scores:[], inventory:[], album:[],
+    stars:{} /* key "area|sub" => 0..3 */,
+    block:{correct:0,wrong:0}
+  };
+  const save=()=>localStorage.setItem(STORE, JSON.stringify({...state,asked:[...state.asked]}));
+  const load=()=>{try{const d=JSON.parse(localStorage.getItem(STORE)||"{}");Object.assign(state,d,{asked:new Set()});}catch{}};
+
+  /* ----------- audio ----------- */
+  const audio=(()=>{
+    const ctx=new (window.AudioContext||window.webkitAudioContext)();
+    const beep=(f=700,d=.1,type='sine',v=.18)=>{ if(!state.sound) return;
+      const o=ctx.createOscillator(), g=ctx.createGain(); o.type=type; o.frequency.value=f; g.gain.value=v; o.connect(g).connect(ctx.destination);
+      o.start(); setTimeout(()=>o.stop(), d*1000);
+    };
+    return {
+      ok(){beep(880,.08,'sine',.15); setTimeout(()=>beep(1320,.1,'sine',.12),80)},
+      no(){beep(220,.16,'sawtooth',.15); setTimeout(()=>beep(180,.16,'square',.12),120)},
+      click(){beep(520,.05,'triangle',.08)}
+    }
+  })();
+
+  /* ----------- confetti ----------- */
+  const fx=(()=>{
+    const c=$("#fx"), ctx=c.getContext("2d"); let W,H,parts=[],raf;
+    const resize=()=>{c.width=W=innerWidth; c.height=H=innerHeight}; addEventListener("resize",resize); resize();
+    const spawn=(n=140)=>{
+      for(let i=0;i<n;i++){
+        parts.push({x:Math.random()*W,y:-20,r:rnd(4,8),c:choice(["#8b5cf6","#f472b6","#22d3ee","#f59e0b","#22c55e"]),vx:(Math.random()-.5)*2,vy:rnd(2,4),a:Math.random()*Math.PI});
       }
-      /* Tema oscuro (toggle + media) */
-      @media (prefers-color-scheme: dark){
-        :root{
-          --bg-1:#100d18; --bg-2:#151126; --bg-3:#1b1632; --fg:#efe8ff;
-          --card:rgba(255,255,255,.08); --muted:#cdbef0; --ring:#ffbde0;
-          --shadow:0 10px 28px rgba(0,0,0,.45);
-        }
-      }
-      html[data-theme="dark"]{
-        --bg-1:#0f0c17; --bg-2:#171327; --bg-3:#201a3a; --fg:#efe8ff;
-        --card:rgba(255,255,255,.08); --muted:#cdbef0; --ring:#ffbde0;
-        --shadow:0 10px 28px rgba(0,0,0,.5);
-      }
-      /* Modo Fête (saturación y velocidad) */
-      html[data-party="on"]{
-        --bg-speed: 14s;
-        filter: saturate(1.15);
-      }
+      loop(); setTimeout(()=>{parts=[]; cancelAnimationFrame(raf);},2200);
+    };
+    const loop=()=>{cancelAnimationFrame(raf); raf=requestAnimationFrame(loop);
+      ctx.clearRect(0,0,W,H);
+      parts.forEach(p=>{p.x+=p.vx; p.y+=p.vy; p.a+=.1; ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.a);
+        ctx.fillStyle=p.c; ctx.fillRect(-p.r,-p.r,p.r*2,p.r*2); ctx.restore();});
+      parts=parts.filter(p=>p.y<H+40);
+    };
+    return {spawn};
+  })();
 
-      *{box-sizing:border-box}
-      html,body,#root{height:100%}
-      body{
-        margin:0;
-        font-family:"Nunito", ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, "Helvetica Neue", Arial;
-        color:var(--fg);
-        -webkit-font-smoothing:antialiased;
-        background:linear-gradient(135deg,var(--bg-1),var(--bg-2),var(--bg-3));
-        background-size:200% 200%;
-        animation:bg-pan var(--bg-speed) linear infinite;
-      }
-      @keyframes bg-pan{
-        0%{background-position:0% 50%}
-        50%{background-position:100% 50%}
-        100%{background-position:0% 50%}
-      }
+  /* ----------- sparkles on click ----------- */
+  function sparkleAt(x,y,count=6){
+    for(let i=0;i<count;i++){
+      const s=document.createElement("div"); s.className="sparkle";
+      s.style.left=(x+rnd(-12,12))+"px"; s.style.top=(y+rnd(-8,8))+"px";
+      document.body.appendChild(s); setTimeout(()=>s.remove(),800);
+    }
+  }
+  document.addEventListener("pointerdown",e=>{
+    if(e.target.closest(".sub,.card,.option,.chip")) sparkleAt(e.clientX,e.clientY,8);
+  });
 
-      /* Layout */
-      .container{max-width:1100px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column}
-      .container.full{max-width:100%;width:100%}
-      .header{
-        display:flex;align-items:center;justify-content:space-between;
-        padding:14px 16px;margin:12px;border-radius:24px;
-        background:linear-gradient(180deg, rgba(255,255,255,.85), rgba(255,255,255,.65));
-        box-shadow: var(--shadow);
-        backdrop-filter:saturate(1.2) blur(6px);
-      }
-      .brand{display:flex;align-items:center;gap:10px}
-      .brand .title{
-        font-family:"Fredoka", system-ui;
-        font-weight:900;font-size:22px;
-        background:linear-gradient(90deg,#ec4899,#f59e0b,#10b981,#3b82f6,#8b5cf6);
-        -webkit-background-clip:text;background-clip:text;color:transparent;
-        letter-spacing:.2px
-      }
-      .brand-badge{
-        width:42px;height:42px;border-radius:12px;display:grid;place-items:center;
-        background: conic-gradient(from 140deg, var(--lila), var(--rose), var(--miel), var(--menta), var(--lila));
-        box-shadow: var(--shadow);
-        animation: spinBadge 8s linear infinite;
-      }
-      @keyframes spinBadge{to{transform:rotate(1turn)}}
+  /* ----------- header chips ----------- */
+  $("#fsChip").onclick=()=>{ if(!document.fullscreenElement) document.documentElement.requestFullscreen().catch(()=>{}); else document.exitFullscreen(); };
+  $("#soundChip").onclick=()=>{ state.sound=!state.sound; $("#soundState").textContent=state.sound?"ON":"OFF"; save(); };
+  $("#homeChip").onclick=()=> showHome();
+  $("#btnFlash").onclick=()=> openFlashcards();
+  $("#btnShop").onclick=()=> openShop();
+  $("#btnScores").onclick=()=> showScores();
+  $("#themeChip").onclick=()=>{ // toggle dark/light
+    const now = document.documentElement.getAttribute("data-theme");
+    if(now==="dark"){ document.documentElement.removeAttribute("data-theme"); state.theme=null; }
+    else { document.documentElement.setAttribute("data-theme","dark"); state.theme="dark"; }
+    save();
+  };
+  $("#partyChip").onclick=()=>{ state.party=!state.party; document.documentElement.setAttribute("data-party", state.party?"on":"off"); if(state.party) fx.spawn(); save(); };
 
-      .stage{flex:1;display:flex;align-items:center;justify-content:center;padding:12px}
-      .stage.home{align-items:stretch}
-      .stage.center .card{max-width:900px;width:100%}
-      .stage.full .card{width:min(1200px,100%)}
+  /* ----------- HUD ----------- */
+  const refreshHUD=()=>{ $("#coins").textContent=state.coins; $("#lvl").textContent=state.level; $("#barProg").style.width=Math.round((state.progress.done/state.progress.total)*100)+"%"; };
 
-      /* UI base */
-      .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-      .caption{color:var(--muted);font-size:12px}
-      .bill-purse{display:flex;align-items:center;gap:6px;font-weight:800}
+  /* ----------- areas + subtopics (menu) ----------- */
+  const AREAS=[
+    {id:"fr",  icon:"🇫🇷", title:"Français", sub:"Lecture, vocabulaire, grammaire",
+      subs:[{id:"lecture",name:"Lecture"},{id:"vocab",name:"Vocabulaire"},{id:"gram",name:"Grammaire"},
+            {id:"ecrit",name:"Expression écrite"},{id:"dialogue",name:"Dialogue oral"}]},
+    {id:"math",icon:"🎯", title:"Mathématiques", sub:"+  −  ×  ÷",
+      subs:[{id:"addsub",name:"Add/Sous"},{id:"mult",name:"Multiplications"},
+            {id:"div",name:"Divisions"}, {id:"eq",name:"Équations"},
+            {id:"ordre",name:"Ordre"}, {id:"base10",name:"Unités-Dizaines"},
+            {id:"problemes",name:"Problèmes"}]},
+    {id:"sciences", icon:"🌍", title:"Monde & Sciences", sub:"Saisons, famille, santé",
+      subs:[{id:"saisons",name:"Saisons & météo"},{id:"famille",name:"Famille"},
+            {id:"hygiene",name:"Hygiène"}, {id:"aliments",name:"Alimentation"},
+            {id:"corps",name:"Parties du corps"}]},
+    {id:"arts", icon:"🎨", title:"Arts & couleurs", sub:"Mélanges, dessin",
+      subs:[{id:"melanges",name:"Mélanges de couleurs"},{id:"dessin",name:"Dessin interactif"}]},
+    {id:"num", icon:"💻", title:"Culture numérique", sub:"Souris, icônes, sécurité",
+      subs:[{id:"icones",name:"Icônes"},{id:"souris",name:"Souris & clavier"},{id:"securite",name:"Sécurité Internet"}]},
+    {id:"logique", icon:"🧩", title:"Jeux logiques", sub:"Mémoire, Sudoku, motifs",
+      subs:[{id:"paires",name:"Paires / mémoire"},{id:"sudoku",name:"Sudoku 4×4"},{id:"patterns",name:"Séquences"}]},
+  ];
 
-      .card{background:var(--card);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow)}
-      .grid{display:grid;gap:14px}
-      @media (min-width:640px){.grid.cols-3{grid-template-columns:repeat(3,minmax(0,1fr));}}
-      @media (max-width:639.98px){.grid.cols-3{grid-template-columns:repeat(2,minmax(0,1fr));}}
+  function starRow(n){ // 0..3
+    const full = "⭐".repeat(n), empty = "⭐".repeat(3-n);
+    return `<div class="stars" aria-label="${n} étoiles"><span class="s">${full||""}</span>${n<3?`<span class="s off">${empty}</span>`:""}</div>`;
+  }
 
-      .icon-btn{
-        position:relative;border:1px solid transparent;
-        background:linear-gradient(#fff,#fff) padding-box,
-          linear-gradient(135deg,#ec4899,#f59e0b,#10b981,#3b82f6,#8b5cf6) border-box;
-        background-size:100% 100%,300% 300%;
-        animation:rainbow 8s linear infinite;
-        border-radius:22px;padding:18px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;
-        text-align:center;min-height:140px;box-shadow:0 6px 14px rgba(0,0,0,.06);
-        transition:transform .12s ease, box-shadow .12s ease;cursor:pointer;color:var(--fg)
-      }
-      @keyframes rainbow{0%{background-position:0% 0%,0% 0%}100%{background-position:0% 0%,300% 300%}}
-      .icon-emoji{font-size:36px}
-      .icon-label{font-weight:900;font-size:16px;font-family:"Fredoka"}
-      .icon-desc{font-size:12px;color:var(--muted)}
-      .icon-btn:hover{transform:translateY(-4px);box-shadow:0 14px 30px rgba(0,0,0,.12)}
-      .icon-btn .icon-emoji{position:relative}
-      .icon-btn .icon-emoji::after{content:'';position:absolute;inset:-10px;background:radial-gradient(closest-side,rgba(236,72,153,.25),transparent);filter:blur(6px);border-radius:50%;z-index:-1}
+  function renderMenu(){
+    const g=$("#grid"); g.innerHTML="";
+    AREAS.forEach(a=>{
+      const keyArea = a.id+"|*";
+      const starsArea = Math.max(0, ...a.subs.map(s=> state.stars[a.id+"|"+s.id]||0));
+      const card=document.createElement("div"); card.className="card collapsed"; card.dataset.area=a.id;
+      card.innerHTML=`
+        <div class="badge">${a.subs.length} sous-thèmes ${starRow(starsArea)}</div>
+        <div class="cardHeader">
+          <div class="icon">${a.icon}</div>
+          <div>
+            <div class="ctitle">${a.title}</div>
+            <div class="csub">${a.sub}</div>
+          </div>
+        </div>
+        <div class="bar"></div>
+        <div class="subs"></div>
+      `;
+      const subs=card.querySelector(".subs");
+      a.subs.forEach(s=>{
+        const key=a.id+"|"+s.id; const st=state.stars[key]||0;
+        const b=document.createElement("div"); b.className="sub"; b.dataset.sub=s.id;
+        b.innerHTML = `${starRow(st)} ${s.name}`;
+        b.onclick=()=>{ sparkleAt(innerWidth/2, 100, 10); state.area=a; state.sub=s; startBlock(); };
+        subs.appendChild(b);
+      });
+      card.querySelector(".cardHeader").onclick=()=>{ card.classList.toggle("collapsed"); };
+      g.appendChild(card);
+    });
+  }
 
-      .back{
-        border:none;background:#fff;border-radius:14px;padding:10px 12px;
-        box-shadow:0 6px 16px rgba(0,0,0,.06);
-        display:inline-flex;align-items:center;gap:8px;cursor:pointer;
-        position:relative; overflow:hidden;
-      }
-      .back.back-lg{padding:12px 16px;font-size:16px;border-radius:16px}
-      .back:hover{transform:translateY(-1px)}
-      .back:focus-visible{outline:3px solid var(--ring);outline-offset:2px}
-      .back::after{content:'';position:absolute;inset:0;opacity:0;background:radial-gradient(120px 40px at var(--x,50%) 120%, rgba(236,72,153,.15), transparent);transition:opacity .2s}
-      .back:hover::after{opacity:1}
+  /* ----------- Stage flow ----------- */
+  function showHome(){ $("#home").style.display="block"; $("#stage").style.display="none"; $("#breadcrumbs").textContent="Accueil"; renderMenu(); }
+  function showStage(){ $("#home").style.display="none"; $("#stage").style.display="grid"; }
+  function exercisesForLevel(L){ return clamp(5 + Math.round((L-1)*((20-5)/(state.totalLevels-1))), 5, 20); }
+  function startBlock(){
+    state.progress.total=exercisesForLevel(state.level);
+    state.progress.done=0; state.asked=new Set(); state.block={correct:0,wrong:0};
+    $("#barProg").style.width="0%";
+    $("#breadcrumbs").textContent=`${state.area.title} › ${state.sub.name}`;
+    showStage(); nextQuestion();
+  }
 
-      .progress{height:8px;border-radius:999px;background:linear-gradient(90deg, rgba(167,139,250,.25), rgba(236,72,153,.25));overflow:hidden}
-      .progress > span{display:block;height:100%;background:linear-gradient(90deg,#a78bfa,#ec4899,#f59e0b);transition:width .2s}
-
-      /* Options / MCQ */
-      .opt{
-        position:relative;border:1px solid rgba(167,139,250,.25);
-        background:linear-gradient(180deg,#fff,#fdf2f8);
-        border-radius:16px;padding:14px 16px;min-height:96px;display:flex;align-items:center;justify-content:center;gap:8px;
-        box-shadow:0 10px 20px rgba(0,0,0,.06);cursor:pointer;transition:transform .08s
-      }
-      .opt:active{transform:scale(.98)}
-      .opt .emo{font-size:26px}
-      .opt .lbl{font-weight:900;font-family:"Fredoka"}
-      .opt .badge{position:absolute;left:8px;top:8px;background:#a78bfa;color:#fff;border-radius:999px;width:24px;height:24px;font-size:12px;display:flex;align-items:center;justify-content:center;font-weight:900}
-      .opt.pop{animation:popbtn .22s ease}
-      @keyframes popbtn{0%{transform:scale(.98)}70%{transform:scale(1.03)}100%{transform:scale(1)}}
-
-      /* Modal */
-      .modal-wrap{position:fixed;inset:0;background:rgba(15,23,42,.38);display:flex;align-items:center;justify-content:center;z-index:50;animation:fade .15s}
-      .modal{background:#fff;border-radius:18px;padding:18px 18px;min-width:260px;max-width:92vw;text-align:center;box-shadow:0 24px 60px rgba(0,0,0,.25);animation:pop .2s}
-      .modal h3{margin:8px 0 6px;font-size:18px;font-weight:900;font-family:"Fredoka"}
-      .modal .big{font-size:56px}
-      .modal .actions{margin-top:10px;display:flex;gap:8px;justify-content:center}
-      @keyframes fade{from{opacity:0}to{opacity:1}} @keyframes pop{from{transform:scale(.92)}to{transform:scale(1)}}
-      .modal[data-type="bad"]{animation:shake .35s ease-in-out,pop .2s}
-      @keyframes shake{10%{transform:translateX(-4px)}20%{transform:translateX(4px)}30%{transform:translateX(-3px)}40%{transform:translateX(3px)}60%{transform:translateX(2px)}100%{transform:translateX(0)}}
-
-      /* Mascotte / combo */
-      .mascot{position:fixed;left:16px;bottom:18px;background:#fff;border-radius:14px;padding:8px 12px;box-shadow:0 10px 24px rgba(0,0,0,.14);display:flex;align-items:center;gap:8px;font-weight:800;transform:translateY(16px);opacity:0;transition:transform .18s ease, opacity .18s ease;z-index:60}
-      .mascot.show{transform:translateY(0);opacity:1}
-      .combo{position:fixed;right:16px;top:16px;background:linear-gradient(90deg,#f59e0b,#ec4899);color:#fff;border-radius:999px;padding:8px 12px;font-weight:900;box-shadow:0 12px 28px rgba(0,0,0,.14);transform:translateY(-10px) scale(.95);opacity:0;transition:transform .18s ease, opacity .18s ease;z-index:60}
-      .combo.show{transform:translateY(0) scale(1);opacity:1}
-
-      /* Dots base-10 / boards / keypad */
-      .ten,.unit{display:grid;grid-template-columns:repeat(10,10px);gap:6px;align-items:center}
-      .unit{grid-template-columns:repeat(10,10px)}
-      .dot{width:10px;height:10px;border-radius:50%;background:#8b5cf6;box-shadow:0 1px 0 rgba(0,0,0,.08)}
-      .money{display:inline-block;margin:2px;font-size:22px;animation:jump .3s ease-in-out}
-      @keyframes jump{0%{transform:translateY(6px)}50%{transform:translateY(-2px)}100%{transform:translateY(0)}}
-
-      .number-line{display:flex;gap:6px;align-items:center;margin:8px 0}
-      .tick{width:14px;height:14px;border-radius:3px;background:#fff;box-shadow:0 1px 0 rgba(0,0,0,.1)}
-      .tick.on{background:#22c55e}
-      .tick.step{background:#a78bfa}
-
-      .board{display:grid;gap:8px}
-      .board.cols-4{grid-template-columns:repeat(4,60px)}
-      .tile{width:60px;height:60px;border-radius:12px;background:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;box-shadow:0 8px 18px rgba(0,0,0,.08);cursor:pointer}
-      .tile.fixed{background:#f3f4f6;color:#6b7280;cursor:default}
-      .tile.sel{outline:3px solid var(--ring)}
-      .tile.err{background:#fee2e2}
-
-      .card-wrap{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
-      .card-flip{position:relative;height:110px;border-radius:14px;perspective:600px}
-      .face{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;border-radius:14px;background:#fff;box-shadow:0 8px 18px rgba(0,0,0,.08);backface-visibility:hidden;transition:transform .25s}
-      .backface{transform:rotateY(180deg)}
-      .is-open .front{transform:rotateY(180deg)}
-      .is-open .backface{transform:rotateY(0)}
-
-      .keypad{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
-      .key{min-width:44px;height:44px;border-radius:10px;border:none;background:#fff;box-shadow:0 6px 14px rgba(0,0,0,.06);font-weight:900;cursor:pointer}
-
-      /* “Brillitos” al clic */
-      .sparkle{
-        position:fixed; pointer-events:none; width:12px;height:12px; transform: translate(-50%,-50%) scale(.6);
-        background: conic-gradient(from 0deg, var(--lila), var(--rose), var(--miel), var(--menta), var(--lila));
-        clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
-        opacity:.9; filter: drop-shadow(0 6px 12px rgba(176,111,255,.35));
-        animation: pop .8s ease-out forwards;
-      }
-      @keyframes pop{
-        0%{opacity:0; transform: translate(-50%,-50%) scale(.4) rotate(0deg)}
-        50%{opacity:1}
-        100%{opacity:0; transform: translate(-50%,-80%) scale(1.6) rotate(40deg)}
-      }
-
-      /* Accesibilidad: reducir movimiento */
-      @media (prefers-reduced-motion: reduce){
-        .brand-badge{animation:none}
-        .icon-btn{animation:none}
-        .card-flip .face{transition:none}
-        body{animation:none}
-        .sparkle{animation-duration:.2s}
-      }
-
-      /* Scrollbar cute */
-      ::-webkit-scrollbar{height:10px;width:10px}
-      ::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#a78bfa,#ec4899);border-radius:999px}
-    </style>
-  </head>
-  <body>
-    <noscript>Active JavaScript pour utiliser l’application.</noscript>
-
-    <svg width="0" height="0" aria-hidden="true" focusable="false" style="position:absolute">
-      <defs>
-        <linearGradient id="grad-sugar" x1="0" x2="1" y1="0" y2="1">
-          <stop offset="0" stop-color="#ff8dc7"/><stop offset="1" stop-color="#b06fff"/>
-        </linearGradient>
-        <symbol id="ico-star" viewBox="0 0 64 64">
-          <path fill="url(#grad-sugar)" d="M32 6l7.6 15.6 17.2 2.5-12.4 12.1 2.9 17-15.3-8-15.3 8 2.9-17L7.2 24.1l17.2-2.5L32 6z"/>
-        </symbol>
-      </defs>
-    </svg>
-
-    <div id="root"></div>
-
-    <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-
-    <script type="text/babel">
-      const { useState, useMemo, useEffect, useRef } = React;
-
-      /* ===================== Utils ===================== */
-      const r = (min,max)=> Math.floor(Math.random()*(max-min+1))+min;
-      const shuffle = (a)=>{const b=[...a]; for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1)); [b[i],b[j]]=[b[j],b[i]];} return b;};
-      const takeN = (arr,n)=> shuffle(arr).slice(0,Math.min(n,arr.length));
-      const makeChoices=(correct, count=4)=>{const s=new Set([correct]); while(s.size<count){const d=Math.max(1,Math.round(Math.abs(correct)*0.2)+1); s.add(correct + (Math.random()<.5?-1:1)*r(1,d));} return shuffle([...s]).slice(0,count)};
-
-      // Normalización de respuestas (tolerante)
-      const stripDiacritics = (s) => Array.from(String(s||'').normalize('NFD')).filter(ch => { const c=ch.charCodeAt(0); return !(c>=0x0300 && c<=0x036F); }).join('');
-      const collapseSpaces = (s) => s.trim().replace(/ +/g,' ');
-      const norm = (x) => collapseSpaces(stripDiacritics(String(x==null?'':x)).toLowerCase());
-      const eqAns = (a,b)=>{ const na=Number(a), nb=Number(b); if(!Number.isNaN(na) && !Number.isNaN(nb)) return na===nb; return norm(a)===norm(b); };
-
-      // Sonidos simples (sin archivos)
-      const Sound = (()=>{ let ctx; const ensure=()=>{ if(!ctx){ ctx = new (window.AudioContext||window.webkitAudioContext)(); } return ctx; }
-        const beep=(freq=660, dur=0.12, type='sine', when=0, gain=0.04)=>{ const c=ensure(); const o=c.createOscillator(); const g=c.createGain(); o.type=type; o.frequency.value=freq; g.gain.value=gain; o.connect(g); g.connect(c.destination); o.start(c.currentTime+when); o.stop(c.currentTime+when+dur); };
-        const good=()=>{ beep(660,0.09,'triangle',0); beep(880,0.1,'triangle',0.08); beep(1320,0.12,'triangle',0.16); };
-        const bad =()=>{ beep(220,0.14,'sawtooth',0,0.06); beep(150,0.18,'sawtooth',0.08,0.06); };
-        return {good,bad}; })();
-
-      function confettiBurst(x,y){
-        const emo=['💜','💙','💚','💛','🦄','✨'];
-        for(let i=0;i<12;i++){
-          const span=document.createElement('span');
-          span.textContent=emo[r(0,emo.length-1)];
-          span.style.position='fixed'; span.style.left=x+'px'; span.style.top=y+'px';
-          span.style.pointerEvents='none'; span.style.transition='transform .8s, opacity .8s';
-          document.body.appendChild(span);
-          requestAnimationFrame(()=>{
-            span.style.transform=`translate(${r(-120,120)}px, ${r(-120,120)}px) rotate(${r(-180,180)}deg)`; span.style.opacity='0';
-          });
-          setTimeout(()=> span.remove(), 900);
-        }
-      }
-
-      // Rastro de brillitos (desktop)
-      ;(()=>{try{
-        if(!window.matchMedia('(pointer:fine)').matches) return;
-        let last=0;
-        document.addEventListener('pointermove',e=>{
-          const now=performance.now(); if(now-last<60) return; last=now;
-          const s=document.createElement('span');
-          s.textContent=['✨','💖','🌈'][Math.floor(Math.random()*3)];
-          s.style.position='fixed'; s.style.left=(e.clientX-6)+'px'; s.style.top=(e.clientY-6)+'px';
-          s.style.fontSize='14px'; s.style.pointerEvents='none'; s.style.transition='transform .7s, opacity .7s';
-          document.body.appendChild(s);
-          requestAnimationFrame(()=>{ s.style.transform='translateY(-14px) scale(1.1)'; s.style.opacity='0';});
-          setTimeout(()=>s.remove(),800);
+  const engine={
+    qcm(q){
+      $("#content").innerHTML=`<div class="prompt"><span class="spark">🪄</span>${q.text}</div><div class="options" id="opts"></div>`;
+      const opts=$("#opts");
+      q.options.forEach((op,i)=>{
+        const el=document.createElement("div"); el.className="option"; el.dataset.idx=i;
+        el.innerHTML = `${op.color?`<span class="optColor" style="background:${op.color}"></span>`:""} <span>${op.label}</span>`;
+        el.onclick=()=> evaluate(i===q.correct,q,op.label,el);
+        opts.appendChild(el);
+      });
+      bindNav(true);
+    },
+    input(q){
+      $("#content").innerHTML=`<div class="prompt">✍️ ${q.text}</div>
+        <div class="answerBox"><input id="ans" type="${q.kind||'text'}" placeholder="${q.placeholder||'Ta réponse'}"/></div>`;
+      $("#ans").focus();
+      $("#btnCheck").onclick=()=>{ const v=$("#ans").value; const ok=q.check(v); evaluate(ok,q,v); };
+      bindNav(true);
+    },
+    order(q){
+      $("#content").innerHTML=`<div class="prompt">🔢 ${q.text}</div>
+        <div class="chips" id="pool"></div>
+        <div class="small">Place dans la boîte :</div>
+        <div class="dropzone" id="drop"></div>`;
+      const pool=$("#pool"), drop=$("#drop");
+      q.items.forEach((it,i)=>{const c=document.createElement("div"); c.className="draggable"; c.textContent=it; c.draggable=true; c.addEventListener("dragstart",e=>{e.dataTransfer.setData("text/plain",it)}); pool.appendChild(c);});
+      [pool,drop].forEach(z=>{
+        z.addEventListener("dragover",e=>e.preventDefault());
+        z.addEventListener("drop",e=>{
+          e.preventDefault();
+          const t=e.dataTransfer.getData("text/plain");
+          const from=[pool,drop].find(zz=>[...zz.children].some(x=>x.textContent===t));
+          const node=[...from.children].find(x=>x.textContent===t);
+          if(node&&z!==from) z.appendChild(node);
         });
-      }catch(_){} })();
+      });
+      $("#btnCheck").onclick=()=>{ const arr=[...drop.children].map(x=>x.textContent); const ok=q.check(arr); evaluate(ok,q,arr.join(", ")); };
+      bindNav(true);
+    },
+    memory(q){
+      $("#content").innerHTML=`<div class="prompt">🧠 ${q.text}</div><div class="memoryGrid" id="mem"></div>`;
+      const grid=$("#mem"); let first=null, lock=false, pairs=0;
+      q.deck.forEach(card=>{
+        const el=document.createElement("div"); el.className="cardMem"; el.dataset.val=card.v;
+        el.innerHTML=`<div class="front">🎴</div><div class="back">${card.e}</div>`;
+        el.onclick=()=>{
+          if(lock || el.classList.contains("done")) return;
+          el.classList.add("flipped");
+          if(!first){ first=el; audio.click(); return; }
+          lock=true; setTimeout(()=>{
+            if(first.dataset.val===el.dataset.val){
+              first.classList.add("done","pairGood"); el.classList.add("done","pairGood"); pairs++; audio.ok();
+              if(pairs===q.pairs){ evaluate(true,q,"Mémoire OK"); }
+            } else { first.classList.remove("flipped"); el.classList.remove("flipped"); audio.no(); }
+            first=null; lock=false;
+          }, 420);
+        };
+        grid.appendChild(el);
+      });
+      bindNav(false);
+    },
+    sudoku(q){
+      $("#content").innerHTML=`<div class="prompt">🧮 Sudoku 4×4 — complète (1–4)</div>
+        <div class="sudoku" id="sudoku"></div>
+        <div style="margin-top:8px"><button class="btn g" id="btnClear">Effacer</button></div>`;
+      const wrap=$("#sudoku");
+      q.grid.forEach((v,i)=>{
+        const inp=document.createElement("input"); inp.maxLength=1;
+        if(v){ inp.value=v; inp.disabled=true; inp.className="fixed"; }
+        inp.oninput=()=>{ inp.value=inp.value.replace(/[^1-4]/g,''); };
+        wrap.appendChild(inp);
+      });
+      $("#btnClear").onclick=()=> $$("#sudoku input:not(.fixed)").forEach(i=>i.value="");
+      $("#btnCheck").onclick=()=>{ const vals=$$("#sudoku input").map(i=>+i.value||0); const ok=q.check(vals); evaluate(ok,q,"Grille"); };
+      bindNav(true);
+    },
+    drawing(q){
+      $("#content").innerHTML=`<div class="prompt">🎨 ${q.text}</div>
+        <div id="drawWrap">
+          <canvas id="canvas" width="800" height="480"></canvas>
+          <div>
+            <div style="font-weight:900">Palette</div>
+            <div id="palette"></div>
+            <div style="margin-top:10px">Épaisseur : <input type="range" id="thick" min="2" max="24" value="8"/></div>
+            <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
+              <button id="clearCanvas" class="btn g">Effacer</button>
+              <button id="validateDrawing" class="btn s">J'ai fini</button>
+            </div>
+          </div>
+        </div>`;
+      const colors=["#000","#f43f5e","#f59e0b","#22c55e","#3b82f6","#a855f7","#ff99c8","#a9def9","#caffbf"];
+      const pal=$("#palette");
+      const canvas=$("#canvas"), ctx=canvas.getContext("2d");
+      ctx.lineCap="round"; ctx.lineJoin="round"; ctx.strokeStyle=colors[0]; ctx.lineWidth=8;
+      colors.forEach((c,i)=>{const sw=document.createElement("div"); sw.className="sw"; sw.style.background=c; if(i===0) sw.classList.add("sel"); sw.onclick=()=>{ $$("#palette .sw").forEach(x=>x.classList.remove("sel")); sw.classList.add("sel"); ctx.strokeStyle=c; }; pal.appendChild(sw);});
+      let drawing=false, moves=0, used=new Set([colors[0]]), last=[0,0];
+      const pos=e=>{const r=canvas.getBoundingClientRect(); const x=(e.touches?e.touches[0].clientX:e.clientX)-r.left; const y=(e.touches?e.touches[0].clientY:e.clientY)-r.top; return [x,y];};
+      const start=e=>{drawing=true; last=pos(e);};
+      const draw=e=>{ if(!drawing) return; const [x,y]=pos(e); ctx.beginPath(); ctx.moveTo(...last); ctx.lineTo(x,y); ctx.stroke(); last=[x,y]; moves++; used.add(ctx.strokeStyle);};
+      const end=()=>{drawing=false;};
+      canvas.addEventListener("mousedown",start); addEventListener("mouseup",end); canvas.addEventListener("mousemove",draw);
+      canvas.addEventListener("touchstart",e=>{start(e); e.preventDefault();},{passive:false});
+      canvas.addEventListener("touchmove",e=>{draw(e); e.preventDefault();},{passive:false});
+      canvas.addEventListener("touchend",end);
+      $("#thick").oninput=e=> ctx.lineWidth=+e.target.value;
+      $("#clearCanvas").onclick=()=>{ctx.clearRect(0,0,canvas.width,canvas.height); moves=0; used=new Set()};
+      $("#validateDrawing").onclick=()=>{ const ok=moves>250 && used.size>=3; evaluate(ok,q,"dessin"); };
+      bindNav(true);
+    },
+    flash(cards){
+      $("#home").style.display="none"; $("#stage").style.display="grid";
+      $("#breadcrumbs").textContent="Révision rapide";
+      $("#content").innerHTML=`<div class="prompt"><span class="spark">⚡</span>Révision rapide — clique pour révéler</div><div class="cards" id="fc"></div>`;
+      const wrap=$("#fc"); cards.forEach(c=>{const el=document.createElement("div"); el.className="flash"; el.innerHTML=`<div class="q">${c.q}</div><div class="a">${c.a}</div>`; el.onclick=()=>el.classList.toggle("show"); wrap.appendChild(el);});
+      $("#btnCheck").style.display="none"; $("#btnSkip").style.display="inline-flex"; $("#btnPrev").style.display="inline-flex";
+      $("#btnPrev").onclick=showHome; $("#btnSkip").onclick=showHome;
+    }
+  };
 
-      // Brillitos al click
-      function sparkleAt(x, y, count = 3){
-        for(let i=0;i<count;i++){
-          const s = document.createElement('div');
-          s.className = 'sparkle';
-          const dx = (Math.random() - .5) * 80;
-          const dy = (Math.random() - .5) * 80;
-          s.style.left = (x + dx) + 'px';
-          s.style.top  = (y + dy) + 'px';
-          s.style.transform += ` rotate(${Math.random()*90-45}deg)`;
-          document.body.appendChild(s);
-          setTimeout(()=> s.remove(), 900);
-        }
-      }
-      window.addEventListener('pointerdown', (e) => sparkleAt(e.clientX, e.clientY, 6));
+  function bindNav(checkable){
+    $("#btnCheck").style.display=checkable?"inline-flex":"none";
+    $("#btnPrev").onclick=()=> showModal("Info","Tu ne peux pas revenir en arrière pendant un bloc. Courage ! 💪");
+    $("#btnSkip").onclick=()=>{ state.progress.done++; refreshHUD(); nextQuestion(); };
+  }
 
-      /* ===================== UI bits ===================== */
-      const Progress=({current,total})=> (
-        <div className="progress" aria-label="progression">
-          <span style={{width:`${(current)/(Math.max(total-1,1))*100}%`}}/>
-        </div>
-      );
-      const LevelPill=({children,onClick})=> (
-        <button className="back" onClick={onClick} style={{background:'#ec4899',color:'#fff',position:'relative'}}>
-            <span style={{fontSize:18,marginRight:8}}>🌟</span>{children}
-        </button>
-      );
-      const OptionButton=({index,emoji,label,onClick})=>{
-        const handle=(e)=>{ e.currentTarget.classList.add('pop'); setTimeout(()=> e.currentTarget.classList.remove('pop'), 220); onClick(e); };
-        return (
-          <button className="opt" onClick={handle} aria-label={label}>
-            <span className="badge">{String.fromCharCode(65+index)}</span>
-            {emoji ? <span className="emo">{emoji}</span> : null}
-            <span className="lbl">{label}</span>
-          </button>
-        );
+  function nextQuestion(){
+    if(state.progress.done>=state.progress.total){ endOfBlock(); return; }
+    // petite pause mouvement toutes les 4 questions
+    if(state.progress.done>0 && state.progress.done%4===0){
+      const move=choice(["Lève-toi et touche tes orteils 5 fois !","Imite un chat pendant 10 secondes 😺","Saute comme une grenouille 6 fois 🐸","Fais un tour sur toi-même 🌀"]);
+      $("#content").innerHTML=`<div class="prompt">🤸 Pause mouvement :</div><div style="margin-top:10px;font-weight:900;font-size:20px">${move}</div>
+      <div style="margin-top:10px"><button class="btn s" id="doneMove">Je l’ai fait ! (+1🪙)</button></div>`;
+      $("#doneMove").onclick=()=>{ win(1); state.progress.done++; refreshHUD(); nextQuestion(); };
+      $("#btnCheck").style.display="none"; $("#btnSkip").style.display="inline-flex";
+      return;
+    }
+    let q, tries=0;
+    do { q = makeQuestion(state.area.id, state.sub.id); tries++; if(tries>50) break; } while(state.asked.has(q.id));
+    state.asked.add(q.id); state.current=q;
+    if(q.type==="qcm") engine.qcm(q);
+    else if(q.type==="input") engine.input(q);
+    else if(q.type==="order") engine.order(q);
+    else if(q.type==="memory") engine.memory(q);
+    else if(q.type==="sudoku") engine.sudoku(q);
+    else if(q.type==="drawing") engine.drawing(q);
+    else engine.qcm(q);
+    refreshHUD();
+  }
+
+  function evaluate(ok,q,userAns,el){
+    if(ok){
+      state.block.correct++;
+      if(el) el.classList.add("correct");
+      win(1); state.progress.done++; refreshHUD();
+      setTimeout(nextQuestion,360);
+    } else {
+      state.block.wrong++;
+      if(el) el.classList.add("wrong");
+      lose(2);
+      showModal("Oups ❌", `La bonne réponse : <b>${solutionOf(q)}</b><br><small>${q.explain||"Regarde bien l’énoncé 👀"}</small>`);
+    }
+  }
+  const solutionOf=q=> q.type==="qcm" ? (q.options[q.correct]?.label ?? "—") : "Voir explication.";
+
+  function endOfBlock(){
+    // estrellas según errores: 3 (0 erreur), 2 (≤2), 1 (sinon)
+    const w = state.block.wrong;
+    const stars = w===0?3 : (w<=2?2:1);
+    const key = state.area.id+"|"+state.sub.id;
+    state.stars[key] = Math.max(state.stars[key]||0, stars);
+    save();
+
+    fx.spawn();
+    showModal("🎉 Bravo !", `
+      <p>Tu as terminé le niveau ${state.level} (${state.progress.total} exercices).</p>
+      <p>Billets-unicorne : <b>${state.coins}</b> 🪙</p>
+      <div style="font-size:24px">Tes étoiles pour <b>${state.sub.name}</b> : ${"⭐".repeat(stars)}${stars<3?`<span style="opacity:.35">${"⭐".repeat(3-stars)}</span>`:""}</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
+        <button class="btn s" id="goNext">Continuer niveau suivant</button>
+        <button class="btn g" id="stay">Rejouer ce niveau</button>
+        <button class="btn g" id="goHome">Aller au menu</button>
+      </div>
+    `, ()=>{
+      $("#goNext").onclick=()=>{ state.level=Math.min(state.totalLevels,state.level+1); startBlock(); hideModal(); };
+      $("#stay").onclick=()=>{ startBlock(); hideModal(); };
+      $("#goHome").onclick=()=>{ hideModal(); showHome(); };
+      state.scores.unshift({name:state.user.name||"Joueur",coins:state.coins,level:state.level,at:Date.now()});
+      state.scores=state.scores.slice(0,20); save();
+    });
+  }
+
+  function win(n){ state.coins+=n; save(); audio.ok(); }
+  function lose(n){ state.coins=Math.max(0,state.coins-n); save(); audio.no(); }
+
+  /* ----------- Modal helpers ----------- */
+  function showModal(title, html, onOpen){
+    $("#modalTitle").innerHTML=title; $("#modalBody").innerHTML=html; $("#modal").style.display="grid";
+    $("#modalClose").onclick=hideModal; if(onOpen) onOpen();
+  }
+  function hideModal(){ $("#modal").style.display="none"; }
+
+  /* ----------- Shop & scores ----------- */
+  const SHOP=[
+    {id:"rainbow",name:"Arc-en-ciel", price:12, emoji:"🌈"},
+    {id:"etoile", name:"Étoile", price:6, emoji:"⭐"},
+    {id:"coeur",  name:"Cœur",   price:7, emoji:"💖"},
+    {id:"licorne",name:"Mini-licorne", price:18, emoji:"🦄"},
+    {id:"fleur",  name:"Fleur",  price:5, emoji:"🌸"},
+    {id:"soleil", name:"Soleil", price:8, emoji:"☀️"},
+  ];
+  function openShop(){
+    const owned=id=>state.inventory.includes(id);
+    const rows=SHOP.map(it=>`
+      <div class="flash" style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+        <div><span style="font-size:22px">${it.emoji}</span> <b>${it.name}</b> — ${it.price}🪙</div>
+        ${owned(it.id)? '<span class="small">Déjà acheté</span>':'<button class="btn p" data-buy="'+it.id+'">Acheter</button>'}
+      </div>`).join("");
+    showModal("🛍️ Boutique", `<div>${rows}</div><div class="small" style="margin-top:6px">Les stickers peuvent être placés sur la zone de jeu.</div>`, ()=>{
+      $("#modalBody").onclick=e=>{
+        const id=e.target?.dataset?.buy; if(!id) return;
+        const item=SHOP.find(x=>x.id===id);
+        if(state.coins<item.price){ showModal("Boutique", `Pas assez de billets pour <b>${item.name}</b>. Continue de jouer !`); return; }
+        state.coins-=item.price; state.inventory.push(id); save(); refreshHUD(); hideModal(); openShop();
       };
-      const Modal=({open,type='info',title,children,actions=[],onClose})=> open? (
-        <div className="modal-wrap" onClick={onClose}>
-          <div className="modal" role="dialog" aria-modal="true" data-type={type} onClick={e=>e.stopPropagation()}>
-            <div className="big">{type==='bad'? '😢':'🎉'}</div>
-            <h3>{title}</h3>
-            <div>{children}</div>
-            <div className="actions">
-              {actions.length? actions.map((a,i)=> (
-                <button key={i} className="back" onClick={a.onClick} style={a.primary?{background:'#ec4899',color:'#fff'}:null}>{a.label}</button>
-              )) : <button className="back" onClick={onClose}>OK</button>}
-            </div>
-          </div>
-        </div>
-      ): null;
-
-      /* ===== Visual base-10 ===== */
-      const DotsBaseTen=({n})=>{
-        const d=Math.floor(n/10)%10, u=n%10;
-        return (
-          <div style={{display:'flex',gap:14,alignItems:'flex-start',margin:'6px 0 10px'}}>
-            {d>0 && <div><div className="caption" style={{fontWeight:700}}>Dizaines</div><div className="ten">{Array.from({length:d*10}).map((_,i)=>(<span key={i} className="dot"/>))}</div></div>}
-            {u>0 && <div><div className="caption" style={{fontWeight:700}}>Unités</div><div className="unit">{Array.from({length:u}).map((_,i)=>(<span key={i} className="dot"/>))}</div></div>}
-          </div>
-        );
+    });
+  }
+  function showScores(){
+    const rows=(state.scores||[]).slice(0,12).map(s=>`<tr><td>${s.name}</td><td>${s.coins}🪙</td><td>Niv. ${s.level}</td><td>${new Date(s.at).toLocaleDateString()}</td></tr>`).join("");
+    showModal("🏆 Scores (local)", `
+      <table style="width:100%;border-collapse:collapse">
+        <thead><tr><th style="text-align:left;padding:6px;border-bottom:1px solid #eee">Joueur</th>
+        <th style="text-align:left;padding:6px;border-bottom:1px solid #eee">Billets</th>
+        <th style="text-align:left;padding:6px;border-bottom:1px solid #eee">Progrès</th>
+        <th style="text-align:left;padding:6px;border-bottom:1px solid #eee">Date</th></tr></thead>
+        <tbody>${rows || '<tr><td colspan="4" style="padding:6px">Aucun score enregistré.</td></tr>'}</tbody>
+      </table>
+      <div style="display:flex;gap:8px;margin-top:10px">
+        <input id="nameInput" placeholder="Ton prénom" style="flex:1;padding:10px;border-radius:10px;border:1px solid #ddd">
+        <button id="saveScore" class="btn s">Enregistrer ce score</button>
+      </div>
+    `, ()=>{
+      $("#saveScore").onclick=()=>{
+        const name=($("#nameInput").value||"Joueur").slice(0,16);
+        state.scores.unshift({name, coins:state.coins, level:state.level, at:Date.now()});
+        state.scores=state.scores.slice(0,20); save(); hideModal();
       };
-      const AdditionVisual=({a,b})=> (
-        <div className="row" style={{alignItems:'flex-start'}}>
-          <div><div className="caption" style={{fontWeight:700}}>A ({a})</div><DotsBaseTen n={a}/></div>
-          <div style={{fontSize:22,alignSelf:'center'}}>+</div>
-          <div><div className="caption" style={{fontWeight:700}}>B ({b})</div><DotsBaseTen n={b}/></div>
-          <div style={{fontSize:22,alignSelf:'center'}}>= ?</div>
-        </div>
-      );
+    });
+  }
 
-      /* ===================== Núcleo MCQ genérico ===================== */
-      function MCQGame({title, items, onExit, onWrongPenalty, onWin, onCorrect}){
-        const [i,setI]=useState(0); const [ok,setOk]=useState(0); const [wrongCounts,setWrongCounts]=useState({});
-        const total=items.length; const item=items[i];
-        const opts = useMemo(()=> shuffle([...item.options]), [i, item]);
-        const submit=(opt,ev)=>{
-          const label = typeof opt==='string'? opt : (opt.label||'');
-          const good = eqAns(label, item.answer);
-          if(good){
-            onCorrect&&onCorrect();
-            setOk(x=>x+1);
-            const rct=ev.currentTarget.getBoundingClientRect();
-            confettiBurst(rct.left+rct.width/2, rct.top+rct.height/2);
-            if(i+1<total) setI(i+1);
-            else onWin(ok+1, (total<LEVEL_SIZES[4]? ()=>{setI(0); setOk(0); setWrongCounts({}); /* Level up logic handled by parent */ } : null) );
-          } else {
-            const c=(wrongCounts[i]||0)+1; setWrongCounts({...wrongCounts,[i]:c});
-            onWrongPenalty(c===1?1:3);
-          }
-        };
-        return (
-          <div className="card">
-            <button className="back back-lg" style={{marginBottom:10, position:'relative'}} onClick={onExit}>
-              <span style={{fontSize:18}}>🦄</span> Retour
-            </button>
-            <h2 style={{fontWeight:900,fontSize:22,fontFamily:'Fredoka'}}>{title}</h2>
-            <div style={{fontSize:36,fontWeight:900,margin:'10px 0',textAlign:'center'}} aria-live="polite">
-              {item.emoji? <span style={{marginRight:8}}>{item.emoji}</span>:null}{item.prompt}
-            </div>
-            <Progress current={i} total={total}/>
-            <div className="grid cols-3" style={{marginTop:12}}>
-              {opts.map((opt,idx)=>{
-                const lbl=typeof opt==='string'?opt:(opt.label||'');
-                const emo=(typeof opt==='object'&&opt.emoji)?opt.emoji:null;
-                return <OptionButton key={lbl+idx} index={idx} emoji={emo} label={lbl} onClick={(e)=>submit(opt,e)}/>
-              })}
-            </div>
-            <div className="caption" style={{marginTop:10}}>Question {i+1}/{total} — Score {ok}</div>
-          </div>
-        );
-      }
+  /* ----------- Flashcards ----------- */
+  function openFlashcards(){
+    const cards=shuffle([
+      {q:"bleu + jaune = ?", a:"vert"},
+      {q:"Synonyme de « papa » ?", a:"père"},
+      {q:"3 × 4 = ?", a:"12"},
+      {q:"Icône 💾 ?", a:"Sauvegarder"},
+      {q:"Saison de la neige ?", a:"hiver"},
+      {q:"Unités avant dizaines ?", a:"unités"},
+      {q:"Mot de passe : le partager ?", a:"Non !"}
+    ]).slice(0,8);
+    engine.flash(cards);
+  }
 
-      /* ===================== Niveles / Juegos ===================== */
-      const LEVEL_SIZES=[6,8,10,12,15];
-
-      // Aritmética
-      function ArithmeticQuiz({mode='+', onExit, onWrongPenalty, onWin, onCorrect}){
-        const presets={
-          1:{count:LEVEL_SIZES[0],minA:1,maxA:10,minB:1,maxB:10},
-          2:{count:LEVEL_SIZES[1],minA:1,maxA:20,minB:1,maxB:20},
-          3:{count:LEVEL_SIZES[2],minA:1,maxA:50,minB:1,maxB:50},
-          4:{count:LEVEL_SIZES[3],minA:10,maxA:80,minB:1,maxB:60},
-          5:{count:LEVEL_SIZES[4],minA:10,maxA:100,minB:1,maxB:100},
-        };
-        const [lvl,setLvl]=useState(0);
-        const cfg=presets[lvl];
-        const pickOp=()=> ['+','-','x','/'][r(0,3)];
-        const buildPool=()=>{ if(!cfg) return []; const q=[]; for(let i=0;i<cfg.count;i++){
-            let a=r(cfg.minA,cfg.maxA), b=r(cfg.minB,cfg.maxB), ans, op=(mode==='mix'?pickOp():mode);
-            if(op==='x') ans=a*b;
-            if(op==='+') ans=a+b;
-            if(op==='-'){ if(a<b) [a,b]=[b,a]; ans=a-b;}
-            if(op==='/'){ b=Math.max(1,r(cfg.minB,cfg.maxB)); const k=r(cfg.minA,cfg.maxA); a=k*b; ans=k;}
-            q.push({a,b,ans,op});
-          } return q; };
-        const [i,setI]=useState(0); const [score,setScore]=useState(0); const [wrongCounts,setWrongCounts]=useState({});
-        const pool=useMemo(buildPool,[lvl]); const total=pool.length; const q=pool[i]||{};
-        const choices=useMemo(()=> q.ans!=null?makeChoices(q.ans):[], [i,lvl]);
-
-        const levelUp = (earned)=>{
-          if(lvl < 5) {
-             setLvl(lvl+1); setI(0); setScore(0); setWrongCounts({});
-             onWin(earned, null); // Pass earned to parent, level transition handled here
-          } else {
-             onWin(earned, null); // Final level reached
-          }
-        };
-
-        if(!lvl){ return (
-          <div className="card">
-            <button className="back" style={{marginBottom:10}} onClick={onExit}>🦄 Retour</button>
-            <h2 style={{fontWeight:900,fontSize:22,fontFamily:'Fredoka'}}>Mathématiques · {mode==='+'?'Additions':mode==='-'?'Soustractions':mode==='x'?'Multiplications':mode==='/'?'Divisions':'Mix'}</h2>
-            <p className="caption">Choisis un niveau.</p>
-            <div className="row" style={{marginTop:8}}>
-              {Array.from({length:5},(_,k)=>(<LevelPill key={k} onClick={()=>setLvl(k+1)}>Niveau {k+1}</LevelPill>))}
-            </div>
-          </div>
-        );}
-        const pick=(v,ev)=>{
-          const good=Number(v)===q.ans;
-          if(good){
-            onCorrect&&onCorrect(); setScore(s=>s+1);
-            const rct=ev.currentTarget.getBoundingClientRect(); confettiBurst(rct.left+rct.width/2, rct.top+rct.height/2);
-            if(i+1<total) setI(i+1); else levelUp(score+1);
-          } else {
-            const c=(wrongCounts[i]||0)+1; setWrongCounts({...wrongCounts,[i]:c}); onWrongPenalty(c===1?1:3);
-          }
-        };
-        return (
-          <div className="card">
-            <button className="back" style={{marginBottom:10}} onClick={onExit}>🦄 Retour</button>
-            <h2 style={{fontWeight:900,fontSize:22,fontFamily:'Fredoka'}}>Mathématiques · {q.op||mode} · Niveau {lvl}</h2>
-            <div style={{fontSize:28,fontWeight:900,margin:'10px 0',textAlign:'center'}} aria-live="polite">{q.a} {q.op||mode} {q.b} = ?</div>
-            {(q.op||mode)==='+' && <AdditionVisual a={q.a} b={q.b}/>}
-            <Progress current={i} total={total}/>
-            <div className="grid cols-3" style={{marginTop:12}}>
-              {choices.map((c,idx)=> (<OptionButton key={idx} index={idx} emoji={'🔢'} label={String(c)} onClick={(e)=>pick(c,e)}/> ))}
-            </div>
-            <div className="caption" style={{marginTop:10}}>Question {i+1}/{total} — Score {score}</div>
-          </div>
-        );
-      }
-
-      // Place Value
-      function PlaceValue({onExit,onWrongPenalty,onWin,onCorrect}){
-        const presets={1:{count:LEVEL_SIZES[0],min:10,max:99},2:{count:LEVEL_SIZES[1],min:100,max:999},3:{count:LEVEL_SIZES[2],min:100,max:999},4:{count:LEVEL_SIZES[3],min:100,max:999},5:{count:LEVEL_SIZES[4],min:100,max:999}};
-        const [lvl,setLvl]=useState(0); const [i,setI]=useState(0); const [score,setScore]=useState(0); const [wrongCounts,setWrongCounts]=useState({}); const [target,setTarget]=useState('dizaines');
-        const cfg=presets[lvl];
-        const pool=useMemo(()=> cfg? Array.from({length:cfg.count},()=> r(cfg.min,cfg.max)) : [], [lvl]);
-        const total=pool.length; const n=pool[i]||0; const u=n%10, d=Math.floor(n/10)%10, c=Math.floor(n/100)%10;
-        const correct= target==='unités'?u: target==='dizaines'?d:c;
-        const choices=useMemo(()=> lvl?makeChoices(correct):[], [i,target,lvl]);
-
-        const levelUp = (earned) => {
-          if (lvl < 5) {
-             setLvl(lvl + 1); setI(0); setScore(0); setWrongCounts({});
-             onWin(earned, null);
-          } else {
-             onWin(earned, null);
-          }
-        };
-
-        const pick=(v,ev)=>{
-          const good=Number(v)===correct;
-          if(good){
-            onCorrect&&onCorrect(); setScore(s=>s+1);
-            const r=ev.currentTarget.getBoundingClientRect(); confettiBurst(r.left+r.width/2, r.top+r.height/2);
-            if(i+1<total) setI(i+1); else levelUp(score+1);
-          } else {
-            const c=(wrongCounts[i]||0)+1; setWrongCounts({...wrongCounts,[i]:c}); onWrongPenalty(c===1?1:3);
-          }
-        };
-        if(!lvl){ return (
-          <div className="card">
-            <button className="back" style={{marginBottom:10}} onClick={onExit}>🦄 Retour</button>
-            <h2 style={{fontWeight:900,fontSize:22,fontFamily:'Fredoka'}}>Unités · Dizaines · Centaines</h2>
-            <p className="caption">Choisis un niveau.</p>
-            <div className="row" style={{marginTop:8}}>
-              {Array.from({length:5},(_,k)=>(<LevelPill key={k} onClick={()=>setLvl(k+1)}>Niveau {k+1}</LevelPill>))}
-            </div>
-          </div>
-        );}
-        return (
-          <div className="card">
-            <button className="back" style={{marginBottom:10}} onClick={onExit}>🦄 Retour</button>
-            <h2 style={{fontWeight:900,fontSize:22,fontFamily:'Fredoka'}}>Unités · Dizaines · Centaines · Niveau {lvl}</h2>
-            <div className="row" style={{gap:8,marginBottom:8, flexWrap:'wrap'}}>
-              <div className="caption">Cible:</div>
-              <button className={"back "+ (target==='unités'?'primary-pill':'')} onClick={()=>setTarget('unités')} style={{background:target==='unités'? '#ec4899':'', color:target==='unités'?'#fff':''}}>Unités 🍬</button>
-              <button className={"back "+ (target==='dizaines'?'primary-pill':'')} onClick={()=>setTarget('dizaines')} style={{background:target==='dizaines'? '#ec4899':'', color:target==='dizaines'?'#fff':''}}>Dizaines 🔟</button>
-              <button className={"back "+ (target==='centaines'?'primary-pill':'')} onClick={()=>setTarget('centaines')} style={{background:target==='centaines'? '#ec4899':'', color:target==='centaines'?'#fff':''}}>Centaines 💯</button>
-            </div>
-            <div style={{fontSize:28,fontWeight:900,margin:'10px 0',textAlign:'center'}} aria-live="polite">{n}</div>
-            <DotsBaseTen n={n}/>
-            <Progress current={i} total={total}/>
-            <div className="grid cols-3" style={{marginTop:12}}>
-              {choices.map((c,idx)=> (<OptionButton key={idx} index={idx} emoji={'🔢'} label={String(c)} onClick={(e)=>pick(c,e)}/> ))}
-            </div>
-            <div className="caption" style={{marginTop:10}}>Question {i+1}/{total} — Score {score}</div>
-          </div>
-        );
-      }
-
-      /* ===== Cloze FR ===== */
-      const CLOZE_BANK=[
-        { text:"Chaque matin, Léna ____ à l'école.", options:['va','vont','allez','aller'], answer:"va" },
-        { text:"Le chat ____ sur le canapé.", options:['dort','dorment','dormi','dors'], answer:"dort" },
-        { text:"Papa ____ un café.", options:['boit','boivent','boire','bu'], answer:"boit" },
-        { text:"Nous ____ dans la cour.", options:['jouons','joue','jouent','jouer'], answer:"jouons" },
-        { text:"Tu ____ le cartable.", options:['portes','portez','portent','porter'], answer:"portes" },
-        { text:"Ils ____ une chanson.", options:['chantent','chante','chantons','chanter'], answer:"chantent" },
-        { text:"La cloche ____ à neuf heures.", options:['sonne','sonnent','sonné','sonner'], answer:"sonne" },
-        { text:"La maîtresse ____ un livre.", options:['lit','lisent','lire','lis'], answer:"lit" },
-        { text:"Je ____ mon prénom.", options:['écris','écrit','écrivent','écrire'], answer:"écris" },
-        { text:"Vous ____ la porte.", options:['ouvrez','ouvres','ouvrent','ouvrir'], answer:"ouvrez" },
-        { text:"On ____ la récréation.", options:['commence','commencent','commencer','commencé'], answer:"commence" },
-        { text:"Elles ____ à la marelle.", options:['jouent','joue','jouons','jouer'], answer:"jouent" },
-        { text:"Il ____ ses chaussures.", options:['met','mets','mettent','mettre'], answer:"met" },
-        { text:"Tu ____ ton goûter.", options:['manges','mange','mangent','manger'], answer:"manges" },
-        { text:"Nous ____ la file.", options:['faisons','fait','font','faire'], answer:"faisons" },
-        { text:"Je ____ mon cahier.", options:['range','ranges','rangent','ranger'], answer:"range" },
-        { text:"Vous ____ bien.", options:['écoutez','écoute','écoutent','écouter'], answer:"écoutez" },
-        { text:"Le chien ____ vite.", options:['court','courent','courir','cours'], answer:"court" },
-        { text:"Les enfants ____ la main.", options:['lèvent','lève','levons','lever'], answer:"lèvent" },
-        { text:"Elle ____ sa gomme.", options:['prend','prends','prennent','prendre'], answer:"prend" }
+  /* ----------- Fabrique de questions ----------- */
+  // FR
+  const FR={
+    lecture(){
+      const tales=[
+        {t:"Mina trouve une graine. Elle la plante. Un matin, une petite fleur apparaît.", q:"Vrai ou faux : Mina a planté une graine ?", a:true, exp:"On lit « Elle la plante »."},
+        {t:"Lucas a un cerf-volant rouge. Il pleut. Lucas décide d’attendre.", q:"Vrai ou faux : Lucas joue sous la pluie.", a:false, exp:"Il décide d’attendre."},
+        {t:"Zoé voit un chat et un chien. Le chat dort, le chien court.", q:"Qui dort ?", a:"le chat", choices:["le chat","le chien","les deux"], exp:"« Le chat dort »."}
       ];
-      function ClozeWithLevels({onExit,onWrongPenalty,onWin,onCorrect}){
-        const [lvl,setLvl]=useState(0);
-        if(!lvl){return (
-          <div className="card">
-            <button className="back" style={{marginBottom:10}} onClick={onExit}>🦄 Retour</button>
-            <h2 style={{fontWeight:900,fontSize:22,fontFamily:'Fredoka'}}>Lecture · Choisis le mot</h2>
-            <p className="caption">Choisis un niveau.</p>
-            <div className="row" style={{marginTop:8}}>
-              {Array.from({length:5},(_,k)=>(<LevelPill key={k} onClick={()=>setLvl(k+1)}>Niveau {k+1}</LevelPill>))}
-            </div>
-          </div>
-        );}
-        const count=LEVEL_SIZES[lvl-1];
-        const items=takeN(CLOZE_BANK,count).map(x=>({prompt:x.text.replace('____','_____'), options:shuffle(x.options), answer:x.answer, emoji:'📖'}));
-
-        const levelUp = (earned) => {
-          if (lvl < 5) {
-             setLvl(lvl + 1);
-             onWin(earned, null);
-          } else {
-             onWin(earned, null);
-          }
-        };
-
-        return <MCQGame title={`Lecture · Niveau ${lvl}`} items={items} onExit={onExit} onWrongPenalty={onWrongPenalty} onWin={(earned)=> levelUp(earned)} onCorrect={onCorrect}/>;
+      const s=choice(tales);
+      if(typeof s.a==="boolean"){
+        return {id:"fr-lecture-"+s.t,type:"qcm",text:`Lis : « ${s.t} » — ${s.q}`,options:[{label:"Vrai"},{label:"Faux"}],correct:s.a?0:1, explain:s.exp};
+      } else {
+        const opts=shuffle(s.choices).map(x=>({label:x})); const correct=opts.findIndex(o=>o.label===s.a);
+        return {id:"fr-lecture-"+s.t,type:"qcm",text:`Lis : « ${s.t} » — ${s.q}`,options:opts,correct, explain:s.exp};
       }
-
-      /* ===== Bancos (saisons, couleurs, digital, santé, social, NL, famille) ===== */
-      const SAISONS_BANK=[
-        {emoji:'🌸',prompt:'Quelle saison ? (fleurs, abeilles 🐝)',options:['Printemps','Été','Automne','Hiver'],answer:'Printemps'},
-        {emoji:'❄️',prompt:'Quelle saison ? (neige, gants 🧤)',options:['Hiver','Été','Printemps','Automne'],answer:'Hiver'},
-        {emoji:'🍂',prompt:'Je fais tomber les feuilles 🍁. Qui suis-je ?',options:['Automne','Été','Printemps','Hiver'],answer:'Automne'},
-        {emoji:'☀️',prompt:'Je ris très chaud 😎, la mer brille 🌊.',options:['Été','Printemps','Automne','Hiver'],answer:'Été'},
-        {emoji:'🌧️',prompt:'Beaucoup de pluie et bottes 🥾 ?',options:['Printemps','Été','Automne','Hiver'],answer:'Printemps'},
-        {emoji:'⛄',prompt:'Bonhomme de neige ?',options:['Hiver','Automne','Été','Printemps'],answer:'Hiver'},
-        {emoji:'🌻',prompt:'Tournesols au soleil.',options:['Été','Automne','Printemps','Hiver'],answer:'Été'},
-        {emoji:'🍎',prompt:'On cueille des pommes.',options:['Automne','Été','Hiver','Printemps'],answer:'Automne'},
-        {emoji:'🦋',prompt:'Papillons reviennent 🦋',options:['Printemps','Hiver','Été','Automne'],answer:'Printemps'},
-        {emoji:'🎿',prompt:'Ski à la montagne.',options:['Hiver','Été','Automne','Printemps'],answer:'Hiver'},
-        {emoji:'🏖️',prompt:'Plage et glaces 🍦',options:['Été','Printemps','Automne','Hiver'],answer:'Été'},
-        {emoji:'🍁',prompt:'Feuilles orange 🍁',options:['Automne','Été','Hiver','Printemps'],answer:'Automne'}
-      ];
-      const COULEURS_BANK=[
-        {emoji:'🔵🟡',prompt:'Bleu + Jaune = ?',options:['Vert','Rouge','Violet','Orange'],answer:'Vert'},
-        {emoji:'🔴🔵',prompt:'Rouge + Bleu = ?',options:['Violet','Orange','Vert','Marron'],answer:'Violet'},
-        {emoji:'🔴🟡',prompt:'Rouge + Jaune = ?',options:['Orange','Vert','Marron','Violet'],answer:'Orange'},
-        {emoji:'⚪🔴',prompt:'Blanc + Rouge = ?',options:['Rose','Violet','Orange','Marron'],answer:'Rose'},
-        {emoji:'⚪⚫',prompt:'Blanc + Noir = ?',options:['Gris','Marron','Violet','Orange'],answer:'Gris'},
-        {emoji:'🟢🟡',prompt:'Vert + Jaune = ?',options:['Vert clair','Marron','Rose','Gris'],answer:'Vert clair'},
-        {emoji:'🔵⚪',prompt:'Bleu + Blanc = ?',options:['Bleu clair','Vert','Gris','Orange'],answer:'Bleu clair'},
-        {emoji:'🔴⚫',prompt:'Rouge + Noir = ?',options:['Bordeaux','Orange','Violet','Rose'],answer:'Bordeaux'},
-        {emoji:'🟠🔵',prompt:'Orange + Bleu = ?',options:['Marron','Vert','Gris','Rose'],answer:'Marron'}
-      ];
-      const DIGITAL_MOUSE_BANK=[
-        {emoji:'🖱️',prompt:'Quel bouton pour cliquer ?',options:['Gauche','Droite','Molette','Aucun'],answer:'Gauche'},
-        {emoji:'⌨️',prompt:'Quelle touche pour espace ?',options:['Espace','Entrée','Tab','CTRL'],answer:'Espace'},
-        {emoji:'🖱️',prompt:'Double-clic sert à…',options:['Ouvrir','Éteindre','Imprimer','Coller'],answer:'Ouvrir'},
-        {emoji:'⌨️',prompt:'Quelle touche pour nouvelle ligne ?',options:['Entrée','Espace','Tab','Shift'],answer:'Entrée'},
-        {emoji:'🖱️',prompt:'Pour déplacer un objet on…',options:['Cliquer-glisser','Double-clic','Scroll','Alt'],answer:'Cliquer-glisser'},
-        {emoji:'⌨️',prompt:'CTRL + C sert à…',options:['Copier','Coller','Couper','Fermer'],answer:'Copier'},
-        {emoji:'⌨️',prompt:'CTRL + V sert à…',options:['Coller','Copier','Zoom','Fermer'],answer:'Coller'}
-      ];
-      const DIGITAL_NET_BANK=[
-        {emoji:'🔒',prompt:'Partages-tu ton mot de passe ?',options:['Non','Oui','Parfois','Avec amis'],answer:'Non'},
-        {emoji:'🧑‍💻',prompt:'Un inconnu parle en ligne…',options:['Parler avec un adulte','Donner ton adresse','Envoyer des photos','Ignorer souvent'],answer:'Parler avec un adulte'},
-        {emoji:'📧',prompt:'Un email bizarre : tu…',options:['Ne cliques pas','Cliques le lien','Donnes infos','Télécharges'],answer:'Ne cliques pas'},
-        {emoji:'🕵️',prompt:'Infos personnelles ?',options:['Ne pas partager','Partager','Mettre sur profil','Envoyer'],answer:'Ne pas partager'},
-        {emoji:'🛡️',prompt:'Sites sûrs ont souvent…',options:['https','http','hpts','ftp'],answer:'https'},
-        {emoji:'📣',prompt:'Une pub crie “TU AS GAGNÉ !!!”',options:['Méfie-toi','Clique vite','Réponds','Donne email'],answer:'Méfie-toi'},
-        {emoji:'📵',prompt:'Temps d’écran ?',options:['Faire des pauses','Jamais de pause','La nuit seulement','Toujours'],answer:'Faire des pauses'}
-      ];
-      const SANTE_HYGIENE_BANK=[
-        {emoji:'🧼',prompt:'Avant de manger je…',options:['Me lave les mains','Cours','Crie','Dors'],answer:'Me lave les mains'},
-        {emoji:'🪥',prompt:'Brossage des dents : combien ?',options:['2','0','1','5'],answer:'2'},
-        {emoji:'🤧',prompt:'Je tousse : je…',options:['Dans mon coude','Dans ma main','Par terre','Sans couvrir'],answer:'Dans mon coude'},
-        {emoji:'🛁',prompt:'Je dois me laver…',options:['Régulièrement','Jamais','Une fois/an','Quand il pleut'],answer:'Régulièrement'},
-        {emoji:'🧴',prompt:'Le gel hydro sert à…',options:['Nettoyer les mains','Boire','Cuisiner','Peindre'],answer:'Nettoyer les mains'},
-        {emoji:'🧦',prompt:'Changer de chaussettes…',options:['Chaque jour','Jamais','Après 1 mois','Seulement l’été'],answer:'Chaque jour'}
-      ];
-      const SANTE_FOOD_BANK=[
-        {emoji:'🍎🍫',prompt:'Le plus sain ?',options:['Pomme','Chocolat','Bonbons','Gâteau'],answer:'Pomme'},
-        {emoji:'🥤💧',prompt:'Meilleure boisson ?',options:['Eau','Soda','Sirop','Limonade'],answer:'Eau'},
-        {emoji:'🥦🍟',prompt:'Énergie longue…',options:['Légumes','Frites','Chips','Bonbons'],answer:'Légumes'},
-        {emoji:'🍞🍬',prompt:'Petit-déj équilibré ?',options:['Pain + fruit','Bonbons','Chips','Rien'],answer:'Pain + fruit'},
-        {emoji:'🍽️',prompt:'Assiette idéale ?',options:['Couleurs variées','Seulement frites','Seulement sucré','Aucune'],answer:'Couleurs variées'},
-        {emoji:'🍊',prompt:'Vitamine C ?',options:['Orange','Bonbon','Gâteau','Frites'],answer:'Orange'},
-        {emoji:'🐟',prompt:'Bon pour le cerveau ?',options:['Poisson','Bonbon','Soda','Chips'],answer:'Poisson'}
-      ];
-      const SOCIAL_KINDNESS_BANK=[
-        {emoji:'🙂',prompt:'Un ami est triste, tu…',options:['Écoutes et aides','Te moques','L’ignores','Ricanes'],answer:'Écoutes et aides'},
-        {emoji:'🤝',prompt:'Dans un jeu, tu…',options:['Partages','Prends tout','Pousses','Cries'],answer:'Partages'},
-        {emoji:'🗣️',prompt:'Tu veux parler : tu…',options:['Lèves la main','Cries','Coupe la parole','Chantes'],answer:'Lèves la main'},
-        {emoji:'💬',prompt:'Politesse ?',options:["S’il te plaît","Donne !","Vite !","Non"],answer:"S’il te plaît"},
-        {emoji:'🧘',prompt:'En colère : tu…',options:['Respires et parles','Pousses','Casses','Cries'],answer:'Respires et parles'},
-        {emoji:'🙌',prompt:'Un ami réussit : tu…',options:['Félicites','Ignores','Te fâches','Te moques'],answer:'Félicites'}
-      ];
-      const NL_NUMBERS_BANK=[
-        {emoji:'1️⃣',prompt:'“een” = ?',options:['1','2','3','4'],answer:'1'},
-        {emoji:'2️⃣',prompt:'“twee” = ?',options:['2','4','10','3'],answer:'2'},
-        {emoji:'5️⃣',prompt:'“vijf” = ?',options:['5','6','8','4'],answer:'5'},
-        {emoji:'8️⃣',prompt:'“acht” = ?',options:['8','7','9','6'],answer:'8'},
-        {emoji:'🔢',prompt:'“tien” = ?',options:['10','12','20','2'],answer:'10'},
-        {emoji:'🔢',prompt:'“twintig” = ?',options:['20','12','22','2'],answer:'20'},
-        {emoji:'🔢',prompt:'“drie” = ?',options:['3','2','4','5'],answer:'3'},
-        {emoji:'🔢',prompt:'“vier” = ?',options:['4','3','5','6'],answer:'4'}
-      ];
-      const NL_GREETINGS_BANK=[
-        {emoji:'👋',prompt:'“Hola” en NL ?',options:['Hallo','Adiós','Merci','Bonjour'],answer:'Hallo'},
-        {emoji:'🌞',prompt:'“Buenos días” ?',options:['Goeiemorgen','Goeienavond','Hallo','Dank je'],answer:'Goeiemorgen'},
-        {emoji:'🌙',prompt:'“Buenas noches” (salut) ?',options:['Goedenacht','Tot ziens','Hallo','Dank je'],answer:'Goedenacht'},
-        {emoji:'👋',prompt:'“Adiós” ?',options:['Tot ziens','Hallo','Dank je','Alsjeblieft'],answer:'Tot ziens'},
-        {emoji:'🙂',prompt:'“Por favor” (FR : s’il te plaît) ?',options:['Alsjeblieft','Dank je','Aub','Graag'],answer:'Alsjeblieft'},
-        {emoji:'🙏',prompt:'“Gracias” ?',options:['Dank je','Tot ziens','Hoi','Alsjeblieft'],answer:'Dank je'}
-      ];
-      const FAMILLE_BANK=[
-        {emoji:'👩',prompt:'La maman est…',options:['maman','papa','tante','frère'],answer:'maman'},
-        {emoji:'👨',prompt:'Le papa est…',options:['papa','maman','tante','soeur'],answer:'papa'},
-        {emoji:'👧',prompt:'Ta sœur est…',options:['soeur','frère','oncle','papa'],answer:'soeur'},
-        {emoji:'👦',prompt:'Ton frère est…',options:['frère','grand-mère','mère','tante'],answer:'frère'},
-        {emoji:'👵',prompt:'La maman de ta maman est…',options:['grand-mère','tante','cousine','amie'],answer:'grand-mère'},
-        {emoji:'👴',prompt:'Le papa de ton papa est…',options:['grand-père','oncle','ami','frère'],answer:'grand-père'},
-        {emoji:'👶',prompt:'Le bébé est…',options:['bébé','tante','papi','mamy'],answer:'bébé'}
-      ];
-
-      /* ===== Vocabulario multi-idioma (ES · EN · NL) ===== */
-      const VOCAB_CORE=[
-        {emoji:'🍎', es:'manzana', en:'apple', nl:'appel'},
-        {emoji:'💧', es:'agua', en:'water', nl:'water'},
-        {emoji:'🍞', es:'pan', en:'bread', nl:'brood'},
-        {emoji:'🥛', es:'leche', en:'milk', nl:'melk'},
-        {emoji:'🐱', es:'gato', en:'cat', nl:'kat'},
-        {emoji:'🐶', es:'perro', en:'dog', nl:'hond'},
-        {emoji:'🏠', es:'casa', en:'house', nl:'huis'},
-        {emoji:'🏫', es:'escuela', en:'school', nl:'school'},
-        {emoji:'📚', es:'libro', en:'book', nl:'boek'},
-        {emoji:'👋', es:'hola', en:'hello', nl:'hallo'},
-        {emoji:'👋', es:'adiós', en:'goodbye', nl:'tot ziens'},
-        {emoji:'🙏', es:'por favor', en:'please', nl:'alsjeblieft'},
-        {emoji:'🙂', es:'gracias', en:'thank you', nl:'dank je'},
-        {emoji:'🔴', es:'rojo', en:'red', nl:'rood'},
-        {emoji:'🔵', es:'azul', en:'blue', nl:'blauw'},
-        {emoji:'🟢', es:'verde', en:'green', nl:'groen'},
-        {emoji:'1️⃣', es:'uno', en:'one', nl:'een'},
-        {emoji:'2️⃣', es:'dos', en:'two', nl:'twee'},
-        {emoji:'3️⃣', es:'tres', en:'three', nl:'drie'},
-        {emoji:'🔟', es:'diez', en:'ten', nl:'tien'}
-      ];
-      function VocabGame({target,onExit,onWrongPenalty,onWin,onCorrect}){
-        const [lvl,setLvl]=React.useState(0);
-        const targetName = target==='en'? 'Anglais' : target==='nl'? 'Néerlandais' : 'Espagnol';
-        const sourceKey = target==='es'? 'en' : target==='en'? 'es' : 'es'; // Si target es NL, la fuente es ES; si target es EN, la fuente es ES; si target es ES, la fuente es EN
-        const correctedSourceKey = target==='nl'?'es':target==='en'?'es':target==='es'?'en':'es'; // Corrected source key logic
-
-        if(!lvl){ return (
-          <div className="card"><button className="back" style={{marginBottom:10}} onClick={onExit}>🦄 Retour</button>
-            <h2 style={{fontWeight:900,fontSize:22,fontFamily:'Fredoka'}}>Vocabulaire · {targetName}</h2>
-            <p className="caption">Choisis un niveau (6–15 mots).</p>
-            <div className="row" style={{marginTop:8}}>{Array.from({length:5},(_,k)=>(<LevelPill key={k} onClick={()=>setLvl(k+1)}>Niveau {k+1}</LevelPill>))}</div>
-          </div>
-        ); }
-        const count=LEVEL_SIZES[lvl-1];
-        const makeItem=(it)=>{
-          const src=it[correctedSourceKey]; // Use corrected key
-          const ans=it[target];
-          let pool = shuffle(VOCAB_CORE.map(o=> o[target]).filter(v=> v && !eqAns(v, ans)));
-          const opts=[ans, ...pool.slice(0,3)];
-          const uniq=[]; for(const o of opts){ if(!uniq.some(u=>eqAns(u,o))) uniq.push(o); }
-          while(uniq.length<4){
-            const fb = pool.shift() || VOCAB_CORE[Math.floor(Math.random()*VOCAB_CORE.length)][target];
-            if(fb && !uniq.some(u=>eqAns(u,fb))) uniq.push(fb);
-          }
-          return { prompt:`«${src}» → ${targetName}?`, options:shuffle(uniq.slice(0,4)), answer:ans, emoji:it.emoji };
-        };
-        const items=takeN(VOCAB_CORE,count).map(makeItem).map(x=>{
-          if(!x.options.some(o=> eqAns(o,x.answer))){
-            x={...x, options: shuffle([x.answer, ...x.options]).slice(0,4)};
-          }
-          return x;
-        });
-        
-        const levelUp = (earned) => {
-          if (lvl < 5) {
-             setLvl(lvl + 1);
-             onWin(earned, null);
-          } else {
-             onWin(earned, null);
-          }
-        };
-
-        return <MCQGame title={`Vocabulaire · ${targetName} · Niveau ${lvl}`} items={items} onExit={onExit} onWrongPenalty={onWrongPenalty} onWin={(earned)=> levelUp(earned)} onCorrect={onCorrect}/>;
+    },
+    vocab(){
+      const cat=choice([
+        {name:"animaux", pairs:[["chat","🐱"],["chien","🐶"],["poisson","🐟"],["oiseau","🐦"],["lion","🦁"],["souris","🐭"]]},
+        {name:"vêtements", pairs:[["chapeau","👒"],["chaussures","👟"],["pantalon","👖"],["robe","👗"],["manteau","🧥"],["gants","🧤"]]},
+        {name:"saisons", pairs:[["printemps","🌸"],["été","☀️"],["automne","🍂"],["hiver","❄️"]]},
+        {name:"famille", pairs:[["maman","👩"],["papa","👨"],["frère","👦"],["sœur","👧"],["bébé","👶"],["grand-mère","👵"]]},
+        {name:"couleurs", pairs:[["rouge","🔴"],["bleu","🔵"],["jaune","🟡"],["vert","🟢"],["violet","🟣"],["orange","🟠"]]}
+      ]);
+      const pair=choice(cat.pairs); let opts=shuffle(cat.pairs.map(p=>p[0])).slice(0,4); if(!opts.includes(pair[0])) opts[0]=pair[0];
+      return {id:`fr-vocab-${cat.name}-${pair[0]}`, type:"qcm", text:`Choisis le mot qui correspond à ${pair[1]} (${cat.name}).`, options:opts.map(x=>({label:x})), correct:opts.indexOf(pair[0]), explain:`${pair[1]} correspond à « ${pair[0]} ».`};
+    },
+    gram(){
+      const t=choice(["genre","pluriel","etreavoir"]);
+      if(t==="genre"){
+        const pairs=[["une","fille"],["un","garçon"],["une","pomme"],["un","livre"]]; const p=choice(pairs);
+        return {id:`fr-gram-genre-${p.join("-")}`, type:"qcm", text:`Choisis le bon genre : ____ ${p[1]}`, options:[{label:"un"},{label:"une"}], correct:p[0]==="un"?0:1, explain:`On dit « ${p[0]} ${p[1]} ».`};
       }
-
-      // Motor genérico para bancos
-      function BankGame({titlePrefix, bank, onExit, onWrongPenalty, onWin, onCorrect}){
-        const [lvl,setLvl]=useState(0);
-        if(!lvl){ return (
-          <div className="card"><button className="back" style={{marginBottom:10}} onClick={onExit}>🦄 Retour</button>
-            <h2 style={{fontWeight:900,fontSize:22,fontFamily:'Fredoka'}}>{titlePrefix}</h2>
-            <p className="caption">Choisis un niveau.</p>
-            <div className="row" style={{marginTop:8}}>{Array.from({length:5},(_,k)=>(<LevelPill key={k} onClick={()=>setLvl(k+1)}>Niveau {k+1}</LevelPill>))}</div>
-          </div>
-        ); }
-        const items = takeN(bank, LEVEL_SIZES[lvl-1]).map(x=>({
-          prompt:x.prompt, options:x.options, answer:x.answer, emoji:x.emoji
-        }));
-
-        const levelUp = (earned) => {
-          if (lvl < 5) {
-             setLvl(lvl + 1);
-             onWin(earned, null);
-          } else {
-             onWin(earned, null);
-          }
-        };
-
-        return <MCQGame title={`${titlePrefix} (Niv. ${lvl})`} items={items} onExit={onExit} onWrongPenalty={onWrongPenalty} onWin={(earned)=> levelUp(earned)} onCorrect={onCorrect}/>;
+      if(t==="pluriel"){
+        const w=choice([["cheval","chevaux"],["animal","animaux"],["chou","choux"],["chien","chiens"]]);
+        const arr=shuffle([w[1], w[0]+"s", w[0]+"x", w[0]]);
+        return {id:`fr-gram-pluriel-${w[0]}`, type:"qcm", text:`Quel est le pluriel de « ${w[0]} » ?`, options:arr.map(x=>({label:x})), correct:arr.indexOf(w[1]), explain:`Le pluriel de « ${w[0]} » est « ${w[1]} ».`};
       }
+      const subj=choice(["Je","Tu","Il","Elle","Nous","Vous","Ils"]); const verb=choice(["être","avoir"]);
+      const forms={"être":{"Je":"suis","Tu":"es","Il":"est","Elle":"est","Nous":"sommes","Vous":"êtes","Ils":"sont"},"avoir":{"Je":"ai","Tu":"as","Il":"a","Elle":"a","Nous":"avons","Vous":"avez","Ils":"ont"}};
+      const corr=forms[verb][subj]; const opts=shuffle([corr, choice(["es","est","a","ont","avez","sommes","ai","as"]), choice(["serai","aurai"])]);
+      return {id:`fr-etreavoir-${subj}-${verb}`, type:"qcm", text:`Conjugue ${verb} : ${subj} ___`, options:opts.map(x=>({label:x})), correct:opts.indexOf(corr), explain:`${subj} ${corr}.`};
+    },
+    ecrit(){
+      const sentence=choice(["Le chat saute sur le mur.","Aujourd’hui il fait beau.","La licorne brille dans le ciel.","Nous aimons lire des contes."]);
+      return {id:`fr-ecrit-${sentence}`, type:"input", text:"Copie la phrase exactement :", kind:"text", placeholder:sentence, check:v=>strip(v)===strip(sentence), explain:`Réponse attendue : « ${sentence} ».`};
+    },
+    dialogue(){
+      const dial=choice([
+        {q:"— Bonjour ! Ça va ?\n— __________", a:"Oui, très bien merci !", wrong:["Je m’appelle Léo.","Bleu et rouge.","Au revoir."]},
+        {q:"— Tu veux jouer avec moi ?\n— __________", a:"Oui, avec plaisir !", wrong:["J’ai huit ans.","Je mange une pomme.","Il pleut."]},
+        {q:"— Merci pour ton aide !\n— __________", a:"De rien !", wrong:["Bonjour !","À demain.","Peut-être."]}
+      ]);
+      const opts=shuffle([dial.a,...dial.wrong]).map(x=>({label:x}));
+      return {id:`fr-dialogue-${dial.a}`, type:"qcm", text:`Choisis la bonne réplique :<br><pre style="white-space:pre-wrap;background:#fff;border:1px solid #eee;padding:10px;border-radius:10px">${dial.q}</pre>`, options:opts, correct:opts.findIndex(o=>o.label===dial.a), explain:`On répond : « ${dial.a} ».`};
+    }
+  };
 
-      // Droite numérique
-      function NumberLineGame({onExit,onWrongPenalty,onWin,onCorrect}){
-        const presets={1:{count:LEVEL_SIZES[0],max:10},2:{count:LEVEL_SIZES[1],max:20},3:{count:LEVEL_SIZES[2],max:20},4:{count:LEVEL_SIZES[3],max:30},5:{count:LEVEL_SIZES[4],max:40}};
-        const [lvl,setLvl]=useState(0);
-        const cfg=presets[lvl];
-        const build=()=>{ if(!cfg) return []; const arr=[]; for(let i=0;i<cfg.count;i++){
-            let a=r(0,Math.floor(cfg.max/2)), b=r(1,Math.floor(cfg.max/2));
-            const op=(Math.random()<.5?'+':'-');
-            if(op==='-'){ const aa=Math.max(a,b); const bb=Math.min(a,b); a=aa; b=bb; }
-            const ans= op==='+'? a+b : a-b; arr.push({a,b,op,ans});
-          } return arr; };
-        const [i,setI]=useState(0), [score,setScore]=useState(0), [wrongCounts,setWrongCounts]=useState({});
-        const pool=useMemo(build,[lvl]); const total=pool.length; const q=pool[i]||{};
-        const choices=useMemo(()=> q.ans!=null? makeChoices(q.ans) : [], [i,lvl]);
+  // MATH
+  const MATH={
+    addsub(lvl){
+      const a=rnd(0,40+lvl*4), b=rnd(0,40+lvl*4), add=Math.random()<.5; const res=add?a+b:a-b;
+      const text=`${a} ${add?"+":"−"} ${b} = ?`;
+      const arr=shuffle([res,res+rnd(1,5), res-rnd(1,5), res+rnd(6,10)]);
+      return {id:`m-addsub-${a}-${b}-${add}`, type:"qcm", text, options:arr.map(x=>({label:String(x)})), correct:arr.indexOf(res), explain:`On calcule : ${a} ${add?"+":"−"} ${b} = ${res}.`};
+    },
+    mult(lvl){
+      const table=choice([1,2,3,4,5,10]); const b=rnd(1,10+lvl); const res=table*b;
+      const arr=shuffle([res, res+table, res-table, res+2]);
+      return {id:`m-mult-${table}-${b}`, type:"qcm", text:`${table} × ${b} = ?`, options:arr.map(x=>({label:String(x)})), correct:arr.indexOf(res), explain:`Table de ${table} : ${table}×${b}=${res}.`};
+    },
+    div(lvl){
+      const groups=rnd(2,5), each=rnd(2,5+Math.floor(lvl/2)), total=groups*each;
+      const arr=shuffle([each, each+1, each-1, each+2]);
+      return {id:`m-div-${groups}-${each}`, type:"qcm", text:`On partage ${total} bonbons en ${groups} groupes égaux. Combien dans chaque groupe ?`, options:arr.map(x=>({label:String(x)})), correct:arr.indexOf(each), explain:`${total} ÷ ${groups} = ${each}.`};
+    },
+    eq(){
+      const a=rnd(1,30), b=rnd(1,30), c=a+b, miss=choice(["a","b","c"]);
+      if(miss==="a"){const arr=shuffle([a,a+1,a-1,a+2]); return {id:`m-eq-a-${a}-${b}`, type:"qcm", text:`□ + ${b} = ${c}`, options:arr.map(x=>({label:String(x)})), correct:arr.indexOf(a), explain:`${c} − ${b} = ${a}.`};}
+      if(miss==="b"){const arr=shuffle([b,b+1,b-1,b+2]); return {id:`m-eq-b-${a}-${b}`, type:"qcm", text:`${a} + □ = ${c}`, options:arr.map(x=>({label:String(x)})), correct:arr.indexOf(b), explain:`${c} − ${a} = ${b}.`};}
+      const arr=shuffle([c,c+1,c-1,c+2]); return {id:`m-eq-c-${a}-${b}`, type:"qcm", text:`${a} + ${b} = □`, options:arr.map(x=>({label:String(x)})), correct:arr.indexOf(c), explain:`${a}+${b}=${c}.`};
+    },
+    ordre(){
+      const arr=[rnd(0,99),rnd(0,99),rnd(0,99),rnd(0,99)]; const mode=Math.random()<.5?"croissant":"décroissant";
+      return {id:`m-ordre-${arr.join("-")}-${mode}`, type:"order", text:`Range ces nombres en ordre ${mode} :`, items:shuffle(arr.map(x=>String(x))), check(ans){const sorted=[...arr].sort((a,b)=> mode==="croissant"?a-b:b-a).map(String); return JSON.stringify(ans)===JSON.stringify(sorted);}, explain:`Ordre ${mode}.`};
+    },
+    base10(){
+      const d=rnd(0,9), u=rnd(0,9), n=d*10+u;
+      const opts=shuffle([`${d} diz. et ${u} unit.`, `${d+1} diz. et ${u-10} unit.`, `${d-1} diz. et ${u+10} unit.`, `${d} diz. et ${u+1} unit.`]);
+      return {id:`m-b10-${n}`, type:"qcm", text:`Décompose ${n} en dizaines et unités.`, options:opts.map(x=>({label:x})), correct:opts.indexOf(`${d} diz. et ${u} unit.`), explain:`${n} = ${d} dizaines et ${u} unités.`};
+    },
+    problemes(){
+      const a=rnd(2,9), b=rnd(2,9), r=a+b;
+      const arr=shuffle([r,r+1,r-1,r+2]);
+      return {id:`m-prob-${a}-${b}`, type:"qcm", text:`Léna achète ${a} pommes et ${b} poires. Combien de fruits a-t-elle ?`, options:arr.map(x=>({label:String(x)})), correct:arr.indexOf(r), explain:`On additionne : ${a}+${b}=${r}.`};
+    }
+  };
 
-        const levelUp = (earned) => {
-          if (lvl < 5) {
-             setLvl(lvl + 1); setI(0); setScore(0); setWrongCounts({});
-             onWin(earned, null);
-          } else {
-             onWin(earned, null);
-          }
-        };
+  // SCIENCES
+  const SCI={
+    saisons(){const q=choice([{act:"On fait un bonhomme de neige",season:"hiver",emoji:"⛄"},{act:"On nage à la plage",season:"été",emoji:"🏖️"},{act:"Les feuilles tombent",season:"automne",emoji:"🍂"},{act:"Les fleurs poussent",season:"printemps",emoji:"🌸"}]); const opts=shuffle(["printemps","été","automne","hiver"]); return {id:"sci-saison-"+q.act,type:"qcm",text:`${q.emoji} ${q.act}. Quelle saison ?`, options:opts.map(x=>({label:x})), correct:opts.indexOf(q.season), explain:`C’est en ${q.season}.`};},
+    famille(){const q=choice([{p:"La sœur de ma maman est ma …",a:"tante"},{p:"Le fils de ma tante est mon …",a:"cousin"},{p:"Le père de mon père est mon …",a:"grand-père"}]); const opts=shuffle([q.a,"ami","voisin","frère"]); return {id:"sci-fam-"+q.a,type:"qcm",text:q.p,options:opts.map(x=>({label:x})),correct:opts.indexOf(q.a), explain:`On dit : ${q.a}.`};},
+    hygiene(){const pairs=[["Se laver les mains avant de manger","bon"],["Se brosser les dents deux fois par jour","bon"],["Garder un mouchoir usé dans la poche","mauvais"],["Boire de l’eau","bon"]]; const q=choice(pairs); const opts=["bon","mauvais"]; return {id:"sci-hyg-"+q[0],type:"qcm",text:`Est-ce un geste d’hygiène : « ${q[0]} » ?`,options:opts.map(x=>({label:x})),correct:opts.indexOf(q[1]), explain:`C’est « ${q[1]} ».`};},
+    aliments(){const good=choice(["pomme 🍎","carotte 🥕","riz 🍚","yaourt 🥛"]); const bad=choice(["bonbon 🍬","soda 🥤","chips 🍟"]); const opts=shuffle([good,bad, choice(["poisson 🐟","eau 💧","fromage 🧀"])]); return {id:"sci-alim-"+good,type:"qcm",text:`Quel aliment est le plus sain pour le goûter ?`,options:opts.map(x=>({label:x})),correct:opts.indexOf(good), explain:`Choisis plutôt ${good}.`};},
+    corps(){const pairs=[["Voir","les yeux 👀"],["Sentir","le nez 👃"],["Marcher","les jambes 🦵"],["Saisir","les mains ✋"]]; const q=choice(pairs); const opts=shuffle(pairs.map(p=>p[1])); return {id:"sci-corps-"+q[0], type:"qcm", text:`Pour « ${q[0]} », quelle partie du corps ?`, options:opts.map(x=>({label:x})), correct:opts.indexOf(q[1]), explain:`On utilise ${q[1]}.`};}
+  };
 
-        const pick=(v,ev)=>{
-          const good=Number(v)===q.ans;
-          if(good){
-            onCorrect&&onCorrect(); setScore(s=>s+1);
-            const rct=ev.currentTarget.getBoundingClientRect(); confettiBurst(rct.left+rct.width/2, rct.top+rct.height/2);
-            if(i+1<total) setI(i+1); else levelUp(score+1);
-          } else {
-            const c=(wrongCounts[i]||0)+1; setWrongCounts({...wrongCounts,[i]:c}); onWrongPenalty(c===1?1:3);
-          }
-        };
-        const renderLine=(a,b,op)=>{
-          const max=(cfg&&cfg.max)||10;
-          const ticks=Array.from({length:max+1},(_,k)=>k);
-          const pos=a; const end= op==='+'? a+b : a-b;
-          return (
-            <div>
-              <div className="number-line">
-                {ticks.map((t,idx)=> <span key={idx} className={'tick'+(t===pos?' on':'')+(t>pos && t<=end && op==='+'?' step':'')+(t<pos && t>=end && op==='-'?' step':'')}></span>)}
-              </div>
-              <div className="row" style={{justifyContent:'center', gap:10}}><span className="back">Départ: {pos}</span><span className="back">Pas: {b}</span><span className="back">Arrivée: ?</span></div>
-            </div>
-          );
-        };
-        if(!lvl){ return (
-          <div className="card"><button className="back" style={{marginBottom:10}} onClick={onExit}>🦄 Retour</button>
-            <h2 style={{fontWeight:900,fontSize:22,fontFamily:'Fredoka'}}>Droite numérique</h2>
-            <p className="caption">Avance/recul sur la droite pour trouver le résultat.</p>
-            <div className="row" style={{marginTop:8}}>{Array.from({length:5},(_,k)=>(<LevelPill key={k} onClick={()=>setLvl(k+1)}>Niveau {k+1}</LevelPill>))}</div>
-          </div>
-        );}
-        return (
-          <div className="card">
-            <button className="back" style={{marginBottom:10}} onClick={onExit}>🦄 Retour</button>
-            <h2 style={{fontWeight:900,fontSize:22,fontFamily:'Fredoka'}}>Droite numérique · Niveau {lvl}</h2>
-            <div style={{fontSize:28,fontWeight:900,margin:'10px 0',textAlign:'center'}} aria-live="polite">{q.a} {q.op} {q.b} = ?</div>
-            {renderLine(q.a,q.b,q.op)}
-            <Progress current={i} total={total}/>
-            <div className="grid cols-3" style={{marginTop:12}}>
-              {choices.map((c,idx)=> (<OptionButton key={idx} index={idx} emoji={'🎯'} label={String(c)} onClick={(e)=>pick(c,e)}/> ))}
-            </div>
-            <div className="caption" style={{marginTop:10}}>Question {i+1}/{total} — Score {score}</div>
-          </div>
-        );
-      }
+  // ARTS
+  const ARTS={
+    melanges(){const mix=choice([{a:"🔵 bleu",b:"🟡 jaune",res:"🟢 vert",color:"#22cc88"},{a:"🔴 rouge",b:"🔵 bleu",res:"🟣 violet",color:"#8a2be2"},{a:"🔴 rouge",b:"🟡 jaune",res:"🟠 orange",color:"#ff8c00"}]); const arr=shuffle(["🟢 vert","🟣 violet","🟠 orange"]); return {id:"art-mix-"+mix.res,type:"qcm",text:`Mélange ${mix.a} + ${mix.b} = ?`, options:arr.map(x=>({label:x, color: x.includes("vert")?"#22cc88":x.includes("violet")?"#8a2be2":"#ff8c00"})), correct:arr.indexOf(mix.res), explain:`Résultat : ${mix.res}.`};},
+    dessin(){return {id:"art-dessin", type:"drawing", text:"Dessine librement (utilise au moins 3 couleurs et remplis bien la feuille)."};}
+  };
 
-      // Mémoire (paires)
-      function MemoryGame({onExit,onWrongPenalty,onWin,onCorrect}){
-        const [lvl,setLvl]=useState(0);
-        const sizeForLevel = lvl===1?4: lvl===2?6: lvl===3?8: lvl===4?10:12;
-        const mkPairs=(n)=>{
-          const arr=[];
-          for(let i=0;i<n;i++){
-            const a=r(1,9), b=r(1,9);
-            const op = lvl>=3?(['+','-','x'][r(0,2)]) : (lvl===2?(['+','-'][r(0,1)]):'+');
-            let exp=`${a}+${b}`, val=a+b;
-            if(op==='-'){ const aa=Math.max(a,b), bb=Math.min(a,b); exp=`${aa}-${bb}`; val=aa-bb; }
-            if(op==='x'){ exp=`${a}×${b}`; val=a*b; }
-            const id=`${exp}=${val}`;
-            arr.push({id, label:exp, match:id+'r'}); arr.push({id:id+'r', label:String(val), match:id});
-          }
-          return shuffle(arr);
-        };
+  // NUM
+  const NUM={
+    icones(){const pairs=[["💾","Sauvegarder"],["🖨️","Imprimer"],["❌","Fermer"],["🔍","Rechercher"]]; const p=choice(pairs); const opts=shuffle(pairs.map(x=>x[1])); return {id:"num-ic-"+p[0], type:"qcm", text:`Quelle action correspond à ${p[0]} ?`, options:opts.map(x=>({label:x})), correct:opts.indexOf(p[1]), explain:`${p[0]} = ${p[1]}.`};},
+    souris(){const q=choice([{t:"Quel bouton pour ouvrir un menu contextuel ?",a:"clic droit",o:["clic gauche","clic droit","molette"]},{t:"Pour déplacer un objet, on …",a:"clique et on glisse",o:["double-clique","clique et on glisse","appuie sur Échap"]},{t:"La touche pour effacer un caractère à gauche est …",a:"Retour arrière (Backspace)",o:["Entrée","Retour arrière (Backspace)","Majuscule"]}]); const arr=shuffle(q.o); return {id:"num-souris-"+q.t,type:"qcm",text:q.t,options:arr.map(x=>({label:x})),correct:arr.indexOf(q.a), explain:`Réponse : ${q.a}.`};},
+    securite(){const q=choice([{t:"Tu donnes ton mot de passe à ton ami.",a:false,exp:"Ne jamais partager son mot de passe."},{t:"Tu demandes à un adulte avant de cliquer sur un lien étrange.",a:true,exp:"Toujours demander de l’aide."}]); return {id:"num-sec-"+q.t,type:"qcm",text:`Vrai ou faux : ${q.t}`,options:[{label:"Vrai"},{label:"Faux"}],correct:q.a?0:1, explain:q.exp};}
+  };
 
-        const levelUp = (earned) => {
-          if (lvl < 5) {
-             setLvl(lvl + 1);
-             onWin(earned, null);
-          } else {
-             onWin(earned, null);
-          }
-        };
+  // LOGIQUE
+  const LOG={
+    paires(){const em=["🍎","🍌","🍇","🍓","🍑","🍐"]; const deck=shuffle(em.concat(em)).map((e,i)=>({e,v:e+"-"+i})); return {id:"log-memo", type:"memory", text:"Retourne les cartes et trouve les paires.", deck, pairs:em.length};},
+    sudoku(){const p=choice([{g:[1,0,0,4, 0,0,2,0, 0,2,0,0, 3,0,0,1]},{g:[0,0,2,1, 1,0,0,0, 0,1,0,0, 4,0,1,0]}]);
+      return {id:"log-sudoku-"+p.g.join(""), type:"sudoku", grid:p.g, check(vals){
+        if(vals.length!==16 || vals.some(v=>v<1||v>4)) return false;
+        const okRow=r=> new Set(vals.slice(r*4,(r+1)*4)).size===4;
+        const okCol=c=> new Set([vals[c],vals[c+4],vals[c+8],vals[c+12]]).size===4;
+        const blk=(r,c)=>{const idx=[r*8+c*2, r*8+c*2+1, r*8+c*2+4, r*8+c*2+5].map(i=>[Math.floor(i/4), i%4]).map(([R,C])=>vals[R*4+C]); return new Set(idx).size===4;};
+        for(let i=0;i<4;i++){ if(!okRow(i)||!okCol(i)) return false; }
+        for(let r=0;r<2;r++) for(let c=0;c<2;c++) if(!blk(r,c)) return false;
+        return true;
+      }};
+    },
+    patterns(){
+      const s=choice([{arr:["🔴","🔵","🔴","🔵","?"], a:"🔴", opts:["🔴","🟢","🟡"], exp:"Répétition rouge/bleu."},{arr:["1","2","3","?","5"], a:"4", opts:["4","6","2"], exp:"Suite 1 à 5."},{arr:["🐶","🐱","🐶","?","🐶"], a:"🐱", opts:["🐱","🐭","🐸"], exp:"Un chien sur deux."}]);
+      const opt=shuffle(s.opts); return {id:"log-pat-"+s.arr.join(""), type:"qcm", text:`Complète la séquence : ${s.arr.join(" ")}`, options:opt.map(x=>({label:x})), correct:opt.indexOf(s.a), explain:s.exp};
+    }
+  };
 
-        if(!lvl){ return (
-          <div className="card"><button className="back back-lg" onClick={onExit} style={{marginBottom:10}}>🦄 Retour</button>
-            <h2 style={{fontWeight:900,fontSize:22,fontFamily:'Fredoka'}}>Mémoire</h2>
-            <p className="caption">Retourne les cartes et associe opération ↔ résultat.</p>
-            <div className="row" style={{marginTop:8}}>{Array.from({length:5},(_,k)=>(<LevelPill key={k} onClick={()=>setLvl(k+1)}>Niveau {k+1}</LevelPill>))}</div>
-          </div>
-        );}
-        const [cards,setCards]=useState(mkPairs(sizeForLevel));
-        const [open,setOpen]=useState([]); const [solved,setSolved]=useState({}); const [score,setScore]=useState(0); const [wrong,setWrong]=useState(0);
-        const click=(idx)=>{
-          if(solved[idx]||open.includes(idx)) return;
-          const now=[...open,idx]; setOpen(now);
-          if(now.length===2){
-            const [a,b]=now;
-            if(cards[a].match===cards[b].id){
-              onCorrect&&onCorrect(); setSolved({...solved,[a]:1,[b]:1}); setOpen([]); setScore(s=>s+1);
-              if(Object.keys(solved).length+2===cards.length) levelUp(3);
-            } else {
-              setTimeout(()=> setOpen([]), 450);
-              const w=wrong+1; setWrong(w); onWrongPenalty(w===1?1:3);
-            }
-          }
-        };
-        return (
-          <div className="card">
-            <button className="back" onClick={onExit} style={{marginBottom:10}}>🦄 Retour</button>
-            <h2 style={{fontWeight:900,fontSize:22,fontFamily:'Fredoka'}}>Mémoire · Niveau {lvl}</h2>
-            <div className="card-wrap" style={{gridTemplateColumns:`repeat(${Math.min(4, sizeForLevel/2)},minmax(0,1fr))`}}>
-              {cards.map((c,idx)=>{
-                const isOpen=open.includes(idx)||solved[idx];
-                return (
-                  <div key={idx} className={'card-flip'+(isOpen?' is-open':'')} onClick={()=>click(idx)}>
-                    <div className="face front"/>
-                    <div className="face backface"><span className="lbl" style={{fontSize:18,fontFamily:'Fredoka'}}>{c.label}</span></div>
-                  </div>
-                )
-              })}
-            </div>
-          </div>
-        );
-      }
+  function makeQuestion(area,sub){
+    switch(area){
+      case "fr": return FR[sub]();
+      case "math": return MATH[sub](state.level);
+      case "sciences": return SCI[sub]();
+      case "arts": return ARTS[sub]();
+      case "num": return NUM[sub]();
+      case "logique": return LOG[sub]();
+      default: return FR.vocab();
+    }
+  }
 
-      // Équations
-      function EquationsGame({onExit,onWrongPenalty,onWin,onCorrect}){
-        const [lvl,setLvl]=useState(0);
-        if(!lvl){ return (
-          <div className="card"><button className="back" onClick={onExit} style={{marginBottom:10}}>🦄 Retour</button>
-            <h2 style={{fontWeight:900,fontSize:22,fontFamily:'Fredoka'}}>Équations</h2>
-            <p className="caption">Trouve le nombre ou l\'opérateur manquant.</p>
-            <div className="row" style={{marginTop:8}}>{Array.from({length:5},(_,k)=>(<LevelPill key={k} onClick={()=>setLvl(k+1)}>Niveau {k+1}</LevelPill>))}</div>
-          </div>
-        );}
-        const items=useMemo(()=>{
-          const arr=[]; const n=LEVEL_SIZES[lvl-1];
-          for(let k=0;k<n;k++){
-            const a=r(1,10), b=r(1,10);
-            if(lvl<=2){ // Niveau 1-2: trouver le nombre
-              const ans=a+b; const text=`__ + ${b} = ${ans}`;
-              arr.push({prompt:text, options:makeChoices(a).map(x=>String(x)), answer:String(a), emoji:'➕'});
-            } else if(lvl===3){ // Niveau 3: trouver le nombre (opérations mixtes)
-              const op=['+','-'][r(0,1)];
-              const ans= op==='+'?a+b: (Math.max(a,b)-Math.min(a,b));
-              const bigger=Math.max(a,b), smaller=Math.min(a,b);
-              const text=`${bigger} ${op==='-'?'-':op} ${smaller} = __`;
-              arr.push({prompt:text, options:makeChoices(ans).map(x=>String(x)), answer:String(ans), emoji:'🧮'});
-            } else { // Niveau 4-5: trouver l'opérateur
-              const ops=['+','-','x'][r(0,2)]; // Division removed for simplicity at this level
-              const ans= ops==='+'?a+b: ops==='-'? (Math.max(a,b)-Math.min(a,b)): a*b;
-              const text=`${a} __ ${b} = ${ans}`;
-              arr.push({prompt:text, options:['+','-','x','÷'], answer:ops, emoji:'❓'});
-            }
-          }
-          return arr;
-        },[lvl]);
+  /* ----------- init ----------- */
+  load();
+  // aplicar tema/party guardados
+  if(state.theme==="dark") document.documentElement.setAttribute("data-theme","dark");
+  document.documentElement.setAttribute("data-party", state.party?"on":"off");
 
-        const levelUp = (earned) => {
-          if (lvl < 5) {
-             setLvl(lvl + 1);
-             onWin(earned, null);
-          } else {
-             onWin(earned, null);
-          }
-        };
+  renderMenu(); refreshHUD(); showHome();
 
-        return <MCQGame title={`Équations · Niveau ${lvl}`} items={items} onExit={onExit} onWrongPenalty={onWrongPenalty} onWin={(earned)=> levelUp(earned)} onCorrect={onCorrect}/>;
-      }
+  if(!state.user?.name || state.user.name==="Invité"){
+    showModal("Bienvenue !", `
+      <p>Comment t’appelles-tu ?</p>
+      <div><input id="nameInput2" placeholder="Ton prénom" style="width:100%;padding:10px;border-radius:10px;border:1px solid #ddd"></div>
+    `, ()=>{
+      $("#nameInput2").focus();
+      $("#modalClose").onclick=()=>{
+        const n=$("#nameInput2").value.trim()||"Invité";
+        state.user.name=n; $("#avatarName").textContent=n; save(); hideModal();
+      };
+    });
+  } else { $("#avatarName").textContent = state.user.name; }
 
-      // Rappel (orden croissant)
-      function RecallGame({onExit,onWrongPenalty,onWin}){
-        const [lvl,setLvl]=useState(0);
-        const len= lvl===1?3: lvl===2?4: lvl===3?5: lvl===4?6:7;
-        const [seq,setSeq]=useState([]); const [visible,setVisible]=useState(true); const [next,setNext]=useState([]);
-        useEffect(()=>{ if(!lvl) return; const s=shuffle(Array.from({length:9},(_,k)=>k+1)).slice(0,len).sort((a,b)=>a-b); setSeq(s); setVisible(true); setNext([...s]); const t=setTimeout(()=> setVisible(false), 1700+lvl*400); return ()=>clearTimeout(t); },[lvl]);
-
-        const levelUp = (earned) => {
-          if (lvl < 5) {
-             setLvl(lvl + 1);
-             onWin(earned, null);
-          } else {
-             onWin(earned, null);
-          }
-        };
-
-        const click=(n)=>{
-          if(!next.length) return; const expect=next[0];
-          if(n===expect){
-            const rest=next.slice(1);
-            setNext(rest);
-            if(!rest.length) levelUp(3);
-          }
-          else { onWrongPenalty(next.length===len?1:3); }
-        };
-        if(!lvl){ return (
-          <div className="card"><button className="back" onClick={onExit} style={{marginBottom:10}}>🦄 Retour</button>
-            <h2 style={{fontWeight:900,fontSize:22,fontFamily:'Fredoka'}}>Mémoire · Rappel</h2>
-            <p className="caption">Regarde les nombres puis touche-les dans l’ordre croissant.</p>
-            <div className="row" style={{marginTop:8}}>{Array.from({length:5},(_,k)=>(<LevelPill key={k} onClick={()=>setLvl(k+1)}>Niveau {k+1}</LevelPill>))}</div>
-          </div>
-        );}
-        const pool=Array.from({length:9},(_,k)=>k+1);
-        return (
-          <div className="card">
-            <button className="back" onClick={onExit} style={{marginBottom:10}}>🦄 Retour</button>
-            <h2 style={{fontWeight:900,fontSize:22,fontFamily:'Fredoka'}}>Rappel · Niveau {lvl}</h2>
-            <div className="board cols-4" style={{gridTemplateColumns:'repeat(3,80px)', justifyContent:'center', margin:'10px 0'}}>
-              {pool.map(n=> (
-                <div key={n} className={'tile' + (visible && seq.includes(n) ? ' sel' : '')} onClick={()=> click(n)}>{ visible && seq.includes(n)? n : ''}</div>
-              ))}
-            </div>
-            <Progress current={len-next.length} total={len}/>
-          </div>
-        );
-      }
-
-      // Sudoku 4×4
-      function Sudoku4Plus({onExit,onWrongPenalty,onWin}){
-        const [level,setLevel]=useState(0);
-        const [puzzles,setPuzzles]=useState([]);
-        const [index,setIndex]=useState(0);
-        const [sel,setSel]=useState(null);
-
-        const base=[[1,2,3,4],[3,4,1,2],[2,1,4,3],[4,3,2,1]];
-        const clone=(g)=> g.map(r=>r.slice());
-        const permuteNumbers=(g)=>{ const map=shuffle([1,2,3,4]); const m=new Map([[1,map[0]],[2,map[1]],[3,map[2]],[4,map[3]]]); return g.map(row=>row.map(v=>m.get(v))); };
-        const swapRowsInBand=(g)=>{ const band=r(0,1)*2; const i1=band+r(0,1), i2=band+(1-i1%2); const ng=clone(g); [ng[i1],ng[i2]]=[ng[i2],ng[i1]]; return ng; };
-        const swapColsInStack=(g)=>{ const stack=r(0,1)*2; const c1=stack+r(0,1), c2=stack+(1-c1%2); const ng=clone(g); for(let i=0;i<4;i++){ [ng[i][c1],ng[i][c2]]=[ng[i][c2],ng[i][c1]]; } return ng; };
-        const shuffleGrid=()=>{ let g=clone(base); for(let i=0;i<r(2,5);i++){ g=permuteNumbers(g); g=swapRowsInBand(g); g=swapColsInStack(g); } return g; };
-        const makePuzzle=(difficulty)=>{
-          const full=shuffleGrid(); const holes = difficulty===1? r(4,6) : difficulty===2? r(6,8) : r(8,10);
-          const g=clone(full); const cells=shuffle(Array.from({length:16},(_,k)=>[Math.floor(k/4),k%4]));
-          for(let k=0;k<holes;k++){ const [i,j]=cells[k]; g[i][j]=0; }
-          const fixed=new Set(); for(let i=0;i<4;i++) for(let j=0;j<4;j++) if(g[i][j]!==0) fixed.add(`${i}-${j}`);
-          return {start:g, fixed, solution:full};
-        };
-        const startLevel=(lvl)=>{ setLevel(lvl); setIndex(0); const list=Array.from({length:5},()=> makePuzzle(lvl)); setPuzzles(list); };
-
-        const [grid,setGrid]=useState([[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]]);
-        useEffect(()=>{ if(level>0 && puzzles.length){ setGrid(clone(puzzles[index].start)); setSel(null);} },[level,index,puzzles]);
-
-        const isFixed=(r,c)=> (puzzles[index] && puzzles[index].fixed.has(`${r}-${c}`));
-        const conflicts=useMemo(()=>{
-          const conf=new Set(); const g=grid;
-          // Check rows
-          for(let i=0;i<4;i++){ const seen=new Map(); for(let j=0;j<4;j++){ const v=g[i][j]; if(!v) continue; if(seen.has(v)){ conf.add(`${i}-${j}`); conf.add(`${i}-${seen.get(v)}`);} else seen.set(v,j);} }
-          // Check columns
-          for(let j=0;j<4;j++){ const seen=new Map(); for(let i=0;i<4;i++){ const v=g[i][j]; if(!v) continue; if(seen.has(v)){ conf.add(`${i}-${j}`); conf.add(`${seen.get(v)}-${j}`);} else seen.set(v,i);} }
-          // Check 2x2 blocks
-          for(let br=0;br<2;br++) for(let bc=0;bc<2;bc++){
-            const seen=new Map();
-            for(let i=0;i<2;i++) for(let j=0;j<2;j++){
-              const r0=br*2+i, c0=bc*2+j; const v=g[r0][c0]; if(!v) continue;
-              if(seen.has(v)){ const [ri,ci]=seen.get(v); conf.add(`${r0}-${c0}`); conf.add(`${ri}-${ci}`);} else seen.set(v,[r0,c0]);
-            }
-          }
-          return conf;
-        },[grid,index]);
-
-        const select=(r,c)=>{ if(level===0) return; setSel({r,c}); };
-        const setVal=(n)=>{ if(!sel) return; const {r,c}=sel; if(isFixed(r,c)) return; const ng=grid.map(row=>row.slice()); ng[r][c]=n; setGrid(ng); };
-        const clearVal=()=>{ if(!sel) return; const {r,c}=sel; if(isFixed(r,c)) return; const ng=grid.map(row=>row.slice()); ng[r][c]=0; setGrid(ng); };
-        useEffect(()=>{ const onKey=(e)=>{ if(!sel) return; if(['1','2','3','4'].includes(e.key)) setVal(Number(e.key)); if(e.key==='Backspace' || e.key==='Delete' || e.key==='0') clearVal(); }; window.addEventListener('keydown',onKey); return ()=> window.removeEventListener('keydown',onKey); },[sel,grid]);
-
-        const isComplete=()=> grid.every(row=> row.every(v=> v>0));
-        const check=()=>{
-          if(conflicts.size){ onWrongPenalty(1); return; }
-          if(isComplete()){
-             if(index < puzzles.length - 1) {
-                 onWin(4, ()=> setIndex(index+1)); // Pass callback to move to next puzzle
-             } else {
-                 onWin(4, null); // Last puzzle
-             }
-          } else { onWrongPenalty(1); }
-        };
-
-        if(!level){
-          return (
-            <div className="card">
-              <button className="back" onClick={onExit} style={{marginBottom:10}}>🦄 Retour</button>
-              <h2 style={{fontWeight:900,fontSize:22,fontFamily:'Fredoka'}}>Sudoku 4×4</h2>
-              <p className="caption">Choisis une difficulté. Chaque niveau contient 5 puzzles.</p>
-              <div className="row" style={{marginTop:8}}>
-                <LevelPill onClick={()=>startLevel(1)}>Facile</LevelPill>
-                <LevelPill onClick={()=>startLevel(2)}>Moyen</LevelPill>
-                <LevelPill onClick={()=>startLevel(3)}>Difficile</LevelPill>
-              </div>
-            </div>
-          );
-        }
-        return (
-          <div className="card">
-            <div className="row" style={{justifyContent:'space-between', width:'100%'}}>
-              <button className="back" onClick={()=>{setLevel(0); setPuzzles([]);}}>🦄 Niveaux</button>
-              <div className="back">Puzzle {index+1}/5</div>
-            </div>
-            <h2 style={{fontWeight:900,fontSize:22,fontFamily:'Fredoka'}}>Sudoku 4×4 — {level===1?'Facile':level===2?'Moyen':'Difficile'}</h2>
-            <div className="board cols-4" style={{margin:'8px 0'}}>
-              {grid.map((row,r)=> row.map((v,c)=>{
-                const key=`${r}-${c}`; const fixed=isFixed(r,c);
-                const isSel=sel&&sel.r===r&&sel.c===c; const bad=conflicts.has(key);
-                return (
-                  <div key={key} className={'tile'+(fixed?' fixed':'')+(isSel?' sel':'')+(bad?' err':'')} onClick={()=>select(r,c)}>{v||''}</div>
-                );
-              }))}
-            </div>
-            <div className="keypad" role="group" aria-label="Clavier Sudoku">
-              {[1,2,3,4].map(n=> <button key={n} className="key" onClick={()=>setVal(n)}>{n}</button>)}
-              <button className="key" onClick={clearVal}>Effacer</button>
-              <button className="key" onClick={check} style={{background:'#10b981',color:'#fff'}}>Vérifier</button>
-              <button className="key" onClick={()=> setIndex(Math.min(index+1,4))}>Sauter</button>
-            </div>
-          </div>
-        );
-      }
-
-      // Contes
-      function TaleMaker({onExit}){
-        const lieux=['la forêt de l’Aurore 🌲','le village de Brindille 🏡','le bord de la mer 🌊','la montagne bleue ⛰️'];
-        const heros=['Léna 🦄','Milo 🐻','Zoé 🦊','Nino 🐼'];
-        const amis=['un écureuil curieux 🐿️','un chat qui parle 🐱💬','une luciole brillante 🔆','un petit robot 🤖'];
-        const quetes=['retrouver une étoile perdue ⭐','apprendre le secret des saisons 🌸☀️🍂❄️','rendre des couleurs à un tableau 🎨','offrir un sourire à quelqu’un de triste 😊➡️🙂'];
-        const obstacles=['un pont cassé 🌉','un brouillard épais 🌫️','une énigme à résoudre 🔍','un vent capricieux 💨'];
-        const moral=['le courage grandit quand on le partage 💪🤝','un petit geste peut illuminer le monde ✨','on apprend en aidant les autres 👩‍🏫','la patience ouvre toutes les portes 🗝️'];
-        const pick=a=>a[r(0,a.length-1)];
-        const mk=()=>{const L=pick(lieux), H=pick(heros), A=pick(amis), Q=pick(quetes), O=pick(obstacles), M=pick(moral); const name=H.split(' ')[0]; return [
-          `${H} habite près de ${L}. Chaque matin, ${name} dit « bonjour ! » aux oiseaux 🐦 et au soleil ☀️.`,
-          `Un jour, ${name} rencontre ${A}. Ensemble, ils décident de ${Q}. Ils préparent un sac 🎒, une gourde 🥤 et un grand sourire 😄.`,
-          `Le chemin est long… Ils chantent 🎶, sautent par-dessus les flaques 💧 et partagent une pomme 🍎.`,
-          `Soudain, ils doivent franchir ${O}. Ils respirent profondément 🧘 et essayent encore 💫.`,
-          `Grâce à leur entraide 🤝, la route s’ouvre ✨. Au loin, une lumière les guide 🔔.`,
-          `Au coucher du soleil 🌇, ils réussissent leur mission. Ils comprennent que ${M}.`
-        ];};
-        const [paras,setParas]=useState(mk());
-        return (
-          <div className="card"><button className="back" style={{marginBottom:10}} onClick={onExit}>🦄 Retour</button>
-            <h2 style={{fontWeight:900,fontSize:22,fontFamily:'Fredoka'}}>Contes ✨</h2>
-            <p className="caption">Histoires (2–3 min) avec texte grand + emojis.</p>
-            <div style={{fontSize:20,lineHeight:1.8,marginTop:10, textAlign:'left', padding:'0 10px'}}>{paras.map((p,i)=>(<p key={i} style={{margin:'10px 0'}}>{p}</p>))}</div>
-            <div className="row" style={{marginTop:8, justifyContent:'center'}}><button className="back" onClick={()=>setParas(mk())}>Nouvelle histoire</button></div>
-          </div>
-        );
-      }
-
-      /* ===================== Submenus / IconButton ===================== */
-      function IconButton({emoji,label,desc,onClick}){
-        return (
-          <button className="icon-btn" onClick={onClick} aria-label={label} title={label}>
-            <div className="icon-emoji">{emoji}</div>
-            <div className="icon-label">{label}</div>
-            {desc && <div className="icon-desc">{desc}</div>}
-          </button>
-        );
-      }
-      function SubMenu({title,items,onBack}){
-        return (
-          <div className="card">
-            <button className="back" style={{marginBottom:10}} onClick={onBack}>🦄 Retour</button>
-            <h2 style={{fontWeight:900,fontSize:22,fontFamily:'Fredoka'}}>{title}</h2>
-            <div className="grid cols-3" style={{marginTop:8}}>
-              {items.map(it=>(
-                <button key={it.key} className="icon-btn" onClick={it.onClick} aria-label={it.label} title={it.label}>
-                  <div className="icon-emoji">{it.emoji}</div>
-                  <div className="icon-label">{it.label}</div>
-                  {it.desc && <div className="icon-desc">{it.desc}</div>}
-                </button>
-              ))}
-            </div>
-          </div>
-        );
-      }
-
-      /* ===================== App root ===================== */
-      function App(){
-        const [screen,setScreen]=useState('home');
-        const [bills,setBills]=useState(()=> Number(localStorage.getItem('bills')||'0'));
-        const [modal,setModal]=useState({open:false});
-        const [layout,setLayout]=useState(()=> localStorage.getItem('layoutMode')||'center'); // 'center' | 'full'
-        const [soundOn,setSoundOn]=useState(()=> localStorage.getItem('soundOn')!=='0');
-        const [streak,setStreak]=useState(0);
-        const [bestStreak,setBestStreak]=useState(()=> Number(localStorage.getItem('bestStreak')||'0'));
-        const [combo,setCombo]=useState({show:false,n:0,key:0});
-        const [dark,setDark]=useState(()=> localStorage.getItem('theme')==='dark');
-        const [party,setParty]=useState(false);
-
-        useEffect(()=>{ document.documentElement.setAttribute('data-theme', dark?'dark':'light'); localStorage.setItem('theme', dark?'dark':'light'); },[dark]);
-        useEffect(()=>{ document.documentElement.setAttribute('data-party', party?'on':'off'); },[party]);
-
-        const goHome=()=> setScreen('home');
-        const addBills=(n)=>{ const nb=bills+n; setBills(nb); localStorage.setItem('bills',String(nb)); };
-        const onWrongPenalty=(amount)=>{
-          if(soundOn) Sound.bad();
-          setStreak(0);
-          const nb=Math.max(0,bills-amount); setBills(nb); localStorage.setItem('bills',String(nb));
-          setModal({open:true,type:'bad',title:'Oups… Essaie encore !',children:(<div>🦄 Tristounet… Tu perds <b>{amount}</b> billet{amount>1?'s':''} 💸</div>)});
-        };
-        const onWin=(earned,nextLevelCallback)=>{
-          if(soundOn) Sound.good();
-          addBills(earned);
-          setModal({open:true,type:'good',title:'Bravo !',
-            children:(<div>Tu as gagné {Array.from({length:earned}).map((_,i)=>(<span key={i} className="money">💵</span>))}</div>),
-            actions:[
-              nextLevelCallback ? {label:'Niveau suivant',primary:true,onClick:()=>{ setModal({open:false}); nextLevelCallback(); }} : null,
-              {label:'Menu principal',onClick:()=>{ setModal({open:false}); goHome(); }}
-            ].filter(Boolean)
-          });
-        };
-        const onCorrect=()=>{
-          if(soundOn) Sound.good();
-          const s=streak+1; setStreak(s);
-          if(s>bestStreak){ setBestStreak(s); localStorage.setItem('bestStreak', String(s)); }
-          setCombo({show:true,n:s,key:Date.now()}); setTimeout(()=> setCombo(c=>({...c,show:false})), 900);
-          if(s%3===0){ addBills(1); } // Bonus bill every 3 correct answers
-        };
-
-        const toggleLayout=()=>{ const next= layout==='center'? 'full':'center'; setLayout(next); localStorage.setItem('layoutMode',next); };
-        const toggleSound=()=>{ const v=!soundOn; setSoundOn(v); localStorage.setItem('soundOn', v?'1':'0'); };
-
-        const Home=()=> (
-          <div className="card">
-            <div className="grid cols-3">
-              <IconButton emoji="🇳🇱" label="Néerlandais" desc="Lecture, nombres, salutations" onClick={()=>setScreen('nederlands')}/>
-              <IconButton emoji="🇫🇷" label="Français (L2)" desc="Mots, phrases, jeux" onClick={()=>setScreen('cloze')}/>
-              <IconButton emoji="🗣️" label="Langues" desc="ES · EN · NL" onClick={()=>setScreen('languages')}/>
-              <IconButton emoji="🧮" label="Math · Mix" desc="+ − × ÷" onClick={()=>setScreen('quiz-mix')}/>
-              <IconButton emoji="🧠" label="Mémoire" desc="Paires" onClick={()=>setScreen('memory')}/>
-              <IconButton emoji="🎯" label="Droite numérique" desc="Add/Sub" onClick={()=>setScreen('number-line')}/>
-              <IconButton emoji="∎" label="Équations" desc="Nombre manquant" onClick={()=>setScreen('equations')}/>
-              <IconButton emoji="👁️‍🗨️" label="Rappel" desc="Ordre croissant" onClick={()=>setScreen('recall')}/>
-              <IconButton emoji="🔟" label="Unités·Dizaines" desc="Base 10" onClick={()=>setScreen('place-value')}/>
-              <IconButton emoji="🌍" label="Moi et le monde" desc="Saisons, famille" onClick={()=>setScreen('wereld')}/>
-              <IconButton emoji="🎨" label="Arts & couleurs" desc="Mélanges" onClick={()=>setScreen('couleurs')}/>
-              <IconButton emoji="🩺" label="Santé" desc="Hygiène, alimentation" onClick={()=>setScreen('sante')}/>
-              <IconButton emoji="💻" label="Culture numérique" desc="Souris, Internet" onClick={()=>setScreen('digital')}/>
-              <IconButton emoji="📚" label="Contes" desc="Histoires à lire" onClick={()=>setScreen('contes')}/>
-              <IconButton emoji="🧩" label="Sudoku 4×4" desc="Mini sudoku" onClick={()=>setScreen('sudoku4')}/>
-            </div>
-          </div>
-        );
-
-        const renderRoute=()=>{
-          if(screen==='quiz-add') return <ArithmeticQuiz mode="+" onExit={goHome} onWrongPenalty={onWrongPenalty} onWin={onWin} onCorrect={onCorrect}/>;
-          if(screen==='quiz-sub') return <ArithmeticQuiz mode="-" onExit={goHome} onWrongPenalty={onWrongPenalty} onWin={onWin} onCorrect={onCorrect}/>;
-          if(screen==='quiz-mul') return <ArithmeticQuiz mode="x" onExit={goHome} onWrongPenalty={onWrongPenalty} onWin={onWin} onCorrect={onCorrect}/>;
-          if(screen==='quiz-div') return <ArithmeticQuiz mode="/" onExit={goHome} onWrongPenalty={onWrongPenalty} onWin={onWin} onCorrect={onCorrect}/>;
-          if(screen==='quiz-mix') return <ArithmeticQuiz mode="mix" onExit={goHome} onWrongPenalty={onWrongPenalty} onWin={onWin} onCorrect={onCorrect}/>;
-          if(screen==='place-value') return <PlaceValue onExit={goHome} onWrongPenalty={onWrongPenalty} onWin={onWin} onCorrect={onCorrect}/>;
-          if(screen==='cloze') return <ClozeWithLevels onExit={goHome} onWrongPenalty={onWrongPenalty} onWin={onWin} onCorrect={onCorrect}/>;
-          if(screen==='saisons') return <BankGame titlePrefix="Moi et le monde · Saisons" bank={SAISONS_BANK} onExit={goHome} onWrongPenalty={onWrongPenalty} onWin={onWin} onCorrect={onCorrect}/>;
-          if(screen==='famille') return <BankGame titlePrefix="Moi et le monde · Famille" bank={FAMILLE_BANK} onExit={goHome} onWrongPenalty={onWrongPenalty} onWin={onWin} onCorrect={onCorrect}/>;
-          if(screen==='couleurs') return <BankGame titlePrefix="Arts · Couleurs" bank={COULEURS_BANK} onExit={goHome} onWrongPenalty={onWrongPenalty} onWin={onWin} onCorrect={onCorrect}/>;
-          if(screen==='souris') return <BankGame titlePrefix="Culture numérique · Souris & clavier" bank={DIGITAL_MOUSE_BANK} onExit={goHome} onWrongPenalty={onWrongPenalty} onWin={onWin} onCorrect={onCorrect}/>;
-          if(screen==='internet') return <BankGame titlePrefix="Culture numérique · Internet" bank={DIGITAL_NET_BANK} onExit={goHome} onWrongPenalty={onWrongPenalty} onWin={onWin} onCorrect={onCorrect}/>;
-          if(screen==='hygiene') return <BankGame titlePrefix="Santé · Hygiène" bank={SANTE_HYGIENE_BANK} onExit={goHome} onWrongPenalty={onWrongPenalty} onWin={onWin} onCorrect={onCorrect}/>;
-          if(screen==='alimentation') return <BankGame titlePrefix="Santé · Alimentation" bank={SANTE_FOOD_BANK} onExit={goHome} onWrongPenalty={onWrongPenalty} onWin={onWin} onCorrect={onCorrect}/>;
-          if(screen==='bienveillance') return <BankGame titlePrefix="Socio-relationnel · Bienveillance" bank={SOCIAL_KINDNESS_BANK} onExit={goHome} onWrongPenalty={onWrongPenalty} onWin={onWin} onCorrect={onCorrect}/>;
-          if(screen==='nl-nombres') return <BankGame titlePrefix="Néerlandais · Getallen (Nombres)" bank={NL_NUMBERS_BANK} onExit={goHome} onWrongPenalty={onWrongPenalty} onWin={onWin} onCorrect={onCorrect}/>;
-          if(screen==='nl-salut') return <BankGame titlePrefix="Néerlandais · Groeten (Salutations)" bank={NL_GREETINGS_BANK} onExit={goHome} onWrongPenalty={onWrongPenalty} onWin={onWin} onCorrect={onCorrect}/>;
-          if(screen==='contes') return <TaleMaker onExit={goHome}/>;
-          if(screen==='number-line') return <NumberLineGame onExit={goHome} onWrongPenalty={onWrongPenalty} onWin={onWin} onCorrect={onCorrect}/>;
-          if(screen==='memory') return <MemoryGame onExit={goHome} onWrongPenalty={onWrongPenalty} onWin={onWin} onCorrect={onCorrect}/>;
-          if(screen==='equations') return <EquationsGame onExit={goHome} onWrongPenalty={onWrongPenalty} onWin={onWin} onCorrect={onCorrect}/>;
-          if(screen==='recall') return <RecallGame onExit={goHome} onWrongPenalty={onWrongPenalty} onWin={onWin}/>;
-          if(screen==='sudoku4') return <Sudoku4Plus onExit={goHome} onWrongPenalty={onWrongPenalty} onWin={onWin}/>;
-
-          // Submenus
-          if(screen==='nederlands') return (
-            <SubMenu title="Néerlandais — 2e primaire" onBack={goHome} items={[
-              {key:'nl-lecture', emoji:'📖', label:'Lecture (FR) · Cloze', desc:'Complète la phrase', onClick:()=>setScreen('cloze')},
-              {key:'nl-nombres', emoji:'🔢', label:'Getallen (Nombres)', desc:'1 à 20', onClick:()=>setScreen('nl-nombres')},
-              {key:'nl-salut', emoji:'👋', label:'Groeten (Salutations)', desc:'Bonjour, Au revoir…', onClick:()=>setScreen('nl-salut')},
-            ]}/>
-          );
-          if(screen==='digital') return (
-            <SubMenu title="Culture numérique — 2e primaire" onBack={goHome} items={[
-              {key:'souris', emoji:'🖱️', label:'Souris & clavier', desc:'Niveaux', onClick:()=>setScreen('souris')},
-              {key:'internet', emoji:'🌐', label:'Internet', desc:'Sécurité & usage', onClick:()=>setScreen('internet')},
-            ]}/>
-          );
-          if(screen==='sante') return (
-            <SubMenu title="Santé — 2e primaire" onBack={goHome} items={[
-              {key:'hygiene', emoji:'🧼', label:'Hygiène', desc:'Lavage des mains, dents', onClick:()=>setScreen('hygiene')},
-              {key:'alimentation', emoji:'🥦', label:'Alimentation', desc:'Choix sains', onClick:()=>setScreen('alimentation')},
-            ]}/>
-          );
-          if(screen==='social') return (
-            <SubMenu title="Socio-relationnel — 2e primaire" onBack={goHome} items={[
-              {key:'bienveillance', emoji:'🙂', label:'Bienveillance', desc:'Niveaux', onClick:()=>setScreen('bienveillance')},
-            ]}/>
-          );
-          if(screen==='wereld') return (
-            <SubMenu title="Moi et le monde — 2e primaire" onBack={goHome} items={[
-              {key:'saisons', emoji:'⛅', label:'Saisons', desc:'Niveaux', onClick:()=>setScreen('saisons')},
-              {key:'famille', emoji:'👨‍👩‍👧', label:'Famille & communauté', desc:'Niveaux', onClick:()=>setScreen('famille')},
-            ]}/>
-          );
-          if(screen==='languages') return (
-            <SubMenu title="Langues" onBack={goHome} items={[
-              {key:'lang-es', emoji:'🇪🇸', label:'Espagnol',  desc:'Vocabulaire de base', onClick:()=>setScreen('lang-es')},
-              {key:'lang-en', emoji:'🇬🇧', label:'Anglais',   desc:'Basic words',         onClick:()=>setScreen('lang-en')},
-              {key:'lang-nl', emoji:'🇳🇱', label:'Néerlandais',desc:'Basiswoorden',        onClick:()=>setScreen('lang-nl')},
-            ]}/>
-          );
-
-          // Specific Vocab Games
-          if(screen==='lang-en') return <VocabGame target="en" onExit={goHome} onWrongPenalty={onWrongPenalty} onWin={onWin} onCorrect={onCorrect}/>;
-          if(screen==='lang-nl') return <VocabGame target="nl" onExit={goHome} onWrongPenalty={onWrongPenalty} onWin={onWin} onCorrect={onCorrect}/>;
-          if(screen==='lang-es') return <VocabGame target="es" onExit={goHome} onWrongPenalty={onWrongPenalty} onWin={onWin} onCorrect={onCorrect}/>;
-
-          // Math sub-menu items directing to specific quizzes
-          if(screen==='quiz-add') return <ArithmeticQuiz mode="+" onExit={goHome} onWrongPenalty={onWrongPenalty} onWin={onWin} onCorrect={onCorrect}/>;
-          if(screen==='quiz-sub') return <ArithmeticQuiz mode="-" onExit={goHome} onWrongPenalty={onWrongPenalty} onWin={onWin} onCorrect={onCorrect}/>;
-          if(screen==='quiz-mul') return <ArithmeticQuiz mode="x" onExit={goHome} onWrongPenalty={onWrongPenalty} onWin={onWin} onCorrect={onCorrect}/>;
-          if(screen==='quiz-div') return <ArithmeticQuiz mode="/" onExit={goHome} onWrongPenalty={onWrongPenalty} onWin={onWin} onCorrect={onCorrect}/>;
-
-
-          return null; // Default case
-        };
-
-        return (
-          <div className={'container '+(layout==='full'?'full':'')}>
-            <div className="header">
-              <div className="brand">
-                <div className="brand-badge" aria-hidden="true">
-                  <svg width="20" height="20" viewBox="0 0 64 64" aria-hidden="true"><use href="#ico-star"/></svg>
-                </div>
-                <div className="title">Appli de Léna — 2e primaire</div>
-              </div>
-              <div className="row">
-                <button className="back" onClick={()=>setDark(d=>!d)} title={dark? 'Thème sombre activé':'Activer le thème sombre'}>🌙 Thème</button>
-                <button className="back" onClick={()=>setParty(p=>!p)} title="Mode Fête">🎉 {party?'Fête ON':'Fête'}</button>
-                <button className="back" onClick={toggleLayout} title={layout==='center'? 'Passer en plein écran':'Revenir au centrage'}>
-                  {layout==='center'? '🖥️ Plein écran':'📏 Centré'}
-                </button>
-                <button className="back" onClick={toggleSound} title={soundOn? 'Couper le son':'Activer le son'}>{soundOn? '🔊 Son':'🔈 Muet'}</button>
-                <div className="bill-purse" title="Billets">
-                  <span>💵</span> <b>{bills}</b>
-                </div>
-              </div>
-            </div>
-            <main className={'stage '+(screen==='home'?'home ':'')+(layout==='full'?'full':'center')}>
-              {screen==='home'? <Home/> : renderRoute()}
-            </main>
-            <Modal {...modal} onClose={()=>setModal({open:false})}/>
-            <div className={"combo"+(combo.show?" show":"")} key={combo.key}>🔥 x{streak}</div>
-          </div>
-        );
-      }
-
-      ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
-    </script>
-  </body>
+})();
+</script>
+</body>
 </html>
