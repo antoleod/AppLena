@@ -49,6 +49,7 @@ header{height:var(--h); display:flex; align-items:center; justify-content:center
   width:min(1600px, 98vw); height:100%; padding:0 14px; display:flex; align-items:center; justify-content:space-between; gap:10px;
   border-radius:24px; background:linear-gradient(180deg, rgba(255,255,255,.96), rgba(255,255,255,.86));
   box-shadow:var(--shadow); backdrop-filter:saturate(1.3) blur(8px);
+  overflow-x:auto; scroll-snap-type:x proximity;
 }
 #brand{display:flex; align-items:center; gap:12px}
 #brand .logo{
@@ -67,7 +68,7 @@ header{height:var(--h); display:flex; align-items:center; justify-content:center
   -webkit-background-clip:text; background-clip:text; color:transparent; letter-spacing:.2px;
   text-shadow: 0 2px 8px rgba(176,111,255,.08);
 }
-#controls{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+#controls{display:flex;align-items:center;gap:8px;flex-wrap:nowrap}
 /* Sombra ligeramente más marcada para iconos del header */
 #controls .chip{ text-shadow: 0 2px 4px rgba(0,0,0,.10); }
 .chip{
@@ -115,8 +116,13 @@ main{position:absolute; inset:var(--h) 0 0 0; display:grid; grid-template-rows: 
   content:""; position:absolute; inset:-12px; z-index:-1; border-radius:20px; background:var(--halo); filter:blur(8px);
 }
 @keyframes float{0%{transform:translateY(0)}50%{transform:translateY(-6px)}100%{transform:translateY(0)}}
-.ctitle{font-weight:900; font-size:19px; font-family:"Fredoka"; letter-spacing:.2px}
-.csub{font-size:12px; color:var(--muted)}
+@keyframes text-rainbow{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+.ctitle{font-weight:900; font-size:19px; font-family:"Fredoka"; letter-spacing:.2px;
+  background:linear-gradient(90deg,#ec4899,#f59e0b,#10b981,#3b82f6,#8b5cf6,#ec4899);
+  background-size:300% 100%; -webkit-background-clip:text; background-clip:text; color:transparent;
+  animation:text-rainbow 8s linear infinite;
+}
+.csub{font-size:12px; color:var(--muted); background:linear-gradient(90deg,#a78bfa,#fca5a5,#fcd34d,#86efac,#93c5fd,#a78bfa); background-size:300% 100%; -webkit-background-clip:text; background-clip:text; color:transparent; animation:text-rainbow 12s linear infinite}
 .badge{
   position:absolute; top:10px; right:10px; display:flex; gap:6px; align-items:center;
   background:#fff; color:#6b6b8f; border:1px solid rgba(167,139,250,.25);
@@ -133,9 +139,10 @@ main{position:absolute; inset:var(--h) 0 0 0; display:grid; grid-template-rows: 
   background: linear-gradient(#fff,#fff) padding-box,
              linear-gradient(135deg,rgba(254,205,211,.9),rgba(255,231,173,.9),rgba(167,243,208,.9),rgba(191,219,254,.9),rgba(196,181,253,.9)) border-box;
   background-size:100% 100%,240% 240%; animation: rainbow 12s linear infinite;
-  color:#1f213a; border-radius:14px; padding:10px 12px; font-weight:900; cursor:pointer; text-align:center;
+  color:transparent; border-radius:14px; padding:10px 12px; font-weight:900; cursor:pointer; text-align:center;
   box-shadow:0 6px 14px rgba(0,0,0,.06); transition: transform .08s;
 }
+.sub > span{ background:linear-gradient(90deg,#ec4899,#f59e0b,#10b981,#3b82f6,#8b5cf6,#ec4899); background-size:300% 100%; -webkit-background-clip:text; background-clip:text; color:transparent; animation:text-rainbow 10s linear infinite }
 .sub .stars{position:absolute; left:8px; top:6px; font-size:10px}
 .sub:hover{ transform: translateY(-2px) scale(1.02); }
 .card.collapsed .subs{display:none}
@@ -291,6 +298,16 @@ body, body *{
 .dotsWrap{display:flex; flex-direction:column; gap:6px; margin:8px 0}
 .dotRow{display:flex; gap:6px; align-items:center}
 .dot{width:10px;height:10px;border-radius:999px; background:#f472b6; box-shadow:0 1px 2px rgba(0,0,0,.12)}
+/* Responsive helpers */
+.svgWrap svg{max-width:100%; height:auto; display:block; margin:6px 0 10px}
+@media (max-width:720px){
+  :root{ --h:64px }
+  .prompt{font-size:22px}
+  .option{min-height:72px; font-size:16px}
+}
+@media (max-width:680px){
+  #drawWrap{ grid-template-columns:1fr; }
+}
 </style>
 </head>
 <body>
@@ -311,7 +328,7 @@ body, body *{
       <div id="modeChip" class="chip ghost" aria-label="Modes" title="Modes">🎛️ Modes</div>
       <div id="fsChip" class="chip ghost">⛶ Plein écran</div>
       <div id="homeChip" class="chip ghost" aria-label="Menu principal">🦄 Menu</div>
-      <div id="avatarChip" class="chip" aria-label="Avatar"><span id="avatarEmoji">🙂</span> <span id="avatarName">Invité</span></div>
+      <div id="avatarChip" class="chip" aria-label="Avatar enfant"><span id="avatarEmoji">🙂</span> <span id="avatarName">Invité</span></div>
       <button id="btnFlash" class="chip">⚡ Révision</button>
       <button id="btnShop" class="chip">🛍️ Boutique</button>
       <button id="btnScores" class="chip">🏆 Scores</button>
@@ -369,6 +386,26 @@ body, body *{
   const rnd=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
   const shuffle=arr=>arr.sort(()=>Math.random()-.5);
   const choice=arr=>arr[Math.floor(Math.random()*arr.length)];
+  // Simple SVG generator for Tower of Hanoi (illustrative)
+  function hanoiSVG(n=3){
+    n=Math.max(3,Math.min(8,n));
+    const W=720,H=180, baseY=150, pegW=8, pegH=110, pad=40;
+    const pegX=[pad, W/2, W-pad];
+    const colors=['#a5b4fc','#fda4af','#fdba74','#86efac','#93c5fd','#f5d0fe','#fecdd3','#99f6e4'];
+    let discs='';
+    for(let i=0;i<n;i++){
+      const w=40 + (i+1)*20; const x=pegX[0]-w/2; const y=baseY - i*14 - 10;
+      const c=colors[i%colors.length];
+      discs += `<rect x="${x}" y="${y}" rx="6" ry="6" width="${w}" height="12" fill="${c}" stroke="#1f2937" stroke-opacity="0.08"/>`;
+    }
+    const pegs = pegX.map(x=>`<rect x="${x-pegW/2}" y="${baseY-pegH}" width="${pegW}" height="${pegH}" fill="#94a3b8"/>`).join('');
+    const base = `<rect x="${pad-60}" y="${baseY}" width="${W-2*(pad-60)}" height="10" rx="5" fill="#e5e7eb"/>`;
+    return `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Tour de Hanoï">
+      <defs><linearGradient id="g" x1="0" x2="1"><stop offset="0" stop-color="#f3e8ff"/><stop offset="1" stop-color="#e0e7ff"/></linearGradient></defs>
+      <rect x="0" y="0" width="${W}" height="${H}" fill="url(#g)" rx="12"/>
+      ${base}${pegs}${discs}
+    </svg>`;
+  }
   const renderDots=(rows,cols)=>{
     rows=rows|0; cols=cols|0; rows=Math.max(1,rows); cols=Math.max(1,cols);
     let html='<div class="dotsWrap">';
@@ -508,7 +545,28 @@ body, body *{
 
   /* ----------- HUD ----------- */
   const avatarGlyph=()=>`${state.avatar?.hat||''} ${state.avatar?.face||'🙂'} ${state.avatar?.acc||''}`.trim();
-  const refreshHUD=()=>{ $("#coins").textContent=state.coins; $("#lvl").textContent=state.level; $("#barProg").style.width=Math.round((state.progress.done/state.progress.total)*100)+"%"; const av=$("#avatarEmoji"); if(av) av.textContent=avatarGlyph(); };
+  // Guide licorne qui évolue avec les pièces
+  const GUIDE_STEPS=[
+    {min:0,    name:'Bébé licorne',     emoji:'🍼🦄'},
+    {min:20,   name:'Licorne curieuse', emoji:'🌟🦄'},
+    {min:50,   name:'Licorne brillante',emoji:'✨🦄'},
+    {min:100,  name:'Licorne royale',   emoji:'👑🦄'},
+    {min:200,  name:'Licorne légendaire',emoji:'🌈🦄'}
+  ];
+  function guideInfo(){
+    const coins=state.coins||0; let stage=GUIDE_STEPS[0];
+    for(const s of GUIDE_STEPS){ if(coins>=s.min) stage=s; }
+    const idx=GUIDE_STEPS.indexOf(stage);
+    const next=GUIDE_STEPS[idx+1]?.min ?? stage.min;
+    const base=stage.min; const span=Math.max(1,(next-base));
+    const pct = Math.max(0, Math.min(100, Math.round(((coins-base)/span)*100)));
+    return {stage:idx, name:stage.name, emoji:stage.emoji, next, base, pct};
+  }
+  const refreshHUD=()=>{
+    $("#coins").textContent=state.coins; $("#lvl").textContent=state.level; $("#barProg").style.width=Math.round((state.progress.done/state.progress.total)*100)+"%";
+    const av=$("#avatarEmoji"); if(av) av.textContent=avatarGlyph();
+    const gi=guideInfo(); const uni=$("#uni"); if(uni){ uni.textContent=gi.emoji; uni.title=`${gi.name} — prochaines: ${gi.next}🪙`; }
+  };
 
   /* ----------- areas + subtopics (menu) ----------- */
   const AREAS=[
@@ -579,8 +637,8 @@ body, body *{
   }
 
   function renderMenu(){
-    const g=$("#grid"); g.innerHTML="";
-    AREAS.forEach(a=>{
+  const g=$("#grid"); g.innerHTML="";
+  AREAS.forEach(a=>{
       const keyArea = a.id+"|*";
       const starsArea = Math.max(0, ...a.subs.map(s=> state.stars[a.id+"|"+s.id]||0));
       const card=document.createElement("div"); card.className="card"; card.dataset.area=a.id;
@@ -601,12 +659,13 @@ body, body *{
         const key=a.id+"|"+s.id; const st=state.stars[key]||0;
         const b=document.createElement("div"); b.className="sub"; b.dataset.sub=s.id;
         // Sin estrellas en los submenús
-        b.innerHTML = `${s.name}`;
+        b.innerHTML = `<span>${s.name}</span>`;
         b.onclick=()=>{
           sparkleAt(innerWidth/2, 100, 10);
           if(a.id==='logique' && s.id==='memo'){ openMemoMenu(a); return; }
           if(a.id==='logique' && s.id==='rappel'){ openRappelMenu(a); return; }
           if(a.id==='math' && s.id==='mult'){ openMultMenu(a); return; }
+          if(a.id==='math' && s.id==='div'){ openDivMenu(a); return; }
           state.area=a; state.sub=s; startBlock();
         };
         subs.appendChild(b);
@@ -616,8 +675,11 @@ body, body *{
       g.appendChild(card);
     });
     // Hacer subtemas alcanzables por teclado
-    $$('#grid .sub').forEach(el=>{ el.tabIndex=0; el.setAttribute('role','button'); });
-  }
+  $$('#grid .sub').forEach(el=>{ el.tabIndex=0; el.setAttribute('role','button'); });
+
+  // Cycle des icônes (arc-en-ciel) — change régulièrement l'emoji
+  try{ startIconCycle(); }catch{}
+}
 
   /* ----------- Stage flow ----------- */
   function pushView(v){ if(skipPush) return; const last=navStack[navStack.length-1]; if(last!==v) navStack.push(v); }
@@ -628,9 +690,34 @@ body, body *{
     navStack.pop(); const prev=navStack[navStack.length-1];
     skipPush=true; if(prev==='home') showHome(); else showStage(); skipPush=false;
   }
+
+  // Cycle d'icônes sur les cartes du menu (toutes les 4s)
+  let iconTimer=null;
+  const ICON_ALTS={
+    fr:["🇫🇷","📚","✍️","🔤"], nl:["🇳🇱","📖","🔢","👋"], math:["🎯","➗","✖️","➕","➖"],
+    sciences:["🌍","🌦️","👨‍👩‍👧","🧼","🥗","🧠"], arts:["🎨","🖍️","🖼️","🧩"], num:["💻","🖱️","⌨️","🔒"],
+    logique:["🧩","🧠","🔢","🗂️"], contes:["📖","🧚","✨","📝"], juegos:["🎮","🧠","🕹️"]
+  };
+  function startIconCycle(){
+    clearInterval(iconTimer);
+    const cards=Array.from(document.querySelectorAll('#grid .card'));
+    const pos=new Map();
+    iconTimer=setInterval(()=>{
+      cards.forEach(c=>{
+        const area=c.dataset.area; const list=ICONS(area);
+        const i=(pos.get(c)||0)+1; pos.set(c,i);
+        const iconEl=c.querySelector('.icon'); if(iconEl){ iconEl.textContent=list[i%list.length]; }
+      });
+    }, 4000);
+    function ICONS(a){ return ICON_ALTS[a] || ['⭐']; }
+  }
   function exercisesForLevel(L){ return clamp(5 + Math.round((L-1)*((20-5)/(state.totalLevels-1))), 5, 20); }
   function startBlock(){
-    state.progress.total=exercisesForLevel(state.level);
+    if(state.area?.id==='math' && state.sub?.id==='div' && state.math?.divLevel){
+      state.progress.total=3; // 3 questions par niveau de divisions
+    } else {
+      state.progress.total=exercisesForLevel(state.level);
+    }
     state.progress.done=0; state.asked=new Set(); state.block={correct:0,wrong:0};
     state.blockStartCoins = state.coins;
     $("#barProg").style.width="0%";
@@ -642,7 +729,8 @@ body, body *{
     qcm(q){
       const hintDots = (q.meta && q.meta.dots) ? renderDots(q.meta.dots.rows, q.meta.dots.cols) : '';
       const hintText = (q.meta && q.meta.hint) ? `<div class="small">${q.meta.hint}</div>` : '';
-      $("#content").innerHTML=`<div class="prompt"><span class="spark">🪄</span>${q.text}</div>${hintDots}${hintText}<div class="options" id="opts" role="listbox" aria-label="Choix de réponses"></div>`;
+      const banner = (q.meta && q.meta.svg) ? `<div class="svgWrap">${q.meta.svg}</div>` : '';
+      $("#content").innerHTML=`<div class="prompt"><span class="spark">🪄</span>${q.text}</div>${banner}${hintDots}${hintText}<div class="options" id="opts" role="listbox" aria-label="Choix de réponses"></div>`;
       const opts=$("#opts");
       q.options.forEach((op,i)=>{
         const el=document.createElement("div"); el.className="option"; el.dataset.idx=i; el.setAttribute('role','button'); el.tabIndex=0;
@@ -833,7 +921,7 @@ body, body *{
       ctx.lineCap="round"; ctx.lineJoin="round"; ctx.strokeStyle=colors[0]; ctx.lineWidth=8;
       colors.forEach((c,i)=>{const sw=document.createElement("div"); sw.className="sw"; sw.style.background=c; if(i===0) sw.classList.add("sel"); sw.title=c; sw.onclick=()=>{ $$("#palette .sw").forEach(x=>x.classList.remove("sel")); sw.classList.add("sel"); ctx.strokeStyle=c; }; pal.appendChild(sw);});
       let drawing=false, moves=0, used=new Set([colors[0]]), last=[0,0];
-      const pos=e=>{const r=canvas.getBoundingClientRect(); const x=(e.touches?e.touches[0].clientX:e.clientX)-r.left; const y=(e.touches?e.touches[0].clientY:e.clientY)-r.top; return [x,y];};
+      const pos=e=>{const r=canvas.getBoundingClientRect(); const sx=canvas.width/Math.max(1,r.width), sy=canvas.height/Math.max(1,r.height); const cx=(e.touches?e.touches[0].clientX:e.clientX)-r.left; const cy=(e.touches?e.touches[0].clientY:e.clientY)-r.top; return [cx*sx, cy*sy];};
       const start=e=>{drawing=true; last=pos(e);};
       const draw=e=>{ if(!drawing) return; const [x,y]=pos(e); ctx.beginPath(); ctx.moveTo(...last); ctx.lineTo(x,y); ctx.stroke(); last=[x,y]; moves++; used.add(ctx.strokeStyle);};
       const end=()=>{drawing=false;};
@@ -1095,7 +1183,16 @@ body, body *{
 
   /* ----------- Avatar ----------- */
   function openAvatar(){
-    const preview=`<div style="display:grid;place-items:center;height:140px"><div style="font-size:64px">${avatarGlyph()}</div></div>`;
+    const gi=guideInfo();
+    const preview=`<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:center">
+      <div style="display:grid;place-items:center;height:140px"><div style="font-size:64px">${avatarGlyph()}</div><div class="small">Ton avatar</div></div>
+      <div style="display:grid;place-items:center;height:140px"><div style="font-size:48px">${gi.emoji}</div><div class="small">Guide licorne — ${gi.name}</div>
+        <div class="small" style="margin-top:6px;width:90%">
+          <div style="height:8px;border-radius:999px;background:#eee;overflow:hidden"><div style="height:100%;width:${gi.pct}%;background:linear-gradient(90deg,var(--p1),var(--p2))"></div></div>
+          <div style="margin-top:4px;text-align:center">${state.coins} / ${gi.next} 🪙</div>
+        </div>
+      </div>
+    </div>`;
     const owned=(type)=>SHOP.filter(i=>i.type===type && state.inventory.includes(i.id));
     const row=(type,label)=>{
       const items=owned(type).map(i=>`<button class="btn g" data-wear="${i.id}">${i.emoji} ${i.name}</button>`).join(' ');
@@ -1144,6 +1241,18 @@ body, body *{
     $("#content").innerHTML = `<div class="prompt">👀 Regarde les nombres puis touche-les dans l’ordre croissant.</div><div class="options" id="rappelLvls"></div>`;
     const wrap=$("#rappelLvls");
     levels.forEach(L=>{const el=document.createElement('div'); el.className='option'; el.textContent=`Niveau ${L}`; el.onclick=()=>{ state.sub={id:`rappel${L}`, name:`Rappel Niv. ${L}`}; startBlock(); }; wrap.appendChild(el);});
+    $("#btnCheck").style.display='none'; $("#btnSkip").style.display='inline-flex'; $("#btnPrev").style.display='inline-flex'; $("#btnPrev").onclick=showHome;
+  }
+
+  // ----------- Divisions: niveaux (facile → difficile)
+  function openDivMenu(area){
+    state.area = area;
+    showStage();
+    $("#breadcrumbs").textContent = `${area.title} › Divisions simples`;
+    const levels = [1,2,3];
+    $("#content").innerHTML = `<div class="prompt">➗ Choisis un niveau</div><div class="options" id="divLvls"></div>`;
+    const wrap=$("#divLvls");
+    levels.forEach(L=>{ const el=document.createElement('div'); el.className='option'; el.textContent=`Niveau ${L}`; el.onclick=()=>{ state.math=state.math||{}; state.math.divLevel=L; state.sub={id:'div', name:`Divisions · niveau ${L}`}; startBlock(); }; wrap.appendChild(el); });
     $("#btnCheck").style.display='none'; $("#btnSkip").style.display='inline-flex'; $("#btnPrev").style.display='inline-flex'; $("#btnPrev").onclick=showHome;
   }
 
@@ -1287,9 +1396,13 @@ body, body *{
       };
     },
     div(lvl){
-      const groups=rnd(2,5), each=rnd(2,5+Math.floor(lvl/2)), total=groups*each;
+      const L=(state.math&&state.math.divLevel)||1;
+      // niveaux: 1 facile, 2 moyen, 3 difficile
+      const cfg={1:{g:[2,3], e:[2,4]}, 2:{g:[2,5], e:[3,7]}, 3:{g:[3,7], e:[4,9]}}[L];
+      const groups=rnd(cfg.g[0], cfg.g[1]), each=rnd(cfg.e[0], cfg.e[1]), total=groups*each;
       const arr=shuffle([each, each+1, each-1, each+2]);
-      return {id:`m-div-${groups}-${each}`, type:"qcm", text:`On partage ${total} bonbons en ${groups} groupes égaux. Combien dans chaque groupe ?`, options:arr.map(x=>({label:String(x)})), correct:arr.indexOf(each), explain:`🍬 On fait des paquets: ${total} ÷ ${groups} = <b>${each}</b>.`};
+      const dots=renderDots(groups, each);
+      return {id:`m-div-${groups}-${each}-L${L}`, type:"qcm", text:`On partage ${total} bonbons en ${groups} groupes égaux. Combien dans chaque groupe ?`, options:arr.map(x=>({label:String(x), icon:'🍬'})), correct:arr.indexOf(each), explain:`🍬 Paquets: ${total} ÷ ${groups} = <b>${each}</b>.`, meta:{dots:{rows:groups, cols:each}, hint:`Répartition: ${total} = ${groups} × ${each}`}};
     },
     eq(){
       const a=rnd(1,30), b=rnd(1,30), c=a+b, miss=choice(["a","b","c"]);
@@ -1462,8 +1575,8 @@ body, body *{
   // JUEGOS
   const GAMES={
     hanoi(){
-      const n=rnd(3,5); const ans=(1<<n)-1; const opts=shuffle([ans, ans+2, ans-2, ans+4]).map(x=>({label:String(x)}));
-      return {id:`game-hanoi-${n}`, type:'qcm', text:`🗼 Tower of Hanoi : mouvements minimum pour ${n} disques ?`, options:opts, correct:opts.findIndex(o=>+o.label===ans), explain:`Formule : 2^${n} − 1 = ${ans}.`};
+      const n=rnd(3,5); const ans=(1<<n)-1; const opts=shuffle([ans, ans+2, ans-2, ans+4]).map(x=>({label:String(x), icon:'🧠'}));
+      return {id:`game-hanoi-${n}`, type:'qcm', text:`🗼 Tours de Hanoï — mouvements minimum pour ${n} disques ?`, options:opts, correct:opts.findIndex(o=>+o.label===ans), explain:`Formule : 2^${n} − 1 = ${ans}.`, meta:{ svg: hanoiSVG(n), hint:`Astuce : double à chaque disque → 2^${n} − 1` } };
     },
     hidden(){
       const need=5; const pool=['🎈','🍎','🌟','🐱','🦋','🍀','🌼','🍩','🚗','🧸'];
