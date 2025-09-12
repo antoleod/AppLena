@@ -2,11 +2,13 @@
 <html lang="fr">
 <head>
 <meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+<meta name="color-scheme" content="light dark"/>
 <meta name="description" content="Appli de Léna — activités ludiques (lecture, maths, logique, arts) avec étoiles, pièces et effets magiques pour enfants."/>
 <title>Appli de Léna — Menu magique 🦄</title>
 <meta name="theme-color" content="#b06fff"/>
 <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700;900&family=Nunito:wght@600;800&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -20,6 +22,9 @@
   --ring:#f9a8d4;
   --bg-speed:26s;
 }
+/* Skip link (accessibility) */
+.skip-link{position:absolute; left:8px; top:-48px; background:var(--card); color:var(--ink); border:1px solid rgba(167,139,250,.35); border-radius:999px; padding:8px 12px; box-shadow:0 6px 16px rgba(0,0,0,.06); font-weight:900; z-index:9999; transition: top .2s}
+.skip-link:focus{top:8px}
 /* Tema oscuro */
 @media (prefers-color-scheme: dark){
   :root{ --bg:#100d18; --bg2:#1b1632; --card:rgba(255,255,255,.08); --cardHi:rgba(255,255,255,.06); --ink:#efe8ff; --muted:#cdbef0; --shadow:0 10px 28px rgba(0,0,0,.45); --ring:#ffbde0; }
@@ -307,6 +312,20 @@ body, body *{
 .colorLegend{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:6px 0 4px}
 .colorLegend .chip{padding:6px 10px;font-size:14px}
 .colorDot{width:16px;height:16px;border-radius:6px;border:2px solid #0002;display:inline-block;vertical-align:-3px;margin-right:6px}
+.pulse{animation:popbtn .25s ease}
+.numtxt{font-weight:900;color:#111;text-shadow:0 1px 0 #fff,0 1px 2px rgba(0,0,0,.35),0 2px 6px rgba(0,0,0,.18);letter-spacing:.2px}
+.option .numtxt{font-size:22px}
+.draggable.numchip{font-weight:900;color:#111;text-shadow:0 1px 0 #fff,0 1px 2px rgba(0,0,0,.35),0 2px 6px rgba(0,0,0,.18)}
+.rappelTile{ text-shadow:0 1px 0 #fff, 0 1px 2px rgba(0,0,0,.35), 0 2px 6px rgba(0,0,0,.18) }
+#sumBox{ font-weight:900; text-shadow:0 1px 0 #fff, 0 1px 2px rgba(0,0,0,.35), 0 2px 6px rgba(0,0,0,.18) }
+.spatialWrap{position:relative;width:min(720px,96vw);height:340px;margin:8px auto}
+.spatialWrap .zone{position:absolute;border:2px dashed rgba(167,139,250,.45);border-radius:12px}
+.spatialWrap .zone.sel{outline:3px solid var(--ring);outline-offset:1px}
+.spatialMouse{position:absolute;font-size:46px;cursor:grab;user-select:none;touch-action:none;filter:drop-shadow(0 6px 10px rgba(0,0,0,.12)); transition:left .45s ease, top .45s ease}
+.spatialMouse.drag{cursor:grabbing}
+/* Saucisse helpers */
+.stepBox{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.tag{background:#fff;border:1px solid rgba(167,139,250,.25);border-radius:999px;padding:6px 10px;font-weight:900;box-shadow:0 6px 14px rgba(0,0,0,.06)}
 @media (max-width:720px){
   :root{ --h:64px }
   .prompt{font-size:22px}
@@ -318,7 +337,8 @@ body, body *{
 </style>
 </head>
 <body>
-<header>
+<a href="#content" class="skip-link">Aller au contenu</a>
+<header role="banner">
   <div id="bar">
     <div id="brand">
       <div class="logo" aria-hidden="true"></div>
@@ -333,7 +353,7 @@ body, body *{
       <div id="soundChip" class="chip">🔊 <b id="soundState">ON</b></div>
       <!-- themeChip et partyChip fusionnés dans 🎛️ Modes -->
       <div id="modeChip" class="chip ghost" aria-label="Modes" title="Modes">🎛️ Modes</div>
-      <div id="fsChip" class="chip ghost">⛶ Plein écran</div>
+      <div id="fsChip" class="chip ghost" aria-label="Basculer plein écran">⛶ Plein écran</div>
       <div id="homeChip" class="chip ghost" aria-label="Menu principal">🦄 Menu</div>
       <div id="avatarChip" class="chip" aria-label="Avatar enfant"><span id="avatarEmoji">🙂</span> <span id="avatarName">Invité</span></div>
       <button id="btnFlash" class="chip">⚡ Révision</button>
@@ -343,7 +363,7 @@ body, body *{
   </div>
 </header>
 
-<main>
+<main role="main">
   <!-- Home menu grid -->
   <section id="home">
     <div id="homeInner">
@@ -393,6 +413,186 @@ body, body *{
   const rnd=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
   const shuffle=arr=>arr.sort(()=>Math.random()-.5);
   const choice=arr=>arr[Math.floor(Math.random()*arr.length)];
+  // Friendly house banner for "Maisons des nombres"
+  function houseSVG(total){
+    const W=720,H=220;
+    return `<?xml version='1.0' encoding='UTF-8'?>
+    <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 ${W} ${H}' width='${W}' height='${H}'>
+      <defs>
+        <linearGradient id='hbg' x1='0' x2='1'><stop offset='0' stop-color='#eef2ff'/><stop offset='1' stop-color='#fdf2f8'/></linearGradient>
+        <filter id='s' x='-10%' y='-10%' width='120%' height='120%'><feDropShadow dx='0' dy='1' stdDeviation='1' flood-color='#000' flood-opacity='.1'/></filter>
+      </defs>
+      <rect x='0' y='0' width='${W}' height='${H}' rx='16' fill='url(#hbg)'/>
+      <!-- ground -->
+      <rect x='20' y='180' width='680' height='18' rx='9' fill='#86efac' opacity='.6'/>
+      <!-- house base -->
+      <rect x='180' y='90' width='360' height='100' rx='12' fill='#fee2e2' filter='url(#s)'/>
+      <!-- roof -->
+      <polygon points='180,92 360,32 540,92' fill='#fca5a5' filter='url(#s)'/>
+      <!-- windows A/B -->
+      <rect x='220' y='110' width='90' height='60' rx='10' fill='#ffffff' stroke='#000' stroke-opacity='.06'/>
+      <rect x='410' y='110' width='90' height='60' rx='10' fill='#ffffff' stroke='#000' stroke-opacity='.06'/>
+      <text x='265' y='146' text-anchor='middle' font-size='22' font-weight='800' fill='#334155'>A</text>
+      <text x='455' y='146' text-anchor='middle' font-size='22' font-weight='800' fill='#334155'>B</text>
+      <!-- total -->
+      <text x='360' y='70' text-anchor='middle' font-size='24' font-weight='900' fill='#1f2937'>Total = ${total}</text>
+      <text x='360' y='200' text-anchor='middle' font-size='14' font-weight='700' fill='#64748b'>Glisse deux nombres dans la boîte pour faire ${total}</text>
+    </svg>`;
+  }
+  // Simple 2x2 book covers SVG to illustrate options (Lecture Assoc.)
+  function bookCoversSVG(titles=[]){
+    const W=720,H=260,pad=16,cw=(W-3*pad)/2,ch=(H-3*pad)/2;
+    const cols=['#fde68a','#93c5fd','#fca5a5','#a7f3d0'];
+    const safe=(s)=> String(s||'').slice(0,20);
+    let i=0, cells='';
+    for(let r=0;r<2;r++){
+      for(let c=0;c<2;c++){
+        const x=pad + c*(cw+pad), y=pad + r*(ch+pad);
+        const t=safe(titles[i]||'');
+        const col=cols[i%cols.length];
+        cells += `<g>
+          <rect x='${x}' y='${y}' rx='14' width='${cw}' height='${ch}' fill='${col}' opacity='0.85' stroke='#000' stroke-opacity='.06'/>
+          <rect x='${x+12}' y='${y+18}' width='${cw-24}' height='${ch-70}' rx='10' fill='#fff' opacity='.75'/>
+          <text x='${x+cw/2}' y='${y+ch-28}' text-anchor='middle' font-weight='800' font-size='14' fill='#1f2937'>${t}</text>
+        </g>`;
+        i++;
+      }
+    }
+    return `<?xml version='1.0' encoding='UTF-8'?>
+    <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 ${W} ${H}' width='${W}' height='${H}'>
+      <rect x='0' y='0' width='${W}' height='${H}' rx='18' fill='url(#bg)'/>
+      <defs><linearGradient id='bg' x1='0' x2='1'><stop offset='0' stop-color='#faf5ff'/><stop offset='1' stop-color='#eff6ff'/></linearGradient></defs>
+      ${cells}
+    </svg>`;
+  }
+  // Comparaisons mini SVGs per question index
+  function buildCompSVG(idx){
+    const base=(w=720,h=200)=>[`<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 ${w} ${h}' width='${w}' height='${h}'>`,`</svg>`];
+    // helpers
+    const bar=(x,y,w,h,col='#94a3b8')=>`<rect x='${x}' y='${y}' width='${w}' height='${h}' rx='8' fill='${col}'/>`;
+    const label=(x,y,t)=>`<text x='${x}' y='${y}' text-anchor='middle' font-weight='800' fill='#334155'>${t}</text>`;
+    const glass=(x,fillH)=>`<g transform='translate(${x},0)'>
+      <rect x='0' y='20' width='80' height='140' rx='18' fill='none' stroke='#64748b' stroke-width='3'/>
+      <rect x='4' y='${160-fillH}' width='72' height='${fillH}' rx='12' fill='#60a5fa' opacity='.7'/>
+    </g>`;
+    const bottle=(x,h)=>`<g transform='translate(${x},0)'>
+      <rect x='28' y='20' width='24' height='20' rx='6' fill='#94a3b8'/>
+      <rect x='10' y='40' width='60' height='${h}' rx='20' fill='#86efac' opacity='.8' stroke='#166534' stroke-opacity='.15'/>
+    </g>`;
+    const jar=(x,fillH)=>`<g transform='translate(${x},0)'>
+      <rect x='6' y='20' width='88' height='10' rx='6' fill='#94a3b8'/>
+      <rect x='0' y='30' width='100' height='130' rx='20' fill='none' stroke='#64748b' stroke-width='3'/>
+      <rect x='6' y='${160-fillH}' width='88' height='${fillH}' rx='12' fill='#93c5fd' opacity='.7'/>
+    </g>`;
+    const book=(x,t)=>`<g transform='translate(${x},0)'>
+      <rect x='0' y='40' width='80' height='100' rx='8' fill='#fca5a5' stroke='#000' stroke-opacity='.05'/>
+      <rect x='80' y='40' width='14' height='100' rx='3' fill='#ef4444'/>
+      <text x='40' y='160' text-anchor='middle' font-size='12' fill='#334155' font-weight='700'>${t}</text>
+    </g>`;
+    const door=(x,h)=>`<g transform='translate(${x},0)'>
+      <rect x='0' y='${170-h}' width='90' height='${h}' rx='8' fill='#f5d0fe' stroke='#000' stroke-opacity='.06'/>
+      <circle cx='12' cy='${170-h+40}' r='4' fill='#94a3b8'/>
+    </g>`;
+    const bag=(x,fillH)=>`<g transform='translate(${x},0)'>
+      <rect x='10' y='20' width='80' height='120' rx='18' fill='#fde68a' stroke='#000' stroke-opacity='.06'/>
+      <rect x='16' y='${140-fillH}' width='68' height='${fillH}' rx='12' fill='#f59e0b' opacity='.7'/>
+    </g>`;
+    const W=720,H=200; const [s,e]=base(W,H);
+    switch(idx){
+      case 0: // ficelles: A longest
+        return s+ bar(80,120,180,12,'#64748b')+label(170,150,'ficelle A')+
+                   bar(300,140,140,12,'#94a3b8')+label(370,170,'ficelle B')+
+                   bar(480,160,100,12,'#cbd5e1')+label(530,190,'ficelle C')+ e;
+      case 1: // pains: least thick
+        return s+ bar(120,90,120,28,'#fca5a5')+label(180,150,'pain fin')+
+                   bar(320,70,120,48,'#fb7185')+label(380,150,'pain moyen')+
+                   bar(520,50,120,68,'#ef4444')+label(580,150,'pain épais')+ e;
+      case 2: // glasses 1/3,2/3,3/3
+        return s+ glass(110,40)+label(150,180,'verre 1/3')+
+                   glass(320,80)+label(360,180,'verre 2/3')+
+                   glass(530,120)+label(570,180,'verre 3/3')+ e;
+      case 3: // prices
+        return s+ label(160,100,'stylo 1€')+label(360,100,'cahier 2€')+label(560,100,'boite 3€')+
+                   bar(120,110,80,6,'#86efac')+bar(320,110,120,6,'#fde68a')+bar(520,110,160,6,'#fca5a5')+ e;
+      case 4: // doors heights
+        return s+ door(120,120)+label(165,190,'porte A')+
+                   door(320,90)+label(365,190,'porte B')+
+                   door(520,70)+label(565,190,'porte C')+ e;
+      case 5: // bottles capacity
+        return s+ bottle(120,120)+label(165,180,'2 L')+
+                   bottle(320,80)+label(365,180,'1 L')+
+                   bottle(520,60)+label(565,180,'0,5 L')+ e;
+      case 6: // traits: shortest C
+        return s+ bar(120,80,200,6,'#94a3b8')+label(220,110,'trait A')+
+                   bar(320,90,140,6,'#cbd5e1')+label(390,120,'trait B')+
+                   bar(520,100,80,6,'#e5e7eb')+label(560,130,'trait C')+ e;
+      case 7: // sacs fill: least filled
+        return s+ bag(120,40)+label(165,180,'sac léger')+
+                   bag(320,80)+label(365,180,'sac moyen')+
+                   bag(520,120)+label(565,180,'sac lourd')+ e;
+      case 8: // carnets thickness
+        return s+ book(120,'petit')+book(320,'moyen')+book(520,'gros')+ e;
+      case 9: // jars water: least water
+        return s+ jar(110,20)+label(160,180,'vide')+
+                   jar(310,70)+label(360,180,'moitié')+
+                   jar(510,130)+label(560,180,'plein')+ e;
+      default:
+        return s+ label(W/2, H/2, 'Comparaisons')+ e;
+    }
+  }
+  // Spatial scene SVG (house centered + helpers)
+  function spatialSceneSVG(){
+    const W=720,H=340;
+    return `<?xml version='1.0' encoding='UTF-8'?>
+    <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 ${W} ${H}' width='${W}' height='${H}'>
+      <defs>
+        <linearGradient id='sbg' x1='0' x2='1'><stop offset='0' stop-color='#eef2ff'/><stop offset='1' stop-color='#fdf2f8'/></linearGradient>
+        <filter id='ss' x='-10%' y='-10%' width='120%' height='120%'><feDropShadow dx='0' dy='1' stdDeviation='1' flood-color='#000' flood-opacity='.1'/></filter>
+      </defs>
+      <rect x='0' y='0' width='${W}' height='${H}' rx='18' fill='url(#sbg)'/>
+      <!-- sol -->
+      <rect x='20' y='300' width='680' height='14' rx='7' fill='#86efac' opacity='.6'/>
+      <!-- mur (pour \'contre\') -->
+      <rect x='640' y='40' width='20' height='260' rx='6' fill='#cbd5e1'/>
+      <!-- chaises (pour \"entre\") -->
+      <rect x='70' y='230' width='60' height='70' rx='10' fill='#fcd34d' filter='url(#ss)'/>
+      <rect x='190' y='230' width='60' height='70' rx='10' fill='#fcd34d' filter='url(#ss)'/>
+      <!-- maison -->
+      <polygon points='300,120 420,120 360,70' fill='#fca5a5' filter='url(#ss)'/>
+      <rect x='300' y='120' width='120' height='120' rx='14' fill='#fee2e2' filter='url(#ss)'/>
+      <rect x='318' y='190' width='36' height='50' rx='8' fill='#93c5fd'/>
+      <rect x='366' y='190' width='36' height='50' rx='8' fill='#93c5fd'/>
+      <rect x='352' y='210' width='28' height='60' rx='6' fill='#fbbf24'/>
+      <text x='360' y='50' text-anchor='middle' font-size='20' font-weight='900' fill='#334155'>🏠 Maison</text>
+      <text x='100' y='220' text-anchor='middle' font-size='16' font-weight='800' fill='#334155'>Chaises</text>
+      <text x='650' y='320' text-anchor='middle' font-size='14' font-weight='700' fill='#334155'>Mur</text>
+    </svg>`;
+  }
+  // Number line for "saucisse" steps
+  function sausageSVG(a,b,op,phase){
+    const W=720,H=180, pad=40;
+    const min=0,max=20; // simple range
+    const toX=v=> pad + (W-2*pad) * (v-min)/(max-min);
+    const base = [`<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 ${W} ${H}' width='${W}' height='${H}'>`];
+    base.push(`<rect x='0' y='0' width='${W}' height='${H}' rx='14' fill='url(#g)'/>`);
+    base.push(`<defs><linearGradient id='g' x1='0' x2='1'><stop offset='0' stop-color='#f8fafc'/><stop offset='1' stop-color='#f3e8ff'/></linearGradient></defs>`);
+    // baseline
+    base.push(`<line x1='${toX(min)}' y1='100' x2='${toX(max)}' y2='100' stroke='#94a3b8' stroke-width='3'/>`);
+    for(let i=min;i<=max;i+=2){ const x=toX(i); base.push(`<line x1='${x}' y1='95' x2='${x}' y2='105' stroke='#64748b'/>`); if(i%4===0) base.push(`<text x='${x}' y='120' text-anchor='middle' font-size='12' fill='#334155'>${i}</text>`); }
+    // current and goals
+    const cur = phase===0? a : (phase===1? 10 : (op==='+'? a+b : a-b));
+    const tx10 = toX(10), txCur=toX(cur), txStart=toX(a), txRes = toX(op==='+'? a+b : a-b);
+    // arcs for steps
+    if(phase>=1){ base.push(`<path d='M ${txStart} 92 Q ${(txStart+tx10)/2} 60 ${tx10} 92' fill='none' stroke='#f59e0b' stroke-width='3'/>`); }
+    if(phase>=2){ base.push(`<path d='M ${tx10} 92 Q ${(tx10+txRes)/2} 60 ${txRes} 92' fill='none' stroke='#22c55e' stroke-width='3'/>`); }
+    // markers
+    base.push(`<circle cx='${txStart}' cy='100' r='6' fill='#ef4444'/>`);
+    base.push(`<circle cx='${txCur}' cy='100' r='8' fill='#3b82f6'/>`);
+    base.push(`<circle cx='${txRes}' cy='100' r='6' fill='#10b981'/>`);
+    base.push(`<text x='${txCur}' y='80' text-anchor='middle' font-weight='900' fill='#1f2937'>${cur}</text>`);
+    base.push(`</svg>`);
+    return base.join('');
+  }
   // Simple SVG generator for Tower of Hanoi (illustrative)
   function hanoiSVG(n=3){
     n=Math.max(3,Math.min(8,n));
@@ -737,10 +937,10 @@ body, body *{
     state.blockStartCoins = state.coins;
     $("#barProg").style.width="0%";
     $("#breadcrumbs").textContent=`${state.area.title} › ${state.sub.name}`;
-    // École › Coloriage codé: initialiser l'état de coloriage (toujours licorne)
+    // École › Coloriage codé: initialiser l'état de coloriage (sapin de Noël)
     if(state.area?.id==='ecole' && state.sub?.id==='coloriage'){
       state.ecole = state.ecole || {};
-      state.ecole.coloring = { shape: 'licorne', done: {} };
+      state.ecole.coloring = { shape: 'sapin', done: {} };
       save();
     }
     showStage(); nextQuestion();
@@ -751,12 +951,15 @@ body, body *{
       const hintDots = (q.meta && q.meta.dots) ? renderDots(q.meta.dots.rows, q.meta.dots.cols) : '';
       const hintText = (q.meta && q.meta.hint) ? `<div class="small">${q.meta.hint}</div>` : '';
       const banner = (q.meta && q.meta.svg) ? `<div class="svgWrap">${q.meta.svg}</div>` : '';
-      $("#content").innerHTML=`<div class="prompt"><span class="spark">🪄</span>${q.text}</div>${banner}${hintDots}${hintText}<div class="options" id="opts" role="listbox" aria-label="Choix de réponses"></div>`;
+      const dirOverlay = (q.meta && q.meta.dir) ? `<div id="dirOverlay" class="small" style="display:none;text-align:center;font-weight:900;margin-top:6px"></div>` : '';
+      $("#content").innerHTML=`<div class="prompt"><span class="spark">🪄</span>${q.text}</div>${banner}${dirOverlay}${hintDots}${hintText}<div class="options" id="opts" role="listbox" aria-label="Choix de réponses"></div>`;
       const opts=$("#opts");
       q.options.forEach((op,i)=>{
         const el=document.createElement("div"); el.className="option"; el.dataset.idx=i; el.setAttribute('role','button'); el.tabIndex=0;
-        const icon = op.icon? `<span style="font-size:18px;margin-right:8px">${op.icon}</span>` : '';
-        el.innerHTML = `${op.color?`<span class="optColor" style="background:${op.color}"></span>`:""}${icon}<span>${op.label}</span>`;
+        const icon = op.icon? `<span style=\"font-size:18px;margin-right:8px\">${op.icon}</span>` : '';
+        const isNum = /^\d+$/.test(String(op.label||''));
+        const lab = isNum ? `<span class=\"numtxt\">${op.label}</span>` : `<span>${op.label}</span>`;
+        el.innerHTML = `${op.color?`<span class=\"optColor\" style=\"background:${op.color}\"></span>`:""}${icon}${lab}`;
         el.onclick=()=> evaluate(i===q.correct,q,op.label,el);
         opts.appendChild(el);
       });
@@ -825,8 +1028,8 @@ body, body *{
         const doneMap = (state.ecole && state.ecole.coloring && state.ecole.coloring.done) || {};
         const done = Object.keys(doneMap).length;
         const total = 10;
-        const shape = (state.ecole && state.ecole.coloring && state.ecole.coloring.shape) || 'licorne';
-        const emoji = shape==='licorne'?'🦄':(shape==='dragon'?'🐉':'💖');
+        const shape = (state.ecole && state.ecole.coloring && state.ecole.coloring.shape) || 'sapin';
+        const emoji = shape==='licorne'?'🦄':(shape==='dragon'?'🐉':(shape==='sapin'?'🎄':'💖'));
         legend = `<div class="colorLegend">
           <div class="chip badge">${emoji} Coloriage</div>
           <div class="chip">Progrès: <b>${done}/${total}</b></div>
@@ -841,12 +1044,26 @@ body, body *{
       bindNav(true);
     },
     order(q){
-      $("#content").innerHTML=`<div class="prompt">🔢 ${q.text}</div>
+      const banner = (q.meta && q.meta.svg) ? `<div class="svgWrap">${q.meta.svg}</div>` : '';
+      const helper = (q.meta && q.meta.sumHelp) ? `<div id="sumBox" class="small" style="margin-top:8px;font-weight:900"></div><div id="sumDots"></div>` : '';
+      $("#content").innerHTML=`<div class="prompt">🔢 ${q.text}</div>${banner}
         <div class="chips" id="pool"></div>
         <div class="small">Place dans la boîte :</div>
-        <div class="dropzone" id="drop"></div>`;
+        <div class="dropzone" id="drop"></div>
+        ${helper}`;
       const pool=$("#pool"), drop=$("#drop");
-      q.items.forEach((it,i)=>{const c=document.createElement("div"); c.className="draggable"; c.textContent=it; c.draggable=true; c.addEventListener("dragstart",e=>{e.dataTransfer.setData("text/plain",it)}); pool.appendChild(c);});
+      q.items.forEach((it,i)=>{const c=document.createElement("div"); c.className="draggable"; if(/^\d+$/.test(String(it))) c.classList.add('numchip'); c.textContent=it; c.draggable=true; c.addEventListener("dragstart",e=>{e.dataTransfer.setData("text/plain",it)}); pool.appendChild(c);});
+      const updateSum=()=>{
+        if(!(q.meta && q.meta.sumHelp)) return;
+        const sumBox=document.getElementById('sumBox'); const dotsWrap=document.getElementById('sumDots');
+        const nums=[...drop.children].map(x=>parseInt(x.textContent,10)).filter(n=>!isNaN(n)).slice(0,2);
+        const a=nums[0]||0, b=nums[1]||0, s=a+b; const tgt=q.meta?.target;
+        if(sumBox){ sumBox.textContent = `🧱🏠 Somme: ${a} + ${b} = ${s} ${tgt!=null?`/ objectif ${tgt}`:''}`; sumBox.classList.remove('pulse'); void sumBox.offsetWidth; sumBox.classList.add('pulse'); }
+        if(dotsWrap){
+          const mk=(n)=>'<div class="dotRow">'+Array.from({length:Math.max(0,Math.min(20,n))}).map(()=>'<span class="dot"></span>').join('')+'</div>';
+          dotsWrap.innerHTML = `<div class="dotsWrap">${mk(a)}${mk(b)}</div>`;
+        }
+      };
       [pool,drop].forEach(z=>{
         z.addEventListener("dragover",e=>e.preventDefault());
         z.addEventListener("drop",e=>{
@@ -854,9 +1071,11 @@ body, body *{
           const t=e.dataTransfer.getData("text/plain");
           const from=[pool,drop].find(zz=>[...zz.children].some(x=>x.textContent===t));
           const node=[...from.children].find(x=>x.textContent===t);
-          if(node&&z!==from) z.appendChild(node);
+          if(node&&z!==from) { z.appendChild(node); updateSum(); }
         });
       });
+      // Initial helper render
+      try{ updateSum(); }catch{}
       $("#btnCheck").onclick=()=>{ const arr=[...drop.children].map(x=>x.textContent); const ok=q.check(arr); evaluate(ok,q,arr.join(", ")); };
       bindNav(true);
     },
@@ -881,6 +1100,85 @@ body, body *{
         grid.appendChild(el);
       });
       bindNav(false);
+    },
+    // Spatial relations: drag the mouse to the correct position relative to the house
+    spatial(q){
+      const norm=k=> (k==='à l’intérieur'? 'dans' : k);
+      const target = norm(q.target);
+      const banner = `<div class="svgWrap">${spatialSceneSVG()}</div>`;
+      $("#content").innerHTML = `<div class="prompt">🐭 ${q.text}</div>${banner}
+        <div class="spatialWrap" id="sp">
+          <!-- zones -->
+          <div class="zone" data-pos="dans"    style="left:300px; top:120px; width:120px; height:120px" title="dans"></div>
+          <div class="zone" data-pos="sur"     style="left:330px; top:84px;  width:60px;  height:30px"  title="sur"></div>
+          <div class="zone" data-pos="sous"    style="left:320px; top:244px; width:80px;  height:30px"  title="sous"></div>
+          <div class="zone" data-pos="devant"  style="left:290px; top:280px; width:140px; height:40px" title="devant"></div>
+          <div class="zone" data-pos="derrière"style="left:300px; top:40px;  width:120px; height:30px"  title="derrière"></div>
+          <div class="zone" data-pos="à gauche"style="left:220px; top:160px; width:60px;  height:80px"  title="à gauche"></div>
+          <div class="zone" data-pos="à droite"style="left:440px; top:160px; width:60px;  height:80px"  title="à droite"></div>
+          <div class="zone" data-pos="entre"   style="left:140px; top:260px; width:40px;  height:40px"  title="entre deux chaises"></div>
+          <div class="zone" data-pos="contre"  style="left:620px; top:120px; width:20px;  height:140px" title="contre le mur"></div>
+          <div id="mouse" class="spatialMouse" style="left:60px; top:60px">🐭</div>
+        </div>
+        <div id="posStatus" class="small">Position : <b>—</b></div>
+        <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap">
+          <button id="btnDemoSpatial" class="btn g">🎬 Démo</button>
+        </div>`;
+
+      const wrap = document.getElementById('sp');
+      const mouse = document.getElementById('mouse');
+      const zones = Array.from(wrap.querySelectorAll('.zone'));
+      const status = document.getElementById('posStatus');
+      let dragging=false, offset=[0,0], active=null;
+      function setStatus(label){ if(status){ status.innerHTML = `Position : <b>${label||'—'}</b>`; } }
+      function findZoneAt(cx,cy){
+        active=null; zones.forEach(z=> z.classList.remove('sel'));
+        for(const z of zones){ const r=z.getBoundingClientRect(); const wr=wrap.getBoundingClientRect();
+          const x=wr.left, y=wr.top; const inside = cx>=r.left && cx<=r.right && cy>=r.top && cy<=r.bottom;
+          if(inside){ active=z; z.classList.add('sel'); setStatus(z.dataset.pos); break; }
+        }
+        if(!active) setStatus('—');
+      }
+      function onMove(ev){ if(!dragging) return; const wr=wrap.getBoundingClientRect(); const mx=(ev.touches?ev.touches[0].clientX:ev.clientX) - wr.left - offset[0]; const my=(ev.touches?ev.touches[0].clientY:ev.clientY) - wr.top - offset[1];
+        const x=Math.max(0, Math.min(wr.width-40, mx)); const y=Math.max(0, Math.min(wr.height-40, my));
+        mouse.style.left = x+"px"; mouse.style.top = y+"px";
+        const cx=(ev.touches?ev.touches[0].clientX:ev.clientX), cy=(ev.touches?ev.touches[0].clientY:ev.clientY);
+        findZoneAt(cx,cy);
+      }
+      function onUp(){ if(!dragging) return; dragging=false; mouse.classList.remove('drag');
+        if(active){ const pos = active.dataset.pos; const ok = norm(pos)===target; evaluate(ok,q,pos); }
+      }
+      mouse.addEventListener('pointerdown', ev=>{ dragging=true; mouse.classList.add('drag'); const r=mouse.getBoundingClientRect(); offset=[ev.clientX-r.left, ev.clientY-r.top]; mouse.setPointerCapture(ev.pointerId);});
+      mouse.addEventListener('pointermove', onMove);
+      mouse.addEventListener('pointerup', onUp);
+      // touch support
+      mouse.addEventListener('touchstart', ev=>{ dragging=true; mouse.classList.add('drag'); const r=mouse.getBoundingClientRect(); const t=ev.touches[0]; offset=[t.clientX-r.left, t.clientY-r.top]; ev.preventDefault();},{passive:false});
+      mouse.addEventListener('touchmove', onMove, {passive:false});
+      mouse.addEventListener('touchend', onUp);
+      // Demo animation to guide the user
+      function runDemo(){
+        try{
+          const tz = zones.find(z=> norm(z.dataset.pos)===target);
+          const wr = wrap.getBoundingClientRect(); const mz = mouse.getBoundingClientRect();
+          if(!tz) return; const tr = tz.getBoundingClientRect();
+          const cx = tr.left + tr.width/2 - wr.left; const cy = tr.top + tr.height/2 - wr.top;
+          zones.forEach(z=>z.classList.remove('sel')); tz.classList.add('sel'); setStatus(tz.dataset.pos);
+          mouse.style.left = Math.max(0, Math.min(wr.width-40, cx-18)) + 'px';
+          mouse.style.top  = Math.max(0, Math.min(wr.height-40, cy-18)) + 'px';
+          setTimeout(()=>{
+            tz.classList.remove('sel'); setStatus('—');
+            mouse.style.left = '60px'; mouse.style.top = '60px';
+          }, 1100);
+        }catch{}
+      }
+      document.getElementById('btnDemoSpatial').onclick = runDemo;
+
+      // Hide check, this is direct feedback
+      $("#btnCheck").style.display='none'; $("#btnSkip").style.display='inline-flex';
+      bindNav(false);
+
+      // Auto-run a quick demo on first show
+      setTimeout(runDemo, 500);
     },
     rappel(q){
       $("#content").innerHTML=`<div class="prompt">👀 Regarde les nombres puis touche-les dans l’ordre croissant.</div><div class="rappelGrid" id="rgrid"></div>`;
@@ -918,6 +1216,36 @@ body, body *{
       $("#btnClear").onclick=()=> $$("#sudoku input:not(.fixed)").forEach(i=>i.value="");
       $("#btnCheck").onclick=()=>{ const vals=$$("#sudoku input").map(i=>+i.value||0); const ok=q.check(vals); evaluate(ok,q,"Grille"); };
       bindNav(true);
+    },
+    // Technique de la saucisse (interactive, 2 étapes guidées)
+    sausage(q){
+      // Parse expression "a + b" or "a − b"
+      const m = q.expr.match(/\s*(\d+)\s*([+−-])\s*(\d+)\s*/);
+      if(!m){ engine.input({text:q.text, kind:'number', placeholder:'Réponse', check:v=>String(v)==String(q.ans)}); return; }
+      const a=+m[1]; const rawOp=m[2]; const op = rawOp==='-'?'−':rawOp; const b=+m[3];
+      const isAdd = op==='+'; const step1 = isAdd ? Math.max(0, 10 - a) : Math.max(0, a - 10);
+      const rem = Math.max(0, b - step1);
+      let phase = 0; // 0 start @a, 1 after jump to 10, 2 finished
+      const render = ()=>{
+        const line = sausageSVG(a,b,op,phase);
+        $("#content").innerHTML = `<div class="prompt">🌭 Technique de la saucisse — ${a} ${op} ${b}</div>
+          <div class="svgWrap">${line}</div>
+          <div class="stepBox">
+            <span class="tag">Etape 1: ${isAdd?`aller à 10 (+${step1})`:`aller à 10 (−${step1})`}</span>
+            <span class="tag">Etape 2: ${isAdd?`puis +${rem}`:`puis −${rem}`}</span>
+          </div>
+          <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
+            <button id="btnS1" class="btn g">${isAdd?`Aller à 10 (+${step1})`:`Aller à 10 (−${step1})`}</button>
+            <button id="btnS2" class="btn p" ${phase<1? 'disabled':''}>${isAdd?`Puis +${rem}`:`Puis −${rem}`}</button>
+          </div>`;
+        const b1 = $("#btnS1"), b2=$("#btnS2");
+        if(phase>=1){ b1.disabled=true; }
+        b1.onclick=()=>{ phase=1; render(); };
+        b2.onclick=()=>{ if(phase<1) return; phase=2; const ans = isAdd? a+b : a-b; showToast(`Résultat: ${ans}`); evaluate(true,q,ans); };
+      };
+      render();
+      $("#btnCheck").style.display='none'; $("#btnSkip").style.display='inline-flex';
+      bindNav(false);
     },
     drawing(q){
       $("#content").innerHTML=`<div class=\"prompt\">🎨 ${q.text}</div>
@@ -1054,6 +1382,18 @@ body, body *{
       state.block.wrong++;
       state.streak=0;
       if(el) el.classList.add("wrong");
+      // Droite ou gauche (Vrai/Faux): muestra flecha de ayuda cuando fallo
+      try{
+        if(q?.meta?.dir){
+          const ov = document.getElementById('dirOverlay');
+          if(ov){
+            const left = q.meta.dir==='left';
+            const arrow = left ? '← gauche' : '→ droite';
+            ov.innerHTML = `Indice : <span style="font-weight:900">${arrow}</span>`;
+            ov.style.display='block';
+          }
+        }
+      }catch{}
       const lost = lose(2);
       const good = solutionOf(q);
       const solExtra = q.solution ? `<div style="margin-top:6px">Solution : <b>${Array.isArray(q.solution)? q.solution.join(' → ') : q.solution}</b></div>` : '';
@@ -1835,8 +2175,38 @@ body, body *{
         'violet':'#a855f7','orange':'#f97316','rose':'#f472b6','turquoise':'#14b8a6'
       }; return m[(name||'').toLowerCase()]||'#a78bfa';
     }
-    // Build SVG for coloriage: unicorn with 10 regions or fallback mosaic
+    // Build SVG for coloriage: sapin (🎄) or licorne (🦄) or fallback mosaic
     function buildColoriageSVG(shape, doneMap){
+      if(shape==='sapin'){
+        const W=720, H=360;
+        const F=(i)=> (doneMap && doneMap[i]) ? doneMap[i] : '#ffffff';
+        // Positions for 10 ornaments (bolitas)
+        const balls=[
+          [360,100],[320,130],[400,130],[280,170],[360,170],
+          [440,170],[240,210],[320,210],[400,210],[480,210]
+        ];
+        const zones = balls.map(([x,y],i)=>`<circle id='zone-${i}' cx='${x}' cy='${y}' r='14' fill='${F(i)}' stroke='#222' stroke-opacity='.25'/>`).join('');
+        return `<?xml version="1.0" encoding="UTF-8"?>
+        <svg id="coloringSVG" xmlns='http://www.w3.org/2000/svg' viewBox='0 0 ${W} ${H}' width='${W}' height='${H}'>
+          <defs>
+            <linearGradient id='bg2' x1='0' x2='1'><stop offset='0' stop-color='#f0f9ff'/><stop offset='1' stop-color='#fef3c7'/></linearGradient>
+            <filter id='s2' x='-10%' y='-10%' width='120%' height='120%'><feDropShadow dx='0' dy='1' stdDeviation='1' flood-color='#000' flood-opacity='.10'/></filter>
+          </defs>
+          <rect x='0' y='0' width='${W}' height='${H}' rx='18' fill='url(#bg2)'/>
+          <!-- Étoile en haut -->
+          <polygon points='360,28 368,44 386,46 372,58 376,76 360,68 344,76 348,58 334,46 352,44' fill='#fde047' stroke='#222' stroke-opacity='.18'/>
+          <!-- Sapin: trois triangles superposés -->
+          <polygon points='360,60 420,120 300,120' fill='#10b981' stroke='#14532d' stroke-opacity='.18' filter='url(#s2)'/>
+          <polygon points='360,110 460,200 260,200' fill='#059669' stroke='#14532d' stroke-opacity='.18' filter='url(#s2)'/>
+          <polygon points='360,180 500,260 220,260' fill='#047857' stroke='#14532d' stroke-opacity='.18' filter='url(#s2)'/>
+          <!-- Tronc -->
+          <rect x='330' y='260' width='60' height='60' rx='8' fill='#8b5e34' stroke='#111' stroke-opacity='.15' filter='url(#s2)'/>
+          <!-- Neige -->
+          <path d='M40,300 C160,280 240,320 360,300 C480,280 560,320 680,300 L680,360 L40,360 Z' fill='#fff' opacity='.7'/>
+          <!-- Boules (zones à colorier) -->
+          ${zones}
+        </svg>`;
+      }
       if(shape==='licorne'){
         const W=720, H=360;
         const F=(i)=> (doneMap && doneMap[i]) ? doneMap[i] : '#ffffff';
@@ -1879,7 +2249,7 @@ body, body *{
         </svg>`;
       }
       // Fallback: mosaïque 10 cases avec emoji filigrane
-      const emoji = shape==='dragon'?'🐉': (shape==='licorne'?'🦄':'💖');
+      const emoji = shape==='dragon'?'🐉': (shape==='licorne'?'🦄': (shape==='sapin'?'🎄':'💖'));
       const cols=5, rows=2, W=720, H=320, pad=16, cellW=(W-pad*2)/cols, cellH=(H-pad*2)/rows;
       let zones=''; let k=0;
       for(let r=0;r<rows;r++){
@@ -1933,21 +2303,27 @@ body, body *{
       return q;
     });
 
-    // 2) 🏠 Maisons des nombres — choisir 2 nombres qui font N
-    const MAISONS = [12, 15, 18, 20, 14, 16, 10, 9, 11, 13].map((N,i)=>({
-      id:`maison-${N}-${i}`,
-      type:'order',
-      text:`Maison du ${N} — place deux nombres qui font ${N}.`,
-      items: shuffle([
-        String(N-1), '1', String(N-2), '2', '9', '3', '4', '5'
-      ]),
-      check:(arr)=>{
-        const nums=arr.map(x=>+x).filter(x=>!isNaN(x));
-        if(nums.length!==2) return false;
-        return nums[0]+nums[1]===N;
-      },
-      explain:`Astuce : cherche « l’ami » d’un nombre pour faire ${N}.`
-    }));
+    // 2) 🏠 Maisons des nombres — choisir 2 nombres qui font N (avec aide animée)
+    const MAISONS = [10, 11, 12, 13, 14, 15, 16, 18, 20].map((N,i)=>{
+      // Candidats plus pertinents autour de N (1..9) + quelques distracteurs
+      const valids=[]; for(let a=1;a<=9;a++){ const b=N-a; if(b>=1 && b<=9) { valids.push(a,b); } }
+      const base=Array.from(new Set(valids)).map(String);
+      const distractors=[1,2,3,4,5,6,7,8,9].filter(x=>!base.includes(String(x))).slice(0,4).map(String);
+      const items=shuffle(Array.from(new Set([...base, ...distractors])).slice(0,8));
+      return {
+        id:`maison-${N}-${i}`,
+        type:'order',
+        text:`Maison du ${N} — glisse deux nombres pour faire ${N} ✨`,
+        items,
+        meta:{ svg: houseSVG(N), sumHelp:true, target:N },
+        check:(arr)=>{
+          const nums=arr.map(x=>+x).filter(x=>!isNaN(x));
+          if(nums.length!==2) return false;
+          return nums[0]+nums[1]===N;
+        },
+        explain:`Astuce : trouve « l’ami » d’un nombre pour atteindre ${N}. Observe la somme animée 🧱🏠`
+      };
+    });
 
     // 3) 🍪🥬 Problèmes — cookies et salades
     const PROB = [
@@ -1963,59 +2339,68 @@ body, body *{
       asInput('salades-5', `Salades : 14 − 6. Reste ?`, 8, `14 − 6 = 8.`)
     ];
 
-    // 4) 🐭 Vocabulaire spatial — trouver la bonne souris
+    // 4) 🐭 Vocabulaire spatial — déplacer la souris autour de la maison
     const SPATIAL = [
-      {msg:'Colorie en bleu la souris sous la chaise', target:'sous'},
-      {msg:'Colorie la souris sur la table', target:'sur'},
-      {msg:'Colorie la souris derrière le frigo', target:'derrière'},
-      {msg:'Colorie la souris devant le four', target:'devant'},
-      {msg:'Colorie la souris dans le placard', target:'dans'},
-      {msg:'Colorie la souris à l’intérieur du bol', target:'à l’intérieur'},
-      {msg:'Colorie la souris contre le mur', target:'contre'},
-      {msg:'Colorie la souris à gauche de l’évier', target:'à gauche'},
-      {msg:'Colorie la souris à droite du micro-ondes', target:'à droite'},
-      {msg:'Colorie la souris entre deux chaises', target:'entre'}
+      {msg:'Glisse la souris SOUS la maison', target:'sous'},
+      {msg:'Glisse la souris SUR le toit', target:'sur'},
+      {msg:'Glisse la souris DERRIÈRE la maison', target:'derrière'},
+      {msg:'Glisse la souris DEVANT la maison', target:'devant'},
+      {msg:'Glisse la souris DANS la maison', target:'dans'},
+      {msg:'Glisse la souris À L’INTÉRIEUR (comme « dans »)', target:'à l’intérieur'},
+      {msg:'Glisse la souris CONTRE le mur', target:'contre'},
+      {msg:'Glisse la souris À GAUCHE de la maison', target:'à gauche'},
+      {msg:'Glisse la souris À DROITE de la maison', target:'à droite'},
+      {msg:'Glisse la souris ENTRE les deux chaises', target:'entre'}
     ].map((e,i)=>({
       id:`spatial-${i}`,
-      type:'find',
-      text:`🐭 ${e.msg} (clique la bonne)`,
-      grid: shuffle([
-        {e:'sous',k:e.target==='sous'?'target':'n'},
-        {e:'sur',k:e.target==='sur'?'target':'n'},
-        {e:'derrière',k:e.target==='derrière'?'target':'n'},
-        {e:'devant',k:e.target==='devant'?'target':'n'},
-        {e:'dans',k:e.target==='dans'?'target':'n'},
-        {e:'à l’intérieur',k:e.target==='à l’intérieur'?'target':'n'},
-        {e:'contre',k:e.target==='contre'?'target':'n'},
-        {e:'à gauche',k:e.target==='à gauche'?'target':'n'},
-        {e:'à droite',k:e.target==='à droite'?'target':'n'},
-        {e:'entre',k:e.target==='entre'?'target':'n'}
-      ]),
-      need:1,
-      explain:`Regarde bien la préposition : « ${e.target} ». Bien joué !`
+      type:'spatial',
+      text:e.msg + ' 🐭🏠',
+      target:e.target,
+      explain:`Observe bien la position demandée : « ${e.target} ». Déplace la souris jusqu’à la bonne zone.`
     }));
 
-    // 5) ✋ Droite et gauche — sélectionne l’enfant demandé (nouvelle dynamique)
-    const DG_SCENES = [
-      {line:['🧒 Léo','👧 Mia','👦 Tom'], prompt:`Qui est tout à gauche ?`, target:0},
-      {line:['👦 Max','🧒 Léo','👧 Mia','👧 Eva'], prompt:`Qui est tout à droite ?`, target:3},
-      {line:['👧 Eva','🧒 Léo','👦 Tom'], prompt:`Clique l’enfant à gauche de Léo.`, target:0},
-      {line:['🧒 Léo','👧 Mia','👧 Eva'], prompt:`Clique l’enfant à droite de Mia.`, target:2},
-      {line:['👧 Mia','👦 Tom','🧒 Léo'], prompt:`Qui est au milieu ?`, target:1},
-      {line:['👦 Tom','👧 Eva','👧 Mia','🧒 Léo'], prompt:`Clique l’enfant à gauche de Mia.`, target:1},
-      {line:['👧 Eva','👧 Mia','👦 Tom','🧒 Léo'], prompt:`Clique l’enfant entre Mia et Léo.`, target:2},
-      {line:['🧒 Léo','👧 Eva','👦 Tom'], prompt:`Clique l’enfant au centre.`, target:1},
-      {line:['👦 Tom','🧒 Léo','👧 Eva','👧 Mia'], prompt:`Qui est le deuxième en partant de la gauche ?`, target:1},
-      {line:['👧 Mia','👧 Eva','👦 Tom'], prompt:`Qui est à droite d’Eva ?`, target:2}
-    ];
-    const DROITE_GAUCHE = DG_SCENES.map((s,i)=>({
-      id:`dg-${i}`,
-      type:'find',
-      text:`✋ ${s.prompt}`,
-      grid: s.line.map((label,idx)=>({e:label, k: idx===s.target ? 'target' : 'n'})),
-      need:1,
-      explain:`Astuce : ta main gauche fait la lettre « L ». Pense « gauche ←   → droite ».`
-    }));
+    // 5) ✋ Droite et gauche — Vrai/Faux avec scène simple et flèche explicative
+    function dgScene(names){
+      const W=640, H=140; const step=W/(names.length+1);
+      const circles = names.map((nm,i)=>{
+        const x=Math.round(step*(i+1)); const y=60;
+        const [face,name] = nm.split(' ');
+        return `<g><circle cx='${x}' cy='${y}' r='26' fill='#fff' stroke='#111' stroke-opacity='.18'/>
+          <text x='${x}' y='66' text-anchor='middle' font-size='22'>${face}</text>
+          <text x='${x}' y='108' text-anchor='middle' font-size='14' fill='#334155' font-weight='700'>${name}</text></g>`;
+      }).join('');
+      return `<?xml version="1.0" encoding="UTF-8"?>
+      <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 ${W} ${H}' width='${W}' height='${H}'>
+        <rect x='0' y='0' width='${W}' height='${H}' rx='14' fill='#f8fafc'/>
+        ${circles}
+      </svg>`;
+    }
+    function dgVF(i){
+      const lines=[
+        ['🧒 Léo','👧 Mia','👦 Tom'],
+        ['👧 Eva','🧒 Léo','👦 Tom'],
+        ['👦 Max','👧 Zoé','🧒 Liam','👧 Mia']
+      ];
+      const line = choice(lines);
+      const names = line.map(n=>n.split(' ')[1]);
+      // Pick two distinct indices
+      const a=rnd(0,line.length-1); let b=rnd(0,line.length-1); while(b===a) b=rnd(0,line.length-1);
+      const [nameA,nameB] = [names[a],names[b]];
+      const rel = Math.random()<.5 ? 'gauche' : 'droite';
+      const truth = rel==='gauche' ? (a<b) : (a>b);
+      const text=`✋ ${nameA} est à ${rel} de ${nameB}. — Vrai ou faux ?`;
+      const svg=dgScene(line);
+      return {
+        id:`dg-vf-${i}-${line.join('-')}-${rel}-${nameA}-${nameB}`,
+        type:'qcm',
+        text,
+        options:[{label:'vrai'},{label:'faux'}],
+        correct: truth ? 0 : 1,
+        meta:{ svg, dir: rel==='gauche' ? 'left' : 'right' },
+        explain:`Pense: gauche ← et droite →. Regarde l'ordre des enfants.`
+      };
+    }
+    const DROITE_GAUCHE = Array.from({length:10}, (_,i)=> dgVF(i));
 
     // 6) ➕➖ Technique de la saucisse — passage par 10
     const SAUCISSE = [
@@ -2029,27 +2414,32 @@ body, body *{
       {expr:'6 + 7', via:'6 → 10 (+4), puis +3 = 13', ans:13},
       {expr:'5 + 8', via:'5 → 10 (+5), puis +3 = 13', ans:13},
       {expr:'13 − 4', via:'13 → 10 (−3), puis −1 = 9', ans:9}
-    ].map((e,i)=> asInput(
-      `sauc-${i}`,
-      `Technique de la saucisse : ${e.expr} = ?`,
-      e.ans,
-      `Trace ta « saucisse » jusqu’à 10 : ${e.via}. Dizaines et unités t’aident ! 🌭✨`));
+    ].map((e,i)=>({
+      id:`sauc-${i}`,
+      type:'sausage',
+      text:`Technique de la saucisse : ${e.expr}`,
+      expr:e.expr,
+      ans:e.ans,
+      explain:`Trace ta « saucisse » jusqu’à 10 : ${e.via}. Dizaines et unités t’aident ! 🌭✨`
+    }));
 
     // 7) 📖 Lecture — Associer livres et phrases (QCM)
     const LECTURE_ASSOC = [
-      {phrase:`Un avion vole très haut dans le ciel.`, cover:'Le grand avion bleu'},
-      {phrase:`Un dragon protège son trésor.`, cover:'Le dragon courageux'},
-      {phrase:`Une princesse visite la forêt magique.`, cover:'La princesse et la forêt'},
-      {phrase:`Des pirates cherchent une carte.`, cover:'Les pirates et la carte'},
-      {phrase:`Un robot apprend à danser.`, cover:'Le robot danseur'},
-      {phrase:`Un chien retrouve sa maison.`, cover:'Le chien perdu'},
-      {phrase:`Un chat explore la nuit.`, cover:'Le chat de minuit'},
-      {phrase:`Des étoiles parlent aux enfants.`, cover:'Les étoiles bavardes'},
-      {phrase:`Un train traverse la montagne.`, cover:'Le train de la montagne'},
-      {phrase:`Un jardin pousse très vite.`, cover:'Le jardin pressé'}
+      {phrase:`✈️ Un avion file dans le ciel et fait « whooosh » !`, cover:'Le grand avion bleu ✈️'},
+      {phrase:`🐉 Un dragon veille sur son trésor qui brille ✨`, cover:'Le dragon courageux 🐉'},
+      {phrase:`👑 Une princesse marche dans une forêt magique 🌳`, cover:'La princesse et la forêt 👑'},
+      {phrase:`🏴‍☠️ Des pirates cherchent une carte au trésor 🗺️`, cover:'Les pirates et la carte 🏴‍☠️'},
+      {phrase:`🤖 Un petit robot apprend à danser 💃`, cover:'Le robot danseur 🤖'},
+      {phrase:`🐶 Un chien retrouve enfin sa maison 🏠`, cover:'Le chien perdu 🐶'},
+      {phrase:`🐱 Un chat explore la nuit étoilée 🌙`, cover:'Le chat de minuit 🐱'},
+      {phrase:`🌟 Des étoiles discutent doucement avec les enfants 👧👦`, cover:'Les étoiles bavardes 🌟'},
+      {phrase:`🚂 Un train traverse une montagne enneigée ⛰️`, cover:'Le train de la montagne 🚂'},
+      {phrase:`🌿 Un jardin pousse très vite, hop hop !`, cover:'Le jardin pressé 🌿'}
     ].map((e,i)=>{
-      const opts=shuffle([e.cover,'Le vélo rouge','La fête surprise','La mer brillante']);
-      return {id:`lect-${i}`, type:'qcm', text:`Associe la phrase : « ${e.phrase} »`, options:opts.map(x=>({label:x})), correct:opts.findIndex(o=>o.label===e.cover), explain:`Regarde les indices de la phrase (dragon, avion, robot…).`};
+      const pool=[e.cover,'Le vélo rouge 🚲','La fête surprise 🎉','La mer brillante 🌊'];
+      const labels=shuffle(pool);
+      const correct=labels.indexOf(e.cover);
+      return {id:`lect-${i}`, type:'qcm', text:`🪄 Associe l’histoire à sa couverture : « ${e.phrase} »`, options:labels.map(x=>({label:x})), correct, explain:`Repère les mots-clés et les emojis (dragon 🐉, avion ✈️, robot 🤖…).`, meta:{ svg: bookCoversSVG(labels) } };
     });
 
     // 8) 📗 Vocabulaire du livre — rôles
@@ -2089,7 +2479,7 @@ body, body *{
       {q:'Quel bocal contient le moins d’eau ?', a:'bocal vide', opts:['bocal vide','bocal moitié','bocal plein']}
     ].map((e,i)=>{
       const opts=shuffle(e.opts);
-      return {id:`comp-${i}`, type:'qcm', text:`${e.q}`, options:opts.map(x=>({label:x})), correct:opts.findIndex(o=>o.label===e.a), explain:`Observe bien : longueur, hauteur, capacité ou épaisseur.`};
+      return {id:`comp-${i}`, type:'qcm', text:`📏 ${e.q}`, options:opts.map(x=>({label:x})), correct:opts.findIndex(o=>o.label===e.a), explain:`Observe bien : longueur, épaisseur, hauteur, capacité, ou prix.`, meta:{ svg: buildCompSVG(i) } };
     });
 
     function pickSequential(list){
