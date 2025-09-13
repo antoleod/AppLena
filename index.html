@@ -298,8 +298,20 @@ main{position:absolute; inset:var(--h) 0 0 0; display:grid; grid-template-rows: 
 .sudoku input{width:60px;height:60px;text-align:center;font-weight:900;font-size:20px;border-radius:12px;border:1px solid rgba(167,139,250,.35); background:#fff; color:#111; box-shadow:0 8px 18px rgba(0,0,0,.08)}
 .fixed{background:#f3f4f6 !important; color:#6b7280}
 
-/* Footer/Buttons */
+  /* Footer/Buttons */
 #stageBottom{padding:10px 12px; display:flex; justify-content:space-between; align-items:center; gap:10px; background: var(--card); color: var(--ink); border-top:1px solid rgba(167,139,250,.25); padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px))}
+.sticky-bottom{} /* legacy marker */
+/* Make footer sticky across screen sizes */
+#stageBottom{ position: sticky; bottom: 0; z-index: 10 }
+.nav-btn{ min-height:56px; border-radius:20px }
+/* Footer buttons wrapper responsive layout */
+#stageBtns{ display:flex; gap:8px; flex-wrap:wrap; align-items:center; justify-content:flex-end; width:100% }
+@media (max-width: 720px){
+  #stageBtns{ justify-content:space-between }
+  #stageBtns .nav-btn{ flex:1 1 calc(50% - 6px) }
+  #btnCheck{ flex: 1 1 100% }
+}
+.tableHL{ outline:3px solid var(--ring); outline-offset:-2px }
 .btn{appearance:none;border:1px solid transparent;border-radius:16px;padding:clamp(12px,1.2vw+8px,18px) clamp(16px,1.6vw+10px,24px);font-weight:900;cursor:pointer;box-shadow:0 8px 18px rgba(0,0,0,.06); font-size:clamp(16px,1.2vw+10px,22px); min-height:44px; min-width:44px}
 .btn:hover,
 .btn:focus-visible{transform:translateY(-2px) scale(1.05); transition:transform .14s; box-shadow:0 18px 34px rgba(176,111,255,.20)}
@@ -497,6 +509,14 @@ body, body *{
 .spatialWrap .zone.sel{outline:3px solid var(--ring);outline-offset:1px}
 .spatialMouse{position:absolute;font-size:46px;cursor:grab;user-select:none;touch-action:none;filter:drop-shadow(0 6px 10px rgba(0,0,0,.12)); transition:left .45s ease, top .45s ease}
 .spatialMouse.drag{cursor:grabbing}
+/* Soft motion/attention helpers */
+.pulse-soft{ animation: pulseSoft 1.6s ease-in-out infinite }
+@keyframes pulseSoft{ 0%,100%{ transform:scale(1)} 50%{ transform:scale(1.04)} }
+.wiggle{ animation: wiggle .6s ease }
+@keyframes wiggle{ 0%{transform:rotate(0)} 25%{transform:rotate(-2deg)} 50%{transform:rotate(2deg)} 100%{transform:rotate(0)} }
+.okPop{ animation: haloBurst .6s ease forwards }
+.compSvg{ animation: fxFade var(--base) var(--ease) both }
+.zone.sel{ animation: pulseSoft 1.4s ease-in-out infinite }
 /* Saucisse helpers */
 .stepBox{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
 .tag{background:#fff;border:1px solid rgba(167,139,250,.25);border-radius:999px;padding:6px 10px;font-weight:900;box-shadow:0 6px 14px rgba(0,0,0,.06)}
@@ -578,10 +598,10 @@ body, body *{
     <div id="content"></div>
     <div id="stageBottom">
       <div class="small" id="tip">Astuce : active le mode plein écran pour mieux jouer</div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <button id="btnPrev" class="btn g magic"><span class="uni-wrap"><span class="uni-a">🦄</span><span class="uni-b">😉</span></span> 🔙 Retour</button>
-        <button id="btnSkip" class="btn g magic">⏭️ Passer</button>
-        <button id="btnCheck" class="btn p magic">✅ Valider</button>
+      <div id="stageBtns">
+        <button id="btnPrev" class="btn g magic nav-btn prev" aria-label="Revenir en arrière"><span class="uni-wrap"><span class="uni-a">🦄</span><span class="uni-b">😉</span></span> ◀ Retour</button>
+        <button id="btnSkip" class="btn g magic nav-btn next" aria-label="Question suivante">▶ Suivant</button>
+        <button id="btnCheck" class="btn p magic" aria-label="Valider la réponse">✅ Valider</button>
       </div>
     </div>
   </section>
@@ -662,9 +682,28 @@ body, body *{
       ${cells}
     </svg>`;
   }
+  // Petites vignettes pour Vocabulaire du livre
+  function rolesSVG(){
+    const W=720,H=140; const items=[['Auteur','✍️','#fde68a'],['Illustrateur','🎨','#a7f3d0'],['Éditeur','🖨️','#93c5fd']];
+    const pad=14, cw=(W- (items.length+1)*pad)/items.length, ch=80;
+    let cells=''; let x=pad; const y=30;
+    for(const [name,emo,col] of items){
+      cells += `<g>
+        <rect x='${x}' y='${y}' rx='12' width='${cw}' height='${ch}' fill='${col}' opacity='.35' stroke='#000' stroke-opacity='.06'/>
+        <text x='${x+cw/2}' y='${y+32}' text-anchor='middle' font-size='28'>${emo}</text>
+        <text x='${x+cw/2}' y='${y+60}' text-anchor='middle' font-weight='800' fill='#334155'>${name}</text>
+      </g>`; x+=cw+pad;
+    }
+    return `<?xml version='1.0' encoding='UTF-8'?>
+    <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 ${W} ${H}' width='${W}' height='${H}'>
+      <defs><linearGradient id='rb' x1='0' x2='1'><stop offset='0' stop-color='#faf5ff'/><stop offset='1' stop-color='#eff6ff'/></linearGradient></defs>
+      <rect x='0' y='0' width='${W}' height='${H}' rx='16' fill='url(#rb)'/>
+      ${cells}
+    </svg>`;
+  }
   // Comparaisons mini SVGs per question index
   function buildCompSVG(idx){
-    const base=(w=720,h=200)=>[`<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 ${w} ${h}' width='${w}' height='${h}'>`,`</svg>`];
+    const base=(w=720,h=200)=>[`<svg class='compSvg' xmlns='http://www.w3.org/2000/svg' viewBox='0 0 ${w} ${h}' width='${w}' height='${h}'>`,`</svg>`];
     // helpers
     const bar=(x,y,w,h,col='#94a3b8')=>`<rect x='${x}' y='${y}' width='${w}' height='${h}' rx='8' fill='${col}'/>`;
     const label=(x,y,t)=>`<text x='${x}' y='${y}' text-anchor='middle' font-weight='800' fill='#334155'>${t}</text>`;
@@ -953,7 +992,10 @@ body, body *{
     streak:0,
     blockStartCoins:0,
     avatar:{hat:null, acc:null, bg:null, face:'🙂'},
-    currentWrong:0
+    currentWrong:0,
+    // Flags and per-level memory to improve UX (e.g., show demo once, avoid repeats)
+    flags:{ soustrDemoShown:false },
+    seenSoustr:{} // { [level]: ["a-b", ...] }
   };
   let navStack=["home"]; let skipPush=false;
   const save=()=>localStorage.setItem(STORE, JSON.stringify({...state,asked:[...state.asked]}));
@@ -1233,6 +1275,9 @@ body, body *{
       e.preventDefault(); t.click();
     }
     if(e.key==="Escape" && $("#modal").style.display!=="none"){ hideModal(); }
+    // Raccourcis flèches : ← Retour, → Suivant
+    if(e.key==='ArrowLeft'){ const b=document.getElementById('btnPrev'); if(b){ e.preventDefault(); b.click(); } }
+    if(e.key==='ArrowRight'){ const b=document.getElementById('btnSkip'); if(b){ e.preventDefault(); b.click(); } }
   });
 
   /* ----------- Button UX polish ----------- */
@@ -1301,9 +1346,10 @@ body, body *{
 
   /* ----------- areas + subtopics (menu) ----------- */
   const AREAS=[
-    {id:"ecole", icon:"🏫", title:"École", sub:"Septiembre",
+    {id:"ecole", icon:"🏫", title:"École", sub:"Ressources et thèmes",
       subs:[
-        {id:"sept", name:"Septiembre"}
+        {id:"maths", name:"Maths"},
+        {id:"sept", name:"Septembre"}
       ]},
     {id:"fr",  icon:"🇫🇷", title:"Français", sub:"Lecture, vocabulaire, grammaire",
       subs:[{id:"lecture",name:"Lecture"},{id:"vocab",name:"Vocabulaire"},{id:"gram",name:"Grammaire"},
@@ -1399,6 +1445,7 @@ body, body *{
         b.innerHTML = `<span>${s.name}</span>`;
         b.onclick=()=>{
           sparkleAt(innerWidth/2, 100, 10);
+          if(a.id==='ecole' && s.id==='maths'){ openEcoleMaths(a); return; }
           if(a.id==='ecole' && s.id==='sept'){ openEcoleSeptMenu(a); return; }
           if(a.id==='logique' && s.id==='memo'){ openMemoMenu(a); return; }
           if(a.id==='logique' && s.id==='rappel'){ openRappelMenu(a); return; }
@@ -1473,8 +1520,15 @@ body, body *{
     const tl=Math.max(1, (state.totalLevels||10));
     return clamp(min + Math.round((L-1)*((max-min)/(tl-1))), min, max);
   }
+  // Specific scaling for Soustractions (levels 1–10): gently increase
+  function soustrExercisesForLevel(L){
+    L = Math.max(1, Math.min(10, L|0));
+    // 8 at L1 → 26 at L10
+    return 6 + L*2;
+  }
   function startBlock(){
     // Architecture de niveaux étendue: 20 niveaux, 8 → 30 exos
+    // Default totals
     state.totalLevels = 20;
     state.progress.total = exercisesForLevel(state.level||1);
     state.progress.done=0; state.asked=new Set(); state.block={correct:0,wrong:0};
@@ -1488,12 +1542,14 @@ body, body *{
       save();
     }
     showStage();
-    // Démo avant soustractions (sur demande)
+    // Soustractions: utilise config 1–10 (progression)
     if(state.area?.id==='math' && state.sub?.id==='mag_sub'){
-      try{ showSoustrDemo(); }catch{ nextQuestion(); }
-    } else {
-      nextQuestion();
+      state.totalLevels = 10;
+      const cfg = MATH.soustrLevel(state.level||1);
+      state.progress.total = cfg.count;
+      state.quiz = { kind:'soustr', pass: cfg.pass, count: cfg.count };
     }
+    nextQuestion();
   }
 
   const engine={
@@ -1569,7 +1625,21 @@ body, body *{
         });
         wrap.appendChild(card);
         const checkRow=(row)=>{ if(row.dataset.done==='1') return; const N=+row.dataset.n; const [aEl,bEl]=row.querySelectorAll('input'); const hint=row.querySelector('.hint'); const a=parseInt(aEl.value,10), b=parseInt(bEl.value,10);
-          if(Number.isFinite(a)&&Number.isFinite(b)){ if(a+b===N){ row.dataset.done='1'; row.classList.remove('err'); row.classList.add('ok'); aEl.disabled=bEl.disabled=true; aEl.setAttribute('aria-disabled','true'); bEl.setAttribute('aria-disabled','true'); const r=aEl.getBoundingClientRect(); sparkleAt(r.left + r.width/2, r.top, 8); audio.ok(); win(1); showToast('Bravo ! +1 🦄💰'); hint.textContent=`Youpi ! ${a} + ${b} = ${N} ✨`; const allDone=$$(".floorRow").every(rr=> rr.dataset.done==='1'); if(allDone){ fx.spawn(); evaluate(true,{type:'houses',text:`Maison du ${N}`},`${N}`); } } else { row.classList.remove('ok'); row.classList.add('err'); audio.no(); const fixedLeft=aEl.disabled; const base=fixedLeft?(+aEl.value||0):(+bEl.value||0); hint.textContent=`Indice : Cherche l’ami de ${base} pour faire ${N}.`; } } else { row.classList.remove('err'); hint.textContent=''; } };
+          if(Number.isFinite(a)&&Number.isFinite(b)){
+            if(a+b===N){
+              row.dataset.done='1'; row.classList.remove('err'); row.classList.add('ok');
+              aEl.disabled=bEl.disabled=true; aEl.setAttribute('aria-disabled','true'); bEl.setAttribute('aria-disabled','true');
+              // FX: sparkle + okPop + wiggle roof
+              const r=aEl.getBoundingClientRect(); sparkleAt(r.left + r.width/2, r.top, 10);
+              try{ row.classList.add('okPop'); setTimeout(()=> row.classList.remove('okPop'), 900); card.querySelector('.roofTag')?.classList.add('wiggle'); setTimeout(()=> card.querySelector('.roofTag')?.classList.remove('wiggle'), 700);}catch{}
+              audio.ok(); win(1); showToast('Bravo ! +1 🦄💰');
+              hint.textContent=`Youpi ! ${a} + ${b} = ${N} ✨`; const allDone=$$(".floorRow").every(rr=> rr.dataset.done==='1'); if(allDone){ fx.spawn(); evaluate(true,{type:'houses',text:`Maison du ${N}`},`${N}`); }
+            } else {
+              row.classList.remove('ok'); row.classList.add('err'); audio.no(); FX.shake(row);
+              const fixedLeft=aEl.disabled; const base=fixedLeft?(+aEl.value||0):(+bEl.value||0); hint.textContent=`Indice : Cherche l’ami de ${base} pour faire ${N}.`;
+            }
+          } else { row.classList.remove('err'); hint.textContent=''; }
+        };
         $$(".floorRow").forEach(r=>{ const [aEl,bEl]=r.querySelectorAll('input'); const onchg=()=>checkRow(r); aEl.addEventListener('input', onchg); bEl.addEventListener('input', onchg); });
         $("#btnCheck").style.display='none'; const skip=$("#btnSkip"); skip.style.display='inline-flex'; skip.textContent='Nouveau'; skip.onclick=()=>{ render(pickN()); }; $("#btnPrev").style.display='inline-flex'; $("#btnPrev").onclick=goBack;
       };
@@ -1762,11 +1832,14 @@ body, body *{
         }
         if(!active) setStatus('—');
       }
+      let sparkTick=0;
       function onMove(ev){ if(!dragging) return; const wr=wrap.getBoundingClientRect(); const mx=(ev.touches?ev.touches[0].clientX:ev.clientX) - wr.left - offset[0]; const my=(ev.touches?ev.touches[0].clientY:ev.clientY) - wr.top - offset[1];
         const x=Math.max(0, Math.min(wr.width-40, mx)); const y=Math.max(0, Math.min(wr.height-40, my));
         mouse.style.left = x+"px"; mouse.style.top = y+"px";
         const cx=(ev.touches?ev.touches[0].clientX:ev.clientX), cy=(ev.touches?ev.touches[0].clientY:ev.clientY);
         findZoneAt(cx,cy);
+        // tiny sparkles trail occasionally
+        sparkTick++; if(sparkTick%8===0){ try{ sparkleAt(cx, cy, 4); }catch{} }
       }
       function onUp(){ if(!dragging) return; dragging=false; mouse.classList.remove('drag');
         if(active){ const pos = active.dataset.pos; const ok = norm(pos)===target; evaluate(ok,q,pos); }
@@ -1795,6 +1868,7 @@ body, body *{
         }catch{}
       }
       document.getElementById('btnDemoSpatial').onclick = runDemo;
+      try{ mouse.classList.add('pulse-soft'); }catch{}
 
       // Hide check, this is direct feedback
       $("#btnCheck").style.display='none'; $("#btnSkip").style.display='inline-flex';
@@ -2122,34 +2196,40 @@ body, body *{
   const solutionOf=q=> q.type==="qcm" ? (q.options[q.correct]?.label ?? "—") : "Voir explication.";
 
   function endOfBlock(){
-    // estrellas según errores: 3 (0 erreur), 2 (≤2), 1 (sinon)
-    const w = state.block.wrong;
-    const stars = w===0?3 : (w<=2?2:1);
-    const key = state.area.id+"|"+state.sub.id;
-    state.stars[key] = Math.max(state.stars[key]||0, stars);
-    save();
-    // Bonus doux pour le défi final (niveau 6)
-    if(ADHD_MODE && state.level>=state.totalLevels){ win(3); showToast('Défi final réussi ! +3 🦄✨'); }
-
+    const done = state.progress.done||0, wrong=state.block.wrong||0, correct=Math.max(0, done - wrong);
+    const acc = done>0 ? (correct/done) : 0;
+    // étoiles simples selon erreurs
+    const stars = wrong===0?3 : (wrong<=2?2:1);
+    const key = state.area.id+"|"+state.sub.id; state.stars[key] = Math.max(state.stars[key]||0, stars);
+    // Stats par niveau (soustractions)
+    try{
+      state.statsSoustr = state.statsSoustr || {};
+      const L=state.level||1; const s=state.statsSoustr[L]||{best:0}; s.best=Math.max(s.best||0, acc); s.last={acc,correct,done,when:Date.now()}; state.statsSoustr[L]=s; save();
+    }catch{}
+    // Célébration
     fx.spawn(); showRainbow();
     const earned = Math.max(0, state.coins - (state.blockStartCoins||0));
-    showModal("🎉 Bravo !", `
-      <p>Tu as terminé le niveau ${state.level} (${state.progress.total} exercices).</p>
-      <p>Dinero unicornio : <b>${state.coins}</b> 🦄💰</p>
-      <p>Gané en este bloque: <b>+${earned}</b> 🦄💰</p>
-      <div style="font-size:24px">Tes étoiles pour <b>${state.sub.name}</b> : ${"⭐".repeat(stars)}${stars<3?`<span style="opacity:.35">${"⭐".repeat(3-stars)}</span>`:""}</div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
-        <button class="btn s" id="goNext">Continuer niveau suivant</button>
-        <button class="btn g" id="stay">Rejouer ce niveau</button>
-        <button class="btn g" id="goHome">Aller au menu</button>
-      </div>
-    `, ()=>{
-      $("#goNext").onclick=()=>{ state.level=Math.min(state.totalLevels,state.level+1); startBlock(); hideModal(); };
-      $("#stay").onclick=()=>{ startBlock(); hideModal(); };
-      $("#goHome").onclick=()=>{ hideModal(); showHome(); };
-      state.scores.unshift({name:state.user.name||"Joueur",coins:state.coins,level:state.level,at:Date.now()});
-      state.scores=state.scores.slice(0,20); save();
-    });
+    // Enregistrer score snapshot
+    try{ state.scores.unshift({name:state.user.name||"Joueur",coins:state.coins,level:state.level,at:Date.now()}); state.scores=state.scores.slice(0,20); save(); }catch{}
+    // Critère d’avancement (≥ 80% par défaut)
+    const pass = (state.quiz && typeof state.quiz.pass==='number') ? (acc >= state.quiz.pass) : (acc>=0.8);
+    const L=state.level||1; const nextLevel=Math.min(state.totalLevels||10, L+1);
+    const title = pass? 'Bravo ! Niveau suivant ?' : 'Tu y es presque !';
+    const msg = pass? `Tu as réussi ${Math.round(acc*100)}%. Continuer vers le niveau ${nextLevel} ?` : `Tu as réussi ${Math.round(acc*100)}%. Veux-tu réessayer le niveau ${L} ?`;
+    showModal(title, `<div style="margin-bottom:8px">${msg}</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center">
+        ${pass? '<button class="btn s" id="goNext">Niveau suivant</button>':''}
+        <button class="btn g" id="retryLvl">Réessayer</button>
+        <button class="btn g" id="toMenu">Retour au menu</button>
+      </div>`, ()=>{
+        const goNext=()=>{ hideModal(); state.level=nextLevel; save(); setTimeout(()=> startBlock(), 300); };
+        const retry=()=>{ hideModal(); save(); setTimeout(()=> startBlock(), 300); };
+        const toMenu=()=>{ hideModal(); showHome(); };
+        document.getElementById('goNext')?.addEventListener('click', goNext);
+        document.getElementById('retryLvl').addEventListener('click', retry);
+        document.getElementById('toMenu').addEventListener('click', toMenu);
+        const okBtn=document.getElementById('modalClose'); if(okBtn){ okBtn.textContent = pass? 'Continuer' : 'Réessayer'; okBtn.onclick = pass? goNext : retry; }
+      });
   }
 
   function animateCoins(delta){
@@ -2421,7 +2501,7 @@ body, body *{
     const wrap=$("#soustrLvls");
     levels.forEach(L=>{
       const el=document.createElement('div'); el.className='option'; el.textContent=`Niveau ${L}`;
-      el.onclick=()=>{ state.level=L; state.sub={id:'mag_sub', name:`Soustractions · niveau ${L}`}; startBlock(); };
+      el.onclick=()=>{ state.level=L; state.sub={id:'mag_sub', name:`Soustractions · Niveau ${L}`}; startBlock(); };
       wrap.appendChild(el);
     });
     $("#btnCheck").style.display='none'; $("#btnSkip").style.display='inline-flex'; $("#btnPrev").style.display='inline-flex'; $("#btnPrev").onclick=showHome;
@@ -2480,6 +2560,235 @@ body, body *{
     $("#btnSkip").style.display='inline-flex';
     $("#btnPrev").style.display='inline-flex';
     $("#btnPrev").onclick=showHome;
+  }
+
+  // ----------- École: Maths → tables + quiz
+  function openEcoleMaths(area){
+    state.area = area;
+    showStage();
+    $("#breadcrumbs").textContent = `${area.title} › Maths`;
+    const html = `
+      <div class="prompt">🧮 Maths — choisis</div>
+      <div class="options" id="mathsMenu"></div>`;
+    $("#content").innerHTML = html;
+    const wrap = $("#mathsMenu");
+    const items = [
+      {id:'t_add', label:'Tables d’Addition'},
+      {id:'t_sub', label:'Tables de Soustraction'},
+      {id:'t_print', label:'Tables imprimables (1–12)'},
+      {id:'quiz_sub', label:'Quiz par niveau · Soustractions'}
+    ];
+    items.forEach(it=>{
+      const el=document.createElement('div'); el.className='option'; el.textContent=it.label; el.onclick=()=>{
+        if(it.id==='t_add') openTablesView('add');
+        else if(it.id==='t_sub') openTablesView('sub');
+        else if(it.id==='t_print') openPrintableTables();
+        else if(it.id==='quiz_sub') openSoustrMenu({id:'math', title:'Mathématiques'});
+      }; wrap.appendChild(el);
+    });
+    $("#btnCheck").style.display='none';
+    $("#btnSkip").style.display='inline-flex'; $("#btnSkip").onclick=showHome;
+    $("#btnPrev").style.display='inline-flex'; $("#btnPrev").onclick=showHome;
+  }
+
+  // Tables d’addition/soustraction interactives
+  function openTablesView(kind){
+    const isAdd = kind==='add';
+    showStage();
+    $("#breadcrumbs").textContent = `École › Maths › Tables (${isAdd? 'Addition':'Soustraction'})`;
+    const ranges=[10,12,20];
+    const prefs = state.prefs = state.prefs || { timer:false };
+    state.tables = state.tables || { range:12, show:true, start:1, showOp:false, op:kind, mask:0 };
+    state.tables.op = kind || state.tables.op || 'add';
+    const render=()=>{
+      const OP = state.tables.op;
+      const N=state.tables.range;
+      const S = typeof state.tables.start==='number' ? state.tables.start : 1;
+      const show=!!state.tables.show;
+      const head = `<div class="prompt">${OP==='add'?'➕':(OP==='sub'?'➖':(OP==='mul'?'✖️':'➗'))} Table ${OP==='add'?'d’Addition':OP==='sub'?'de Soustraction':OP==='mul'?'de Multiplication':'de Division'} (1–${N})</div>`;
+      const chipsTop = `<div class="chips">
+        ${['add','sub','mul','div'].map(op=>`<div class="chip ${OP===op?'':'ghost'}" data-op="${op}">${op==='add'?'➕ Addition':op==='sub'?'➖ Soustraction':op==='mul'?'✖️ Multiplication':'➗ Division'}</div>`).join('')}
+      </div>`;
+      const chips = `<div class="chips">
+        ${ranges.map(r=>`<div class="chip ${N===r?'':'ghost'}" data-range="${r}">1–${r}</div>`).join('')}
+        <div class="chip ${show?'':'ghost'}" id="toggleSol">${show? 'Afficher solutions: OUI':'Afficher solutions: NON'}</div>
+        <div class="chip ${state.tables.showOp?'':'ghost'}" id="toggleOp">${state.tables.showOp? 'Afficher opérations: OUI':'Afficher opérations: NON'}</div>
+      </div>
+      ${OP==='sub' ? `<div class="chips" style="margin-top:6px"><div class="chip badge">Pratique · Table (1–12)</div>${Array.from({length:12},(_,i)=> i+1).map(x=>`<div class=\"chip\" data-sub-n=\"${x}\">− ${x}</div>`).join('')}</div>` : ''}
+      <div class="small" style="display:flex;align-items:center;gap:10px;margin-top:6px">
+        Masquer: <input id="maskPct" type="range" min="0" max="80" step="10" value="${state.tables.mask||0}" /> <b>${state.tables.mask||0}%</b>
+      </div>`;
+      const grid = document.createElement('div'); grid.id='tableGrid';
+      const cols = (N - S + 1) + 1; // header + values
+      grid.style.display='grid'; grid.style.gridTemplateColumns=`repeat(${cols}, minmax(28px,1fr))`; grid.style.gap='6px'; grid.style.marginTop='10px';
+      // header row
+      const mkCell=(txt,cls)=>{ const d=document.createElement('div'); d.className=`tag`; d.style.textAlign='center'; d.style.fontWeight='900'; d.textContent=txt; if(cls) d.classList.add(cls); return d; };
+      grid.appendChild(mkCell(OP==='add'?'+':(OP==='sub'?'−':OP==='mul'?'×':'÷')));
+      for(let b=S;b<=N;b++) grid.appendChild(mkCell(String(b)));
+      const maskedIdx = new Set();
+      const totalCells = (N-S+1)*(N-S+1);
+      const maskCount = Math.round(((state.tables.mask||0)/100) * totalCells);
+      const allIdx = Array.from({length:totalCells},(_,i)=>i);
+      shuffle(allIdx).slice(0,maskCount).forEach(i=>maskedIdx.add(i));
+      let cellIndex=0;
+      for(let a=S;a<=N;a++){
+        grid.appendChild(mkCell(String(a)));
+        for(let b=S;b<=N;b++){
+          let res, expr, aria;
+          if(OP==='add'){ res=a+b; expr=`${a}+${b}`; aria=`${a} plus ${b}`; }
+          else if(OP==='sub'){ res=a-b; expr=`${a}−${b}`; aria=`${a} moins ${b}`; }
+          else if(OP==='mul'){ res=a*b; expr=`${a}×${b}`; aria=`${a} multiplié par ${b}`; }
+          else { /* div */ const dividend=a*b; res=a; expr=`${dividend}÷${b}`; aria=`${dividend} divisé par ${b}`; }
+          if(OP==='sub' && res<0){ const cell=mkCell('·'); cell.style.opacity='.35'; grid.appendChild(cell); cellIndex++; continue; }
+          const cell = document.createElement('button');
+          cell.className='btn g'; cell.style.padding='8px 6px'; cell.style.fontSize='14px'; cell.style.borderRadius='10px'; cell.style.minHeight='42px';
+          cell.setAttribute('aria-label', aria);
+          const masked = show ? maskedIdx.has(cellIndex) : true;
+          cell.textContent = masked ? '?' : (state.tables.showOp ? expr : String(res));
+          cell.dataset.row=String(a); cell.dataset.col=String(b);
+          cell.onclick=()=>{
+            // mini-quiz for this cell
+            let askText, checkFn, exp;
+            if(OP==='add'){ askText=`${a} + ${b} = ?`; checkFn=(v)=> String(v).trim()===String(a+b); exp=`Calcule: ${a} + ${b}`; }
+            else if(OP==='sub'){ askText=`${a} − ${b} = ?`; checkFn=(v)=> String(v).trim()===String(a-b); exp=`Calcule: ${a} − ${b}`; }
+            else if(OP==='mul'){ askText=`${a} × ${b} = ?`; checkFn=(v)=> String(v).trim()===String(a*b); exp=`Calcule: ${a} × ${b}`; }
+            else { const dividend=a*b; askText=`${dividend} ÷ ${b} = ?`; checkFn=(v)=> String(v).trim()===String(a); exp=`Division: ${dividend} ÷ ${b} = ${a}`; }
+            const q={ id:`tbl-${OP}-${a}-${b}-${N}`, type:'input', text:askText, kind:'number', placeholder:'Réponse', check:checkFn, explain:exp };
+            engine.input(q);
+          };
+          // hover highlight row/col
+          cell.addEventListener('mouseenter',()=>{
+            document.querySelectorAll('#tableGrid .tableHL').forEach(x=> x.classList.remove('tableHL'));
+            // headers
+            const headers=[...grid.children];
+            // mark row header
+            const colCount=cols; const rowIdx=(a-S)+1; const rowHeader = grid.children[rowIdx*colCount]; rowHeader?.classList.add('tableHL');
+            // mark column header (top row)
+            const colHeaderIndex = (b-S)+1; const colHeader = grid.children[colHeaderIndex]; colHeader?.classList.add('tableHL');
+            cell.classList.add('tableHL');
+          });
+          grid.appendChild(cell);
+          cellIndex++;
+        }
+      }
+      $("#content").innerHTML = head + chipsTop + chips;
+      $("#content").appendChild(grid);
+      // bind chips
+      $("#content").querySelectorAll('[data-op]').forEach(c=> c.onclick=()=>{ state.tables.op=c.dataset.op; render(); });
+      $("#content").querySelectorAll('[data-range]').forEach(c=> c.onclick=()=>{ state.tables.range=+c.dataset.range; render(); });
+      if(OP==='sub'){
+        $("#content").querySelectorAll('[data-sub-n]').forEach(c=> c.onclick=()=>{ const n=+c.dataset.subN; startSubTablePractice(n); });
+      }
+      const tog=$("#toggleSol"); if(tog){ tog.onclick=()=>{ state.tables.show=!state.tables.show; render(); }; }
+      const togOp=$("#toggleOp"); if(togOp){ togOp.onclick=()=>{ state.tables.showOp=!state.tables.showOp; render(); }; }
+      const mask=document.getElementById('maskPct'); if(mask){ mask.oninput=(e)=>{ const v=+e.target.value; state.tables.mask=v; e.target.nextElementSibling.textContent=v+'%'; }; mask.onchange=()=> render(); }
+      // Footer actions
+      $("#btnCheck").style.display='none';
+      $("#btnSkip").style.display='inline-flex';
+      $("#btnSkip").onclick=()=>{
+        // pick random practice cell among available buttons
+        const buttons=[...grid.querySelectorAll('button.btn.g')];
+        if(buttons.length){ const btn = buttons[Math.floor(Math.random()*buttons.length)]; btn.click(); }
+      };
+      $("#btnPrev").style.display='inline-flex'; $("#btnPrev").onclick=()=> openEcoleMaths({id:'ecole', title:'École'});
+    };
+    render();
+  }
+
+  // Pratique des tables de soustraction (sélection 1–12)
+  function startSubTablePractice(n){
+    showStage();
+    $("#breadcrumbs").textContent = `Mathématiques › Soustraction · Table de ${n}`;
+    const all = Array.from({length:12 - n + 1}, (_,i)=> n + i);
+    const seq = shuffle(all.slice());
+    let idx = 0, correct=0;
+    function render(){
+      if(idx>=seq.length){
+        const acc = Math.round((correct/seq.length)*100);
+        showModal('Pratique terminée', `Score : <b>${correct}/${seq.length}</b> (${acc}%).`, ()=>{
+          const ok=document.getElementById('modalClose'); if(ok){ ok.textContent='Continuer'; ok.onclick=()=>{ hideModal(); openTablesView('sub'); }; }
+        });
+        return;
+      }
+      const b = seq[idx]; const a = n; const res = b - a;
+      const pool = new Set([res, res+1, Math.max(0,res-1), res+2]);
+      const opts = shuffle(Array.from(pool)).slice(0,4);
+      if(!opts.includes(res)) opts[0]=res;
+      const prompt = `<div class="prompt">➖ Pratique — table de ${n}</div>`;
+      const stat = `<div class="small">Exercice <b>${idx+1}/${seq.length}</b></div>`;
+      const big = `<div class="prompt" style="justify-content:center;gap:12px"><span class="numtxt" style="font-size:42px">${b} − ${a} = ?</span></div>`;
+      $("#content").innerHTML = prompt + stat + big + `<div class="options" id="opts"></div>`;
+      const wrap=document.getElementById('opts');
+      opts.forEach(v=>{
+        const el=document.createElement('div'); el.className='option'; el.innerHTML=`<span class="numtxt">${v}</span>`; wrap.appendChild(el);
+        el.onclick=()=>{
+          const ok = (v===res);
+          if(ok){ correct++; FX.glow(el); sfx.play('ok'); }
+          else { FX.shake(el); sfx.play('error'); }
+          idx++;
+          setTimeout(render, 360);
+        };
+      });
+      // Footer controls
+      $("#btnCheck").style.display='none';
+      $("#btnSkip").style.display='inline-flex';
+      $("#btnPrev").style.display='inline-flex';
+      $("#btnSkip").onclick=()=>{ idx++; render(); };
+      $("#btnPrev").onclick=()=> openTablesView('sub');
+    }
+    render();
+  }
+
+  // Tables imprimables (1–12) en lignes (sumas y restas)
+  function openPrintableTables(){
+    showStage();
+    const title = `École › Maths › Tables imprimables (1–12)`;
+    $("#breadcrumbs").textContent = title;
+    const mkSection = (label)=> `<h4 style="margin:8px 0 6px;font-family:'Fredoka';font-size:20px">${label}</h4>`;
+    const mkLine = (t)=> `<div style="font-weight:900;line-height:1.6">${t}</div>`;
+    const wrap = document.createElement('div');
+    wrap.id = 'printTables';
+    wrap.style.marginTop = '6px';
+    // Header + print button
+    const head = document.createElement('div');
+    head.innerHTML = `<div class="prompt">📄 Tables imprimables (additions 1–12 puis soustractions 1–12)</div>
+      <div class="small">Astuce : utilise « Imprimer » pour PDF ou papier.</div>
+      <div style="margin:8px 0;display:flex;gap:8px;flex-wrap:wrap">
+        <button id="btnPrint" class="btn g">🖨️ Imprimer</button>
+      </div>`;
+    $("#content").innerHTML = '';
+    $("#content").appendChild(head);
+    $("#content").appendChild(wrap);
+    // Build additions
+    const frag = document.createDocumentFragment();
+    for(let a=1;a<=12;a++){
+      const sec = document.createElement('div');
+      sec.innerHTML = mkSection(`➕ Table du ${a} (additions)`);
+      for(let b=1;b<=12;b++){
+        sec.innerHTML += mkLine(`${a} + ${b} = ${a+b}`);
+      }
+      frag.appendChild(sec);
+    }
+    // Build soustractions
+    for(let a=1;a<=12;a++){
+      const sec = document.createElement('div');
+      sec.style.marginTop = '10px';
+      sec.innerHTML = mkSection(`➖ Table du ${a} (soustractions)`);
+      for(let b=a;b<=12;b++){
+        sec.innerHTML += mkLine(`${b} - ${a} = ${b-a}`);
+      }
+      frag.appendChild(sec);
+    }
+    wrap.appendChild(frag);
+    // Actions bas de page
+    $("#btnCheck").style.display='none';
+    $("#btnSkip").style.display='inline-flex';
+    $("#btnPrev").style.display='inline-flex';
+    $("#btnSkip").onclick=()=> openEcoleMaths({id:'ecole', title:'École'});
+    $("#btnPrev").onclick=()=> openEcoleMaths({id:'ecole', title:'École'});
+    // Print
+    const pb = document.getElementById('btnPrint');
+    if(pb){ pb.onclick=()=>{ try{ window.print(); }catch{} }; }
   }
 
   // ----------- École: Semana 15–19 → choisir thème
@@ -2596,6 +2905,68 @@ body, body *{
 
   // MATH
   const MATH={
+    // Config de niveaux pour Soustractions (1–10)
+    soustrLevel(L){
+      const cfgs={
+        1:{range:[0,10], carry:false, count:8, types:['calc'], pass:0.8, coins:0},
+        2:{range:[0,20], carry:false, count:5, types:['calc'], pass:0.8, coins:0},
+        3:{range:[0,20], carry:'some', count:10, types:['calc'], pass:0.8, coins:0},
+        4:{range:[0,50], carry:'mix', count:12, types:['calc'], pass:0.8, coins:0},
+        5:{range:[0,100], carry:true, count:12, types:['calc'], pass:0.8, coins:0},
+        6:{range:[10,99], carry:true, count:12, types:['calc'], pass:0.8, coins:0},
+        7:{range:[20,99], carry:true, count:14, types:['calc'], pass:0.8, coins:0},
+        8:{range:[10,99], carry:'zeros', count:14, types:['calc'], pass:0.8, coins:0},
+        9:{range:[0,20], carry:false, count:16, types:['chain'], pass:0.8, coins:0},
+        10:{range:[10,99], carry:true, count:16, types:['word'], pass:0.8, coins:0}
+      };
+      return cfgs[Math.max(1, Math.min(10, L||1))];
+    },
+    // Générateur pur pour soustraction selon config
+    genSoustr(cfg, last){
+      const [lo,hi]=cfg.range;
+      function genPair(){
+        let a,b; let tries=0;
+        const wantCarry = cfg.carry===true || cfg.carry==='mix' || cfg.carry==='some' || cfg.carry==='zeros';
+        while(true){
+          tries++; if(tries>500) break;
+          a = rnd(lo,hi); b = rnd(lo,hi);
+          if(a<b) [a,b]=[b,a];
+          if(cfg.carry===false && (a%10) < (b%10)) continue; // pas d'emprunt
+          if(cfg.carry==='some' && (a%10) >= (b%10)) continue; // forcer emprunt parfois
+          if(cfg.carry==='zeros' && !(String(a).endsWith('0')||String(a).endsWith('00')||String(b).endsWith('0'))) continue;
+          if(cfg.carry==='mix'){ /* accepte tout */ }
+          if(a===b) continue;
+          if(last && last.a===a && last.b===b) continue; // éviter consécutif identique
+          break;
+        }
+        return {a,b};
+      }
+      // chain type
+      if(cfg.types.includes('chain')){
+        const x=rnd(6,20), y=rnd(1,5), z=rnd(1,5);
+        const res = x - y - z;
+        const text = `🌟🦄 Soustractions en série — ${x} − ${y} − ${z} = ?`;
+        const explain = `On calcule pas à pas : ${x} − ${y} = ${x-y}, puis ${x-y} − ${z} = ${res}.`;
+        return { id:`m-sub-chain-${x}-${y}-${z}`, type:'input', text, kind:'number', placeholder:'Réponse', check:v=> String(v).trim()===String(res), explain };
+      }
+      // word type
+      if(cfg.types.includes('word')){
+        const total=rnd(30,90), given=rnd(5,29); const left=total-given;
+        const text=`Problem : Léo a ${total} billes. Il en donne ${given} à Zoé. Combien lui reste-t-il ?`;
+        const opts=shuffle([left,left+1,left-1,left+2]).map(x=>({label:String(x)}));
+        return { id:`m-sub-word-${total}-${given}`, type:'qcm', text, options:opts, correct:opts.findIndex(o=>+o.label===left), explain:`On fait ${total} − ${given} = ${left}.` };
+      }
+      // default calc type
+      const {a,b}=genPair(); const res=a-b; const ua=a%10, ub=b%10, da=Math.floor(a/10);
+      const text=`🌟🦄 Soustraction — ${a} − ${b} = ?`;
+      const exp=[
+        (ua<ub?`On emprunte 1 dizaine : ${da}→${da-1} et ${ua}→${ua+10}.`: `Unités : ${ua} − ${ub}`),
+        `Résultat : <b>${a} − ${b} = ${res}</b>`
+      ].join('<br>');
+      const choices=new Set([res,res+1,res-1,res+2]);
+      const arr=shuffle(Array.from(choices)).map(x=>({label:String(x)}));
+      return { id:`m-sub-calc-${a}-${b}`, type:'qcm', text, options:arr, correct:arr.findIndex(o=>+o.label===res), explain:exp };
+    },
     // Mathématiques magiques ✨🦄 — additions
     mag_add(lvl){
       const L = Math.max(1, Math.min(10, lvl||1));
@@ -2609,60 +2980,19 @@ body, body *{
       const hint = `🧩 Décompose<br>${fmtTU(a)}<br>${fmtTU(b)}<br>🧮 Calcule pas à pas : ${a} + ${b} = ??<br>✨ Résultat : ?? = ${rd} diz. + ${ru} unit.`;
       return { id:`m-mag-add-${a}-${b}-${L}`, type:'input', text, kind:'number', placeholder:'Réponse', check:v=> String(v).trim()==String(res), explain, meta:{ hint } };
     },
-    // Soustraction posée avec retenue (toujours avec emprunt)
+    // Soustractions — utilise le générateur selon le niveau
     mag_sub(lvl){
-      const L = Math.max(1, Math.min(10, lvl||1));
-      const range = L<=3 ? 20 : (L<=6 ? 50 : 100);
-      function gen(){
-        let a,b;
-        if(range<=20){
-          a=rnd(11,Math.min(19,range));
-          b=rnd(2,9);
-          const ua=a%10; if(ua>=b) b = Math.min(9, ua+1);
-          if(b>=a) b = Math.max(2, (a%10)+1);
-        } else {
-          const da=rnd(2,Math.min(9,Math.floor(range/10)));
-          const db=rnd(1,da);
-          const ua=rnd(0,8); const ub=rnd(ua+1,9); // garantir emprunt
-          a=da*10+ua; b=db*10+ub;
-          if(a<=b) a+=10;
-          if(a>range) a=range-(a%10)+ua; // borne
-        }
-        if(b>a) [a,b]=[b,a];
-        if((a%10) >= (b%10)) return gen();
-        if(a>range || b>range || a<=b) return gen();
-        return [a,b];
+      const L=Math.max(1,Math.min(10,lvl||1));
+      const cfg=this.soustrLevel(L);
+      state.soustrSession = state.soustrSession || { level:L, prev:null };
+      if(state.soustrSession.level!==L){ state.soustrSession={ level:L, prev:null }; }
+      const q=this.genSoustr(cfg, state.soustrSession.prev);
+      // enrich meta pour exp et aide visuelle si applicable
+      if(q && q.type==='qcm' && /m-sub-calc/.test(q.id)){
+        const m=q.id.match(/m-sub-calc-(\d+)-(\d+)/); if(m){ const a=+m[1], b=+m[2]; q.meta=q.meta||{}; q.meta.svg = posedSubSVG(a,b); q.meta.hint = 'On échange 1 dizaine contre 10 unités si besoin.'; q.meta.penaltyOnWrong=2; q.meta.solutionText=String(a-b); }
       }
-      const [a,b]=gen(); const res=a-b;
-      const ua=a%10, ub=b%10, da=Math.floor(a/10);
-      const text = `🌟🦄 Soustraction posée — ${a} − ${b} = ?`;
-      const exp = [
-        `On ne peut pas faire ${ua} − ${ub}, alors on prend 1 dizaine du ${da}.`,
-        `Le ${da} devient ${da-1} et le ${ua} devient ${ua+10}.`,
-        `${ua+10} − ${ub} puis on termine avec les dizaines.`,
-        `Résultat : <b>${a} − ${b} = ${res}</b>.`
-      ].join('<br>');
-      const svg = posedSubSVG(a,b);
-      const speak = `Soustraction posée. ${a} moins ${b}. On ne peut pas faire ${ua} moins ${ub}. On emprunte une dizaine au ${da}. Le ${da} devient ${da-1} et le ${ua} devient ${ua+10}. Le résultat est ${res}.`;
-      const mag = {
-        id:`m-sub-ret-${a}-${b}-L${L}`,
-        type:'qcm',
-        text,
-        // three options: correct + two plausible distractors
-        options: (()=>{
-          const opts=new Set([res]);
-          const add=(x)=>{ if(x>=0) opts.add(x); };
-          add(res+1); add(res-1); add(res+2); add(res-2);
-          return Array.from(opts).slice(0,3).sort(()=>Math.random()-.5).map(x=>({label:String(x)}));
-        })(),
-        correct: 0, // will fix below
-        explain:exp,
-        meta:{ svg, hint:'Observe la flèche : la dizaine va aider les unités.', magic:'twinkle', speakText:speak, penaltyOnWrong:2, solutionText:String(res), soustractionPosee:true }
-      };
-      // fix correct index after options built
-      const i = mag.options.findIndex(o=> o.label===String(res));
-      mag.correct = i<0?0:i;
-      return mag;
+      state.soustrSession.prev = (/m-sub-calc-/.test(q.id))? { a: +(q.id.split('-')[3]), b: +(q.id.split('-')[4]) } : null;
+      return q;
     },
     addsub(lvl){
       // 0–100, pas de négatifs
@@ -3318,7 +3648,7 @@ body, body *{
       const opts=shuffle([correct, ...wrongs]);
       // opts est un tableau de chaînes; l'index correct doit être calculé avant le map
       const correctIdx = opts.indexOf(correct);
-      return {id:`roles-${i}`, type:'qcm', text:`Qui fait quoi ?`, options:opts.map(x=>({label:x})), correct:correctIdx, explain:`Rappelle-toi : Auteur ✍️, Illustrateur 🎨, Éditeur 🖨️.`};
+      return {id:`roles-${i}`, type:'qcm', text:`Qui fait quoi ?`, options:opts.map(x=>({label:x})), correct:correctIdx, explain:`Rappelle-toi : Auteur ✍️, Illustrateur 🎨, Éditeur 🖨️.`, meta:{ svg: rolesSVG() } };
     });
 
     // 9) 📏 Comparaisons — QCM descriptifs
