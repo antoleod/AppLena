@@ -26,6 +26,8 @@
   /* Timing & easing (anim utility classes) */
   --dur-fast:140ms; --dur-base:240ms; --dur-slow:360ms;
   --ease-smooth:cubic-bezier(.2,.8,.2,1);
+  /* FX: unified animation tokens (mapped to existing) */
+  --fast:150ms; --base:250ms; --slow:420ms; --ease:var(--ease-smooth);
 }
 /* Improve touch ergonomics across devices */
 button, .chip, .option, .sub { touch-action: manipulation; }
@@ -97,6 +99,22 @@ body::before{
 .xfade-leave{animation:xfOut .24s ease both}
 @keyframes xfIn{from{opacity:0; transform:translateY(6px)} to{opacity:1; transform:translateY(0)}}
 @keyframes xfOut{from{opacity:1} to{opacity:0}}
+
+/* ===== FX: Reusable visual effects toolkit ===== */
+.fx-pop{ animation: fxPop var(--base) var(--ease) both }
+.fx-glow{ animation: fxGlow var(--base) var(--ease) both }
+.fx-shake{ animation: fxShake var(--base) ease both }
+.fx-fade{ animation: fxFade var(--base) var(--ease) both }
+.fx-slide-up{ animation: fxSlideUp var(--base) var(--ease) both }
+.fx-slide-left{ animation: fxSlideLeft var(--base) var(--ease) both }
+.missPulse{ animation: missPulse 1.8s ease-in-out infinite }
+@keyframes fxPop{ 0%{ transform:scale(.9); opacity:.6 } 70%{ transform:scale(1.04); opacity:1 } 100%{ transform:scale(1) } }
+@keyframes fxGlow{ 0%{ box-shadow:0 0 0 0 rgba(56,189,248,.00) } 60%{ box-shadow:0 0 0 16px rgba(56,189,248,.16) } 100%{ box-shadow:0 0 0 0 rgba(56,189,248,.00) } }
+@keyframes fxShake{ 10%{ transform:translateX(-8px) } 20%{ transform:translateX(8px) } 30%{ transform:translateX(-6px) } 40%{ transform:translateX(6px) } 60%{ transform:translateX(3px) } 100%{ transform:translateX(0) } }
+@keyframes fxFade{ from{ opacity:0 } to{ opacity:1 } }
+@keyframes fxSlideUp{ from{ opacity:0; transform:translateY(14px) } to{ opacity:1; transform:translateY(0) } }
+@keyframes fxSlideLeft{ from{ opacity:0; transform:translateX(18px) } to{ opacity:1; transform:translateX(0) } }
+@keyframes missPulse{ 0%{ transform:scale(.98) } 50%{ transform:scale(1.02) } 100%{ transform:scale(.98) } }
 
 /* ===== Header pill bar (glass + rainbow) ===== */
 header{height:var(--h); display:flex; align-items:center; justify-content:center; padding:10px}
@@ -373,6 +391,8 @@ main{position:absolute; inset:var(--h) 0 0 0; display:grid; grid-template-rows: 
   #pilotHalo{ animation:none }
   /* Disable utility animations when reduced motion */
   .fade-in,.slide-up,.slide-left,.pop{ animation:none !important }
+  /* FX: disable all reusable FX when reduced motion */
+  .fx-pop,.fx-glow,.fx-shake,.fx-fade,.fx-slide-up,.fx-slide-left,.missPulse{ animation:none !important }
 }
 
 /* High contrast preference: subtly increase borders/shadows */
@@ -943,6 +963,41 @@ body, body *{
     }
   })();
 
+  /* ----------- SFX: tiny sound toolkit (reusable) ----------- */
+  // SFX: play(key,{volume,rate}) with short, gentle tones. Respects state.sound.
+  const sfx = (()=>{
+    let ctx=null;
+    function ensure(){ if(ctx) return ctx; try{ ctx=new (window.AudioContext||window.webkitAudioContext)(); }catch{} return ctx; }
+    function tone(freq=600, dur=0.12, type='sine', vol=0.15){ if(!state.sound) return; const ac=ensure(); if(!ac) return; try{ const o=ac.createOscillator(); const g=ac.createGain(); o.type=type; o.frequency.value=freq; g.gain.value=vol; o.connect(g).connect(ac.destination); o.start(); setTimeout(()=>{ try{o.stop()}catch{} }, dur*1000);}catch{} }
+    function chord(list){ list.forEach(([f,d,t,v,delay])=> setTimeout(()=> tone(f,d,t,v), (delay||0))); }
+    return {
+      init(){ try{ ensure(); }catch{} },
+      play(key,opts={}){
+        try{ audioCtxResume && audioCtxResume(); }catch{}
+        switch(key){
+          case 'click': return audio.click();
+          case 'ok': return audio.ok();
+          case 'error': return audio.no();
+          case 'flip': return tone(640, .09, 'triangle', .12);
+          case 'move': return tone(500, .08, 'square', .10);
+          case 'trail': return tone(760, .06, 'sine', .08);
+          case 'fanfare': return chord([[880,.08,'sine',.14,0],[1175,.10,'sine',.12,90],[1568,.12,'triangle',.10,180]]);
+          default: return;
+        }
+      }
+    };
+  })();
+  try{ sfx.init(); }catch{}
+
+  /* ----------- FX: lightweight class toggles (reusable) ----------- */
+  const FX = {
+    // FX: add class, remove after animation end
+    use(el, cls){ try{ if(!el) return; el.classList.remove(cls); void el.offsetWidth; el.classList.add(cls); const off=()=>{ el.classList.remove(cls); el.removeEventListener('animationend', off); }; el.addEventListener('animationend', off); }catch{} },
+    pop(el){ this.use(el,'fx-pop'); },
+    glow(el){ this.use(el,'fx-glow'); },
+    shake(el){ this.use(el,'fx-shake'); }
+  };
+
   /* ----------- haptics (gentle vibration on mobile) ----------- */
   function haptic(kind){
     try{
@@ -1403,7 +1458,16 @@ body, body *{
         const isNum = /^\d+$/.test(String(op.label||''));
         const lab = isNum ? `<span class=\"numtxt\">${op.label}</span>` : `<span>${op.label}</span>`;
         el.innerHTML = `${op.color?`<span class=\"optColor\" style=\"background:${op.color}\"></span>`:""}${icon}${lab}`;
-        el.onclick=()=> evaluate(i===q.correct,q,op.label,el);
+        // FX: option press feedback
+        el.addEventListener('pointerdown', ()=>{ FX.pop(el); sfx.play('click'); });
+        el.onclick=()=>{
+          const ok = (i===q.correct);
+          if(ok){ FX.glow(el); }
+          else { FX.shake(el); }
+          evaluate(ok,q,op.label,el);
+          // SFX: small fanfare for special game (Hanoi)
+          try{ if(ok && (q.id||'').startsWith('game-hanoi-')) sfx.play('fanfare'); }catch{}
+        };
         opts.appendChild(el);
       });
       const items=$$("#opts .option"); if(items[0]) items[0].focus();
@@ -1461,20 +1525,34 @@ body, body *{
     },
     // Busca elementos (por ejemplo, fantasmas)
     find(q){
-      $("#content").innerHTML=`<div class="prompt">${q.text}</div><div class="rappelGrid" id="fgrid"></div>`;
+      $("#content").innerHTML=`<div class="prompt">${q.text}</div><div class="small" id="foundStat" aria-live="polite">Trouvés : <b>0/${q.need}</b></div><div class="rappelGrid" id="fgrid"></div>`;
       const grid=$("#fgrid");
       q.grid.forEach(cell=>{
         const el=document.createElement('div'); el.className='rappelTile'; el.textContent=cell.e;
         el.dataset.kind=cell.k; grid.appendChild(el);
       });
-      let found=0; const need=q.need;
+      let found=0; const need=q.need; const stat=()=>{ const fs=$("#foundStat"); if(fs){ fs.innerHTML=`Trouvés : <b>${found}/${need}</b>`; FX.use(fs,'fx-slide-up'); } };
       grid.onclick=e=>{
         const el=e.target.closest('.rappelTile'); if(!el) return;
         if(el.classList.contains('done')) return;
         const k=el.dataset.kind;
-        if(k==='target'){ el.classList.add('done'); found++; audio.ok(); if(found>=need){ evaluate(true,q,`found ${found}`); } }
-        else { el.classList.add('wrongflash'); setTimeout(()=>el.classList.remove('wrongflash'),250); evaluate(false,q,'wrong click'); }
+        if(k==='target'){
+          el.classList.add('done'); FX.pop(el); FX.glow(el); found++; stat();
+          audio.ok();
+          if(found>=need){ evaluate(true,q,`found ${found}`); }
+        } else {
+          FX.shake(el); el.classList.add('wrongflash'); setTimeout(()=>el.classList.remove('wrongflash'),250); evaluate(false,q,'wrong click');
+        }
       };
+      // Hint button (ping target)
+      try{
+        const hintBtn=document.createElement('button'); hintBtn.className='btn g'; hintBtn.textContent='💡 Indice'; hintBtn.style.marginTop='8px';
+        hintBtn.onclick=()=>{
+          const t=[...document.querySelectorAll('#fgrid .rappelTile')].find(n=>n.dataset.kind==='target' && !n.classList.contains('done'));
+          if(t){ FX.pop(t); setTimeout(()=>FX.pop(t), 320); }
+        };
+        $("#content").appendChild(hintBtn);
+      }catch{}
       $("#btnCheck").style.display='none'; $("#btnSkip").style.display='inline-flex';
       bindNav(false);
     },
@@ -1487,7 +1565,7 @@ body, body *{
       grid.onclick=e=>{
         const el=e.target.closest('.rappelTile'); if(!el) return;
         if(el.classList.contains('done')) return;
-        el.classList.add('done'); sel.push(el.dataset.v);
+        el.classList.add('done'); FX.pop(el); sel.push(el.dataset.v);
         if(sel.length===2){ if(sel[0]===sel[1] && sel[0]===q.target){ evaluate(true,q,sel.join(',')); } else { evaluate(false,q,sel.join(',')); } }
       };
       $("#btnCheck").style.display='none'; $("#btnSkip").style.display='inline-flex';
@@ -1535,7 +1613,7 @@ body, body *{
         <div class="dropzone" id="drop"></div>
         ${helper}`;
       const pool=$("#pool"), drop=$("#drop");
-      q.items.forEach((it,i)=>{const c=document.createElement("div"); c.className="draggable"; if(/^\d+$/.test(String(it))) c.classList.add('numchip'); c.textContent=it; c.draggable=true; c.addEventListener("dragstart",e=>{e.dataTransfer.setData("text/plain",it)}); pool.appendChild(c);});
+      q.items.forEach((it,i)=>{const c=document.createElement("div"); c.className="draggable"; if(/^\d+$/.test(String(it))) c.classList.add('numchip'); c.textContent=it; c.draggable=true; c.addEventListener("dragstart",e=>{e.dataTransfer.setData("text/plain",it); FX.pop(c); sfx.play('move');}); pool.appendChild(c);});
       const updateSum=()=>{
         if(!(q.meta && q.meta.sumHelp)) return;
         const sumBox=document.getElementById('sumBox'); const dotsWrap=document.getElementById('sumDots');
@@ -1554,12 +1632,21 @@ body, body *{
           const t=e.dataTransfer.getData("text/plain");
           const from=[pool,drop].find(zz=>[...zz.children].some(x=>x.textContent===t));
           const node=[...from.children].find(x=>x.textContent===t);
-          if(node&&z!==from) { z.appendChild(node); updateSum(); }
+          if(node&&z!==from) { z.appendChild(node); FX.glow(z); sfx.play('click'); updateSum(); }
         });
       });
       // Initial helper render
       try{ updateSum(); }catch{}
-      $("#btnCheck").onclick=()=>{ const arr=[...drop.children].map(x=>x.textContent); const ok=q.check(arr); evaluate(ok,q,arr.join(", ")); };
+      $("#btnCheck").onclick=()=>{
+        // FX: Robotic flows execution highlight (game only)
+        try{
+          if((q.id||'').startsWith('game-flows-')){
+            const seq=[...drop.children]; let t=0; seq.forEach((n,idx)=>{ setTimeout(()=>{ FX.glow(n); sfx.play('trail'); }, t); t+=160; });
+          }
+        }catch{}
+        const arr=[...drop.children].map(x=>x.textContent); const ok=q.check(arr); if(!ok){ FX.shake(drop); }
+        evaluate(ok,q,arr.join(", "));
+      };
       bindNav(true);
       try{ pilotStart(q,'order'); }catch{}
     },
@@ -1571,11 +1658,11 @@ body, body *{
         el.innerHTML=`<div class="front">🎴</div><div class="back">${card.e}</div>`;
         el.onclick=()=>{
           if(lock || el.classList.contains("done")) return;
-          el.classList.add("flipped");
-          if(!first){ first=el; audio.click(); return; }
+          el.classList.add("flipped"); sfx.play('flip');
+          if(!first){ first=el; return; }
           lock=true; setTimeout(()=>{
             if(first.dataset.val===el.dataset.val){
-              first.classList.add("done","pairGood"); el.classList.add("done","pairGood"); pairs++; audio.ok();
+              first.classList.add("done","pairGood"); el.classList.add("done","pairGood"); FX.pop(first); FX.pop(el); FX.glow(first); FX.glow(el); pairs++; audio.ok();
               if(pairs===q.pairs){ evaluate(true,q,"Mémoire OK"); }
             } else { first.classList.remove("flipped"); el.classList.remove("flipped"); audio.no(); }
             first=null; lock=false;
@@ -1770,8 +1857,9 @@ body, body *{
       colors.forEach((c,i)=>{const sw=document.createElement("div"); sw.className="sw"; sw.style.background=c; if(i===0) sw.classList.add("sel"); sw.title=c; sw.onclick=()=>{ $$("#palette .sw").forEach(x=>x.classList.remove("sel")); sw.classList.add("sel"); ctx.strokeStyle=c; }; pal.appendChild(sw);});
       let drawing=false, moves=0, used=new Set([colors[0]]), last=[0,0];
       const pos=e=>{const r=canvas.getBoundingClientRect(); const sx=canvas.width/Math.max(1,r.width), sy=canvas.height/Math.max(1,r.height); const cx=(e.touches?e.touches[0].clientX:e.clientX)-r.left; const cy=(e.touches?e.touches[0].clientY:e.clientY)-r.top; return [cx*sx, cy*sy];};
-      const start=e=>{drawing=true; last=pos(e);};
-      const draw=e=>{ if(!drawing) return; const [x,y]=pos(e); ctx.beginPath(); ctx.moveTo(...last); ctx.lineTo(x,y); ctx.stroke(); last=[x,y]; moves++; used.add(ctx.strokeStyle);};
+      let trailPlayed=false;
+      const start=e=>{drawing=true; last=pos(e); if(!trailPlayed){ sfx.play('trail'); trailPlayed=true; setTimeout(()=>trailPlayed=false, 800); } };
+      const draw=e=>{ if(!drawing) return; const [x,y]=pos(e); ctx.save(); ctx.shadowBlur=6; ctx.shadowColor=ctx.strokeStyle; ctx.beginPath(); ctx.moveTo(...last); ctx.lineTo(x,y); ctx.stroke(); ctx.restore(); last=[x,y]; moves++; used.add(ctx.strokeStyle); };
       const end=()=>{drawing=false;};
       canvas.addEventListener("mousedown",start); addEventListener("mouseup",end); canvas.addEventListener("mousemove",draw);
       canvas.addEventListener("touchstart",e=>{start(e); e.preventDefault();},{passive:false});
@@ -1783,6 +1871,7 @@ body, body *{
         let ok;
         if(required && required.length){ ok = moves>180 && required.every(c=> used.has(c)); }
         else { ok = moves>250 && used.size>=3; }
+        if(ok){ try{ FX.glow($("#canvas")); }catch{} }
         evaluate(ok,q,"dessin");
       };
       bindNav(true);
@@ -1918,7 +2007,7 @@ body, body *{
       }catch{}
       state.block.correct++;
       state.streak=(state.streak||0)+1;
-      if(el){ el.classList.add("correct"); try{ const halo=document.createElement('div'); halo.className='haloPop'; el.style.position='relative'; el.appendChild(halo); setTimeout(()=>halo.remove(), 700); }catch{} }
+      if(el){ el.classList.add("correct"); try{ const halo=document.createElement('div'); halo.className='haloPop'; el.style.position='relative'; el.appendChild(halo); setTimeout(()=>halo.remove(), 700); }catch{} FX.glow(el); }
       // Gentle glow pop
       try{ if(el){ el.classList.add('glow','pop'); setTimeout(()=>{ el.classList.remove('glow','pop'); }, 600); } }catch{}
       win(1);
@@ -1935,7 +2024,7 @@ body, body *{
       state.streak=0;
       state.currentWrong = (state.currentWrong||0) + 1;
       haptic('no');
-      if(el){ el.classList.add("wrong","shake-soft"); setTimeout(()=> el.classList.remove('shake-soft'), 360); }
+      if(el){ el.classList.add("wrong","shake-soft"); FX.shake(el); setTimeout(()=> el.classList.remove('shake-soft'), 360); }
       // Show Pilot after two errors even on lower levels
       try{ if(state.currentWrong>=2){ pilotStart(q, q?.type, true); } }catch{}
       // Sweet penalty + solution for soustraction posée
@@ -2029,6 +2118,8 @@ body, body *{
 
   // Toast no intrusivo para bonus
   function showToast(msg){
+    // Ensure only one toast is visible at a time
+    try{ document.querySelectorAll('.toast').forEach(el=> el.remove()); }catch{}
     const t=document.createElement('div');
     t.className='toast';
     t.setAttribute('role','status');
@@ -2754,8 +2845,9 @@ body, body *{
     },
     missnum(){
       const a=rnd(1,9), d=rnd(1,5), n=5; const seq=Array.from({length:n},(_,i)=>a+i*d); const miss=rnd(1,n-2); const ans=seq[miss]; seq[miss]='?';
+      const txtSeq = seq.map(x=> x==='?'? '<span class="missPulse">?</span>' : String(x)).join(' ');
       const opts=shuffle([ans, ans+d, ans-d, ans+2*d]).map(x=>({label:String(x)}));
-      return {id:`game-missnum-${ans}`, type:'qcm', text:`❓ Missing number : ${seq.join(' ')} (suite arithmétique)`, options:opts, correct:opts.findIndex(o=>+o.label===ans), explain:`Pas de ${d} en ${d} — valeur manquante = ${ans}.`};
+      return {id:`game-missnum-${ans}`, type:'qcm', text:`❓ Missing number : ${txtSeq} (suite arithmétique)`, options:opts, correct:opts.findIndex(o=>+o.label===ans), explain:`Pas de ${d} en ${d} — valeur manquante = ${ans}.`};
     },
     missop(){
       const a=rnd(1,12), b=rnd(1,12); const op=choice(['+','−','×','÷']);
