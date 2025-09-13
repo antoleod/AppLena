@@ -304,12 +304,24 @@ main{position:absolute; inset:var(--h) 0 0 0; display:grid; grid-template-rows: 
 .btn:hover,
 .btn:focus-visible{transform:translateY(-2px) scale(1.05); transition:transform .14s; box-shadow:0 18px 34px rgba(176,111,255,.20)}
 .btn:active{ transform:scale(.98) }
-.btn.p{background:linear-gradient(90deg,var(--p1),var(--p2)); color:#fff}
-.btn.g{background:#fff;color:#1f213a;border:1px solid rgba(167,139,250,.25)}
-.btn.s{background:linear-gradient(90deg,var(--ok),#34d399); color:#021}
-.btn.d{background:linear-gradient(90deg,var(--bad),#f97393); color:#fff}
-/* Bigger back button */
-#btnPrev{font-size:clamp(18px,1.6vw+10px,24px); padding:clamp(14px,1.6vw+10px,22px) clamp(18px,1.8vw+12px,28px);}
+  .btn.p{background:linear-gradient(90deg,var(--p1),var(--p2)); color:#fff}
+  .btn.g{background:#fff;color:#1f213a;border:1px solid rgba(167,139,250,.25)}
+  .btn.s{background:linear-gradient(90deg,var(--ok),#34d399); color:#021}
+  .btn.d{background:linear-gradient(90deg,var(--bad),#f97393); color:#fff}
+  /* Button polish: icon alignment + ripple feedback */
+  .btn, .chip{ position:relative; overflow:hidden }
+  .btn.icon{ display:inline-flex; align-items:center; gap:10px }
+  .btn .ico{ display:inline-grid; place-items:center; width:1.2em; height:1.2em }
+  .ripple{ position:absolute; border-radius:999px; transform:translate(-50%,-50%) scale(0); background:rgba(255,255,255,.5); pointer-events:none; animation:ripple .6s ease-out forwards }
+  @keyframes ripple{ to{ transform:translate(-50%,-50%) scale(6); opacity:0 } }
+  /* Tip banner (Astuce) */
+  #tip.tipbar{ display:flex; align-items:center; gap:10px; background:var(--card); color:var(--ink); border:1px solid rgba(167,139,250,.25); border-radius:999px; padding:8px 10px; font-weight:900 }
+  #tip .tip-ico{ font-size:18px }
+  #tip .tip-action{ appearance:none; border:1px solid rgba(167,139,250,.35); background:#fff; color:#1f213a; border-radius:999px; padding:6px 10px; font-weight:900; cursor:pointer; box-shadow:0 4px 10px rgba(0,0,0,.06) }
+  #tip .tip-action:hover{ transform:translateY(-1px) }
+  #tip .tip-ok{ color:var(--ok) }
+  /* Bigger back button */
+  #btnPrev{font-size:clamp(18px,1.6vw+10px,24px); padding:clamp(14px,1.6vw+10px,22px) clamp(18px,1.8vw+12px,28px);}
 
 /* Magical animated buttons */
 .btn.magic{
@@ -1191,6 +1203,7 @@ body, body *{
   // Sync aria-pressed on fullscreen changes
   document.addEventListener('fullscreenchange', ()=>{
     const fs=$("#fsChip"); if(fs) fs.setAttribute('aria-pressed', String(!!document.fullscreenElement));
+    try{ updateTipBanner(); }catch{}
   });
   $("#soundChip").onclick=()=>{ state.sound=!state.sound; $("#soundState").textContent=state.sound?"ON":"OFF"; $("#soundChip").setAttribute('aria-pressed', String(state.sound)); save(); };
   $("#homeChip").onclick=()=> showHome();
@@ -1221,6 +1234,45 @@ body, body *{
     }
     if(e.key==="Escape" && $("#modal").style.display!=="none"){ hideModal(); }
   });
+
+  /* ----------- Button UX polish ----------- */
+  function attachRipples(){
+    const makeRipple=(e,target)=>{
+      try{
+        const r=target.getBoundingClientRect();
+        const x=(e.touches?e.touches[0].clientX:e.clientX)-r.left;
+        const y=(e.touches?e.touches[0].clientY:e.clientY)-r.top;
+        const s=Math.max(r.width,r.height)*1.2;
+        const span=document.createElement('span');
+        span.className='ripple';
+        span.style.left=x+'px'; span.style.top=y+'px'; span.style.width=s+'px'; span.style.height=s+'px';
+        target.appendChild(span);
+        setTimeout(()=> span.remove(), 650);
+      }catch{}
+    };
+    document.addEventListener('pointerdown', (e)=>{
+      const t=e.target.closest('.btn, .chip');
+      if(!t) return; makeRipple(e,t);
+    });
+    document.addEventListener('touchstart', (e)=>{
+      const t=e.target.closest('.btn, .chip');
+      if(!t) return; makeRipple(e,t);
+    }, {passive:true});
+  }
+
+  /* ----------- Tip banner (Astuce) ----------- */
+  function updateTipBanner(){
+    const tip=document.getElementById('tip'); if(!tip) return;
+    const fsOn=!!document.fullscreenElement;
+    tip.classList.add('tipbar');
+    if(!fsOn){
+      tip.innerHTML = `<span class="tip-ico">💡</span> <span>Astuce : active le mode plein écran pour mieux jouer</span> <button id="tipFullBtn" class="tip-action" aria-label="Activer le plein écran">⛶ Activer</button>`;
+      const btn=document.getElementById('tipFullBtn');
+      if(btn){ btn.onclick=()=>{ try{ document.documentElement.requestFullscreen(); }catch{} } }
+    } else {
+      tip.innerHTML = `<span class="tip-ico">💡</span> <span class="tip-ok">Plein écran activé — bon jeu !</span>`;
+    }
+  }
 
   /* ----------- HUD ----------- */
   const avatarGlyph=()=>`${state.avatar?.hat||''} ${state.avatar?.hair||''} ${state.avatar?.face||'🙂'} ${state.avatar?.outfit||''} ${state.avatar?.acc||''}`.trim();
@@ -3362,6 +3414,17 @@ body, body *{
   renderMenu(); refreshHUD(); showHome();
   // Avatar World vibe: floating stickers
   try{ spawnStickers(); }catch{}
+
+  // Improve buttons and tip banner
+  try{ attachRipples(); }catch{}
+  try{ updateTipBanner(); }catch{}
+
+  // Accessibility labels for stage buttons
+  try{
+    document.getElementById('btnPrev')?.setAttribute('aria-label','Revenir en arrière');
+    document.getElementById('btnSkip')?.setAttribute('aria-label','Passer la question');
+    document.getElementById('btnCheck')?.setAttribute('aria-label','Valider la réponse');
+  }catch{}
 
   if(!state.user?.name || state.user.name==="Invité"){
     showModal("Bienvenue !", `
