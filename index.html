@@ -14,7 +14,8 @@
 :root{
   /* Paleta suavizada (más pastel) */
   --bg:#f7f5ff; --bg2:#eeebff; --card:rgba(255,255,255,.95); --cardHi:rgba(255,255,255,.9);
-  --ink:#2d2252; --muted:#6b5b7a;
+  /* Más contraste en pantallas Samsung/iPad: tinta más oscura y muted más legible */
+  --ink:#231a3d; --muted:#534a6a;
   --p1:#a78bfa; --p2:#fecdd3; --p3:#a7f3d0; --ok:#22c55e; --bad:#ef4444; --warn:#ffe7ad;
   --mint:#b9f5d0; --lila:#d9c7ff; --rose:#ffd1e8; --celeste:#cde7ff; --sun:#ffef9f;
   --radius:22px; --shadow:0 12px 28px rgba(176,111,255,.16);
@@ -22,7 +23,14 @@
   --icon-size:36px;
   --ring:#f9a8d4;
   --bg-speed:26s;
+  /* Timing & easing (anim utility classes) */
+  --dur-fast:140ms; --dur-base:240ms; --dur-slow:360ms;
+  --ease-smooth:cubic-bezier(.2,.8,.2,1);
 }
+/* Improve touch ergonomics across devices */
+button, .chip, .option, .sub { touch-action: manipulation; }
+/* iOS tap highlight reduce */
+*{ -webkit-tap-highlight-color: rgba(0,0,0,0.06); }
 /* Skip link (accessibility) */
 .skip-link{position:absolute; left:8px; top:-48px; background:var(--card); color:var(--ink); border:1px solid rgba(167,139,250,.35); border-radius:999px; padding:8px 12px; box-shadow:0 6px 16px rgba(0,0,0,.06); font-weight:900; z-index:9999; transition: top .2s}
 .skip-link:focus{top:8px}
@@ -46,6 +54,10 @@ body{
   background:linear-gradient(135deg,var(--bg),var(--bg2),#f3e8ff);
   background-size:200% 200%; animation:bg-pan var(--bg-speed) linear infinite;
   overflow:hidden;
+  /* Safe-area support for phones/tablets with notches */
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-left: env(safe-area-inset-left, 0px);
+  padding-right: env(safe-area-inset-right, 0px);
 }
 /* Rainbow overlay inspired by Avatar World */
 body::before{
@@ -61,11 +73,30 @@ body::before{
 @keyframes hue{ to{ filter:hue-rotate(360deg); } }
 @keyframes bg-pan{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
 
+/* === Animation utility classes (reusable) === */
+.fade-in{animation:fadeIn var(--dur-base) var(--ease-smooth) both}
+.slide-up{animation:slideUp var(--dur-base) var(--ease-smooth) both}
+.slide-left{animation:slideLeft2 var(--dur-base) var(--ease-smooth) both}
+.pop{animation:popIn var(--dur-fast) var(--ease-smooth) both}
+.glow{box-shadow:0 0 0 6px rgba(56,189,248,.18), 0 10px 28px rgba(56,189,248,.25) !important}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes slideUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes slideLeft2{from{opacity:0;transform:translateX(12px)}to{opacity:1;transform:translateX(0)}}
+@keyframes popIn{0%{transform:scale(.98)}70%{transform:scale(1.03)}100%{transform:scale(1)}}
+/* Friendly micro-shake for wrong answers */
+.shake-soft{animation:shake .35s}
+
 /* Magical screen transitions */
 .screen-enter{animation:screenIn .28s ease both}
 .screen-leave{animation:screenOut .24s ease both}
 @keyframes screenIn{from{opacity:0; transform:translateY(8px) scale(.98)} to{opacity:1; transform:translateY(0) scale(1)}}
 @keyframes screenOut{from{opacity:1; transform:translateY(0) scale(1)} to{opacity:0; transform:translateY(-6px) scale(.98)}}
+
+/* Cross-fade variant for view swaps (gentler) */
+.xfade-enter{animation:xfIn .28s ease both}
+.xfade-leave{animation:xfOut .24s ease both}
+@keyframes xfIn{from{opacity:0; transform:translateY(6px)} to{opacity:1; transform:translateY(0)}}
+@keyframes xfOut{from{opacity:1} to{opacity:0}}
 
 /* ===== Header pill bar (glass + rainbow) ===== */
 header{height:var(--h); display:flex; align-items:center; justify-content:center; padding:10px}
@@ -74,6 +105,8 @@ header{height:var(--h); display:flex; align-items:center; justify-content:center
   border-radius:24px; background:linear-gradient(180deg, rgba(255,255,255,.96), rgba(255,255,255,.86));
   box-shadow:var(--shadow); backdrop-filter:saturate(1.3) blur(8px);
   overflow-x:auto; scroll-snap-type:x proximity;
+  padding-left: calc(14px + env(safe-area-inset-left, 0px));
+  padding-right: calc(14px + env(safe-area-inset-right, 0px));
 }
 #brand{display:flex; align-items:center; gap:12px}
 #brand .logo{
@@ -101,7 +134,7 @@ header{height:var(--h); display:flex; align-items:center; justify-content:center
              linear-gradient(135deg,#f0abfc,#fde68a,#a7f3d0,#bfdbfe,#c4b5fd) border-box;
   background-size:100% 100%,240% 240%; animation: rainbow 12s linear infinite;
   color:#1f213a; border-radius:18px; padding:6px 10px; font-weight:800; display:inline-flex; align-items:center; gap:6px; cursor:pointer; user-select:none; font-size:14px;
-  box-shadow:0 6px 14px rgba(0,0,0,.06);
+  box-shadow:0 6px 14px rgba(0,0,0,.06), inset 0 1px 0 rgba(255,255,255,.6);
 }
 @keyframes rainbow{0%{background-position:0% 0%,0% 0%}100%{background-position:0% 0%,300% 300%}}
 .chip.ghost{background:var(--card); color:var(--ink); border:1px solid rgba(167,139,250,.25)}
@@ -112,9 +145,9 @@ header{height:var(--h); display:flex; align-items:center; justify-content:center
 main{position:absolute; inset:var(--h) 0 0 0; display:grid; grid-template-rows: 1fr}
 #home{overflow:auto; padding:24px}
 #homeInner{width:min(1600px, 98vw); margin:0 auto}
-#grid{display:grid; grid-template-columns: repeat(3, minmax(220px,1fr)); gap:14px; margin-top:14px}
-@media (max-width: 980px){ #grid{grid-template-columns:repeat(2, minmax(220px,1fr))} }
-@media (max-width: 640px){ #grid{grid-template-columns:1fr} }
+#grid{display:grid; grid-template-columns: repeat(auto-fit, minmax(220px,1fr)); gap:16px; margin-top:14px; align-items:stretch}
+@media (max-width: 980px){ #grid{grid-template-columns:repeat(auto-fit, minmax(200px,1fr))} }
+@media (max-width: 640px){ #grid{grid-template-columns:repeat(auto-fit, minmax(180px,1fr))} }
 
 /* ===== Menu cards ===== */
 .card{
@@ -123,11 +156,16 @@ main{position:absolute; inset:var(--h) 0 0 0; display:grid; grid-template-rows: 
   background: linear-gradient(var(--card), var(--card)) padding-box,
              linear-gradient(135deg,rgba(254,205,211,.9),rgba(255,231,173,.9),rgba(167,243,208,.9),rgba(191,219,254,.9),rgba(196,181,253,.9)) border-box;
   background-size:100% 100%,240% 240%; animation: rainbow 12s linear infinite;
-  border-radius: var(--radius); padding:18px; box-shadow:0 10px 24px rgba(0,0,0,.10);
-  transition: transform .12s, box-shadow .12s, filter .12s;
+  border-radius: var(--radius); padding:18px; box-shadow:0 16px 34px rgba(0,0,0,.12), inset 0 1px 0 rgba(255,255,255,.6);
+  transition: transform .12s, box-shadow .12s, filter .12s, opacity .2s;
   display:flex; flex-direction:column; gap:10px;
+  height:100%; min-height:240px;
 }
 .card:hover{ transform: translateY(-4px) scale(1.02); box-shadow:0 14px 30px rgba(0,0,0,.14); filter:saturate(1.05) }
+/* Cards reveal: slide-up + fade-in */
+.card{ opacity:1; }
+.card.reveal{ animation:cardIn .45s ease both; }
+@keyframes cardIn{ from{opacity:0; transform:translateY(10px)} to{opacity:1; transform:translateY(0)} }
 .cardHeader{display:flex; gap:12px; align-items:center}
 .icon{
   --halo: radial-gradient(closest-side, rgba(236,72,153,.22), transparent);
@@ -157,14 +195,16 @@ main{position:absolute; inset:var(--h) 0 0 0; display:grid; grid-template-rows: 
 .stars .off{opacity:.35}
 
 .card .bar{height:6px; width:36%; border-radius:6px; background:linear-gradient(90deg,var(--p1),var(--p2),var(--p3))}
-.subs{display:grid; grid-template-columns:repeat(2,minmax(120px,1fr)); gap:8px; margin-top:6px}
+.subs{display:grid; grid-template-columns:repeat(auto-fit,minmax(120px,1fr)); gap:8px; margin-top:auto}
 .sub{
   border:1px solid transparent; position:relative; overflow:hidden;
   background: linear-gradient(#fff,#fff) padding-box,
              linear-gradient(135deg,rgba(254,205,211,.9),rgba(255,231,173,.9),rgba(167,243,208,.9),rgba(191,219,254,.9),rgba(196,181,253,.9)) border-box;
   background-size:100% 100%,240% 240%; animation: rainbow 12s linear infinite;
-  color:transparent; border-radius:14px; padding:10px 12px; font-weight:900; cursor:pointer; text-align:center;
+  color:transparent; border-radius:14px; padding:12px 14px; font-weight:900; cursor:pointer; text-align:center;
   box-shadow:0 6px 14px rgba(0,0,0,.06); transition: transform .08s;
+  display:flex; align-items:center; justify-content:center;
+  min-height:52px; font-size:clamp(14px, 1.1vw + 10px, 18px);
 }
 .sub > span{ background:linear-gradient(90deg,#ec4899,#f59e0b,#10b981,#3b82f6,#8b5cf6,#ec4899); background-size:300% 100%; -webkit-background-clip:text; background-clip:text; color:transparent; animation:text-rainbow 10s linear infinite }
 .sub .stars{position:absolute; left:8px; top:6px; font-size:10px}
@@ -194,9 +234,10 @@ main{position:absolute; inset:var(--h) 0 0 0; display:grid; grid-template-rows: 
   position:relative; border:1px solid rgba(167,139,250,.25);
   background: linear-gradient(180deg,#fff,#fdf2f8); color:#1f213a;
   border-radius:16px; padding:18px; min-height:88px; display:flex; align-items:center; justify-content:center; gap:8px;
-  box-shadow:0 10px 20px rgba(0,0,0,.06); cursor:pointer; transition:transform .08s;
+  box-shadow:0 10px 20px rgba(0,0,0,.06); cursor:pointer; transition:transform .08s, box-shadow .16s;
   font-size:clamp(16px, 1.2vw + 10px, 22px); font-weight:900; font-family:"Fredoka", system-ui;
 }
+.option:hover{ transform:translateY(-2px) scale(1.02); box-shadow:0 16px 28px rgba(0,0,0,.10) }
 .option:active{transform:scale(.98)}
 .option.correct{outline:3px solid var(--ok); outline-offset: 2px; animation:popbtn .22s ease; box-shadow: 0 0 0 6px rgba(34,197,94,.18), 0 8px 24px rgba(16,185,129,.25)}
 .option.wrong{outline:3px solid var(--bad); outline-offset: 2px; animation:shake .35s}
@@ -240,16 +281,28 @@ main{position:absolute; inset:var(--h) 0 0 0; display:grid; grid-template-rows: 
 .fixed{background:#f3f4f6 !important; color:#6b7280}
 
 /* Footer/Buttons */
-#stageBottom{padding:10px 12px; display:flex; justify-content:space-between; align-items:center; gap:10px; background: var(--card); color: var(--ink); border-top:1px solid rgba(167,139,250,.25)}
-.btn{appearance:none;border:1px solid transparent;border-radius:16px;padding:clamp(12px,1.2vw+8px,18px) clamp(16px,1.6vw+10px,24px);font-weight:900;cursor:pointer;box-shadow:0 8px 18px rgba(0,0,0,.06); font-size:clamp(16px,1.2vw+10px,22px)}
+#stageBottom{padding:10px 12px; display:flex; justify-content:space-between; align-items:center; gap:10px; background: var(--card); color: var(--ink); border-top:1px solid rgba(167,139,250,.25); padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px))}
+.btn{appearance:none;border:1px solid transparent;border-radius:16px;padding:clamp(12px,1.2vw+8px,18px) clamp(16px,1.6vw+10px,24px);font-weight:900;cursor:pointer;box-shadow:0 8px 18px rgba(0,0,0,.06); font-size:clamp(16px,1.2vw+10px,22px); min-height:44px; min-width:44px}
 .btn:hover,
-.btn:focus-visible{transform:translateY(-2px) scale(1.02); transition:transform .14s; box-shadow:0 12px 26px rgba(0,0,0,.10)}
+.btn:focus-visible{transform:translateY(-2px) scale(1.05); transition:transform .14s; box-shadow:0 18px 34px rgba(176,111,255,.20)}
+.btn:active{ transform:scale(.98) }
 .btn.p{background:linear-gradient(90deg,var(--p1),var(--p2)); color:#fff}
 .btn.g{background:#fff;color:#1f213a;border:1px solid rgba(167,139,250,.25)}
 .btn.s{background:linear-gradient(90deg,var(--ok),#34d399); color:#021}
 .btn.d{background:linear-gradient(90deg,var(--bad),#f97393); color:#fff}
 /* Bigger back button */
 #btnPrev{font-size:clamp(18px,1.6vw+10px,24px); padding:clamp(14px,1.6vw+10px,22px) clamp(18px,1.8vw+12px,28px);}
+
+/* Magical animated buttons */
+.btn.magic{
+  border-radius:24px;
+  font-size:clamp(18px,1.8vw+10px,26px);
+  padding:clamp(16px,2vw+12px,26px) clamp(22px,2.4vw+14px,36px);
+  background-size:300% 300%;
+  animation: rainbow 10s linear infinite;
+}
+.btn.magic .uni-wrap{display:inline-block; animation: walk 2s ease-in-out infinite}
+@keyframes walk{0%{transform:translateY(0)}50%{transform:translateY(-3px)}100%{transform:translateY(0)}}
 
 /* Tales */
 .tale{font-size:20px; line-height:1.8; text-align:left}
@@ -278,7 +331,11 @@ main{position:absolute; inset:var(--h) 0 0 0; display:grid; grid-template-rows: 
 #modal{position:fixed; inset:0; background:rgba(15,23,42,.38); display:none; place-items:center; z-index:60; animation:fade .15s}
 #modal .box{background:#fff; color:#1f213a; border-radius:18px; width:min(720px,92vw); padding:18px; box-shadow:0 24px 60px rgba(0,0,0,.25); animation:pop .2s; text-align:center}
 #modal h3{margin:8px 0 6px; font-size:18px; font-weight:900; font-family:"Fredoka", system-ui}
+/* Larger, touch-friendly modal buttons */
+#modal .box .btn{ font-size:clamp(18px,1.6vw+10px,24px); padding:clamp(16px,1.8vw+12px,24px) clamp(22px,2.2vw+14px,32px); border-radius:20px; }
 @keyframes fade{from{opacity:0}to{opacity:1}}@keyframes pop{from{transform:scale(.92)}to{transform:scale(1)}}
+#modal.closing{ animation: fadeOut .18s ease both }
+@keyframes fadeOut{ to{ opacity:0 } }
 #fx{position:fixed; inset:0; pointer-events:none; z-index:50}
 
 /* Win popup (non blocking) */
@@ -289,6 +346,12 @@ main{position:absolute; inset:var(--h) 0 0 0; display:grid; grid-template-rows: 
 
 /* Floating stickers */
 .sticker{position:fixed; z-index:1; font-size:22px; opacity:.25; filter:drop-shadow(0 2px 4px rgba(0,0,0,.1)); pointer-events:none; animation:floatY 6s ease-in-out infinite}
+/* Twinkle effect for stars */
+.sticker.tw{ animation: floatY 6s ease-in-out infinite, twinkle 2.4s ease-in-out infinite; }
+@keyframes twinkle{ 0%,100%{ filter:drop-shadow(0 0 0 rgba(255,255,255,0)); opacity:.22 } 50%{ filter:drop-shadow(0 0 12px rgba(255,255,255,.6)); opacity:.45 } }
+/* Slow horizontal drift for clouds */
+.sticker.cloud{ animation: floatY 7s ease-in-out infinite, drift 22s linear infinite alternate; }
+@keyframes drift{ from{ transform:translateX(-20px)} to{ transform:translateX(20px) } }
 @keyframes floatY{0%{transform:translateY(0)}50%{transform:translateY(-10px)}100%{transform:translateY(0)}}
 
 /* Sparkles (click) + scrollbar */
@@ -308,6 +371,14 @@ main{position:absolute; inset:var(--h) 0 0 0; display:grid; grid-template-rows: 
   html:not([data-party="on"]) .cardMem .back{ transition:none }
   #pilot{ animation:none }
   #pilotHalo{ animation:none }
+  /* Disable utility animations when reduced motion */
+  .fade-in,.slide-up,.slide-left,.pop{ animation:none !important }
+}
+
+/* High contrast preference: subtly increase borders/shadows */
+@media (prefers-contrast: more){
+  .card, .flash, .option, .sub, #bar, #stageTop, #stageBottom { border-color: rgba(0,0,0,.25) !important; box-shadow: 0 12px 28px rgba(0,0,0,.18) !important; }
+  .chip, .btn { box-shadow: 0 10px 24px rgba(0,0,0,.20) !important; }
 }
 
 /* Accesibilidad: estilos de enfoque visibles para teclado */
@@ -330,6 +401,23 @@ button:focus-visible{
 .toast.out{animation:toastOut .3s forwards}
 @keyframes toastIn{to{opacity:1; transform:translateX(-50%) translateY(0)}}
 @keyframes toastOut{to{opacity:0; transform:translateX(-50%) translateY(-10px)}}
+/* Rainbow ribbon on level-up */
+#rainbow{ position:fixed; left:0; right:0; top:calc(var(--h) + 6px); height:8px; border-radius:999px; background:linear-gradient(90deg,#ec4899,#f59e0b,#10b981,#3b82f6,#8b5cf6); box-shadow:0 8px 24px rgba(0,0,0,.18); opacity:0; pointer-events:none; z-index:64 }
+#rainbow.show{ animation: rbIn 1.2s ease forwards }
+@keyframes rbIn{ 0%{opacity:0; transform:translateY(-6px)} 35%{opacity:1; transform:translateY(0)} 100%{opacity:0} }
+
+/* Pilot side panel (advanced levels) */
+#pilotPanel{ position:fixed; right:12px; top:calc(var(--h) + 10px); width:min(360px, 92vw); max-height:calc(100vh - var(--h) - 24px); overflow:auto; background:var(--card); color:var(--ink); border:1px solid rgba(167,139,250,.25); border-radius:16px; box-shadow:0 18px 44px rgba(0,0,0,.18); padding:14px; z-index:66; opacity:0; transform:translateX(14px); }
+#pilotPanel.show{ animation: slideLeft .28s ease both }
+@keyframes slideLeft{ from{ opacity:0; transform:translateX(16px)} to{ opacity:1; transform:translateX(0)} }
+#pilotPanel h4{ margin:4px 0 8px; font-family:"Fredoka"; font-size:clamp(16px,1.2vw+12px,22px) }
+#pilotPanel .pRow{ display:flex; align-items:center; gap:8px; font-weight:900 }
+#pilotPanel .pHint{ font-size:13px; color:var(--muted); margin-top:6px }
+#pilotPanel .pBtns{ display:flex; gap:8px; flex-wrap:wrap; margin-top:8px }
+
+/* Correct halo pop */
+.haloPop{ position:absolute; inset:-6px; border-radius:18px; box-shadow:0 0 0 6px rgba(56,189,248,.20), 0 0 0 12px rgba(56,189,248,.10); pointer-events:none; animation: haloBurst .6s ease forwards }
+@keyframes haloBurst{ 0%{ opacity:0; transform:scale(.9)} 50%{ opacity:1; transform:scale(1.06)} 100%{ opacity:0; transform:scale(1.1) } }
 /* Pilot (guide) overlay */
 #pilot{position:absolute; left:50%; top:8px; transform:translateX(-50%) translateY(8px); background:var(--card); color:var(--ink); border:1px solid rgba(167,139,250,.25); border-radius:16px; padding:10px 12px; box-shadow:0 12px 28px rgba(0,0,0,.10); font-weight:900; z-index:45; opacity:0; animation:pilotIn .25s ease forwards}
 #pilot small{font-weight:700; color:var(--muted)}
@@ -385,8 +473,31 @@ body, body *{
   .prompt{font-size:22px}
   .option{min-height:72px; font-size:16px}
 }
+/* Extra breakpoints for Samsung and iPad 11" */
+@media (max-width:430px){
+  #grid{ grid-template-columns:repeat(auto-fit, minmax(160px, 1fr)) }
+  #bar{ gap:6px }
+  .chip{ font-size:13px; padding:6px 8px }
+}
+@media (min-width:600px) and (max-width:767px){ #grid{ grid-template-columns: repeat(auto-fit, minmax(200px,1fr)) } }
+@media (min-width:768px) and (max-width:833px){ #grid{ grid-template-columns: repeat(auto-fit, minmax(220px,1fr)) } }
+@media (min-width:834px) and (max-width:1023px){ #grid{ grid-template-columns: repeat(auto-fit, minmax(240px,1fr)) } }
+@media (min-width:1024px) and (max-width:1199px){ #grid{ grid-template-columns: repeat(auto-fit, minmax(260px,1fr)) } }
+@media (min-width:1200px){ #grid{ grid-template-columns: repeat(auto-fit, minmax(280px,1fr)) } }
 @media (max-width:680px){
   #drawWrap{ grid-template-columns:1fr; }
+}
+/* Landscape small screens (e.g., some Samsung phones horizontal) */
+@media (orientation: landscape) and (max-height: 480px){
+  :root{ --h:56px }
+  .prompt{ font-size: clamp(18px, 1.6vw + 10px, 24px) }
+  .option{ min-height:60px; font-size: clamp(14px, 1vw + 9px, 18px) }
+  #stageBottom{ position: sticky; bottom: 0 }
+}
+/* iPad 11" tuning (portrait/landscape) */
+@media (min-width: 810px) and (max-width: 1200px){
+  #grid{ grid-template-columns: repeat(auto-fit, minmax(240px,1fr)) }
+  .option{ font-size: clamp(18px, 1vw + 14px, 24px) }
 }
 </style>
 </head>
@@ -402,7 +513,7 @@ body, body *{
       </div>
     </div>
     <div id="controls">
-      <div id="coinChip" class="chip">🦄💰 <span id="coins">0</span></div>
+      <div id="coinChip" class="chip" aria-live="polite">🦄💰 <span id="coins">0</span></div>
       <div class="chip badge">Niv. <span id="lvl">1</span></div>
       <div id="soundChip" class="chip">🔊 <b id="soundState">ON</b></div>
       <!-- themeChip et partyChip fusionnés dans 🎛️ Modes -->
@@ -421,7 +532,6 @@ body, body *{
   <!-- Home menu grid -->
   <section id="home">
     <div id="homeInner">
-      <div class="small">Choisis un thème.</div>
       <div id="grid"></div>
     </div>
   </section>
@@ -437,9 +547,9 @@ body, body *{
     <div id="stageBottom">
       <div class="small" id="tip">Astuce : active le mode plein écran pour mieux jouer</div>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <button id="btnPrev" class="btn g"><span class="uni-wrap"><span class="uni-a">🦄</span><span class="uni-b">😉</span></span> 🔙 Retour</button>
-        <button id="btnSkip" class="btn g">⏭️ Passer</button>
-        <button id="btnCheck" class="btn p">✅ Valider</button>
+        <button id="btnPrev" class="btn g magic"><span class="uni-wrap"><span class="uni-a">🦄</span><span class="uni-b">😉</span></span> 🔙 Retour</button>
+        <button id="btnSkip" class="btn g magic">⏭️ Passer</button>
+        <button id="btnCheck" class="btn p magic">✅ Valider</button>
       </div>
     </div>
   </section>
@@ -451,11 +561,12 @@ body, body *{
     <h3 id="modalTitle">Titre</h3>
     <div id="modalBody" aria-live="polite">…</div>
     <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;justify-content:center">
-      <button id="modalClose" class="btn s">OK</button>
+      <button id="modalClose" class="btn s">OK, 🦄😉</button>
     </div>
   </div>
 </div>
 
+<div id="rainbow" aria-hidden="true"></div>
 <canvas id="fx"></canvas>
 
 <script>
@@ -647,6 +758,52 @@ body, body *{
     base.push(`</svg>`);
     return base.join('');
   }
+  // Soustraction posée (avec retenue) — SVG didactique
+  function posedSubSVG(a,b){
+    const da=Math.floor(a/10), ua=a%10; const db=Math.floor(b/10), ub=b%10;
+    const borrow = ua<ub ? 1 : 0; const da2 = da-borrow; const ua2 = borrow? ua+10 : ua;
+    const W=720,H=220; const x0=240,y0=70, cell=56, pad=10;
+    function box(x,y,txt,hl){
+      const f=hl? '#fef3c7':'#fff'; const s=hl? '#f59e0b':'#cbd5e1';
+      return `<rect x='${x}' y='${y}' width='${cell}' height='${cell}' rx='10' fill='${f}' stroke='${s}'/>
+              <text x='${x+cell/2}' y='${y+cell/2+8}' text-anchor='middle' font-weight='900' font-size='24' fill='#111'>${txt}</text>`;
+    }
+    const Dcol = x0, Ucol = x0+cell+pad;
+    const parts=[];
+    // en-têtes D/U
+    parts.push(`<text x='${Dcol+cell/2}' y='${y0-16}' text-anchor='middle' font-weight='900' fill='#334155'>D</text>`);
+    parts.push(`<text x='${Ucol+cell/2}' y='${y0-16}' text-anchor='middle' font-weight='900' fill='#334155'>U</text>`);
+    // première ligne (minuend)
+    parts.push(box(Dcol,y0, da2<0?0:da2, borrow?1:0));
+    parts.push(box(Ucol,y0, ua2, borrow?1:0));
+    // flèche de retenue
+    if(borrow){
+      const x1=Ucol+cell/2, y1=y0-6, x2=Dcol+cell/2, y2=y0;
+      parts.push(`<path d='M ${x2} ${y2} C ${x2} ${y2-36}, ${x1} ${y2-36}, ${x1} ${y1}' stroke='#f59e0b' stroke-width='3' fill='none' marker-end='url(#arrow)'/>`);
+      parts.push(`<text x='${x1+16}' y='${y1-8}' fill='#f59e0b' font-weight='800'>+10</text>`);
+    }
+    // deuxième ligne (subtrahend)
+    const y1=y0+cell+8;
+    parts.push(box(Dcol,y1, db, 0));
+    parts.push(box(Ucol,y1, ub, 0));
+    parts.push(`<text x='${Dcol-28}' y='${y1+cell/2+10}' font-size='28' font-weight='900' fill='#334155'>−</text>`);
+    // ligne résultat
+    const y2=y1+cell+16;
+    const r=a-b; const rd=Math.floor(r/10), ru=r%10;
+    parts.push(box(Dcol,y2, rd, 0));
+    parts.push(box(Ucol,y2, ru, 0));
+    // barre de résultat
+    parts.push(`<rect x='${Dcol-8}' y='${y2-10}' width='${cell*2+pad+16}' height='4' rx='2' fill='#94a3b8'/>`);
+    // defs
+    const defs = `<defs><marker id='arrow' markerWidth='14' markerHeight='14' refX='10' refY='6' orient='auto-start-reverse'>
+      <path d='M 0 0 L 12 6 L 0 12 z' fill='#f59e0b'/></marker></defs>`;
+    return `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 ${W} ${H}' width='${W}' height='${H}'>
+      <rect x='0' y='0' width='${W}' height='${H}' rx='16' fill='url(#g2)'/>
+      <defs><linearGradient id='g2' x1='0' x2='1'><stop offset='0' stop-color='#f8fafc'/><stop offset='1' stop-color='#f3e8ff'/></linearGradient></defs>
+      ${defs}
+      ${parts.join('')}
+    </svg>`;
+  }
   // Simple SVG generator for Tower of Hanoi (illustrative)
   function hanoiSVG(n=3){
     n=Math.max(3,Math.min(8,n));
@@ -677,6 +834,47 @@ body, body *{
   };
   const clamp=(x,a,b)=>Math.min(b,Math.max(a,x));
   const strip=s=>(s||"").normalize("NFD").replace(/\p{Diacritic}/gu,"").replace(/\s+/g," ").trim().toLowerCase();
+  // Simple TTS helper (fr-FR)
+  const tts=(()=>{
+    let cachedVoice=null; let ready=false; let pending=[];
+    function pickVoice(){
+      try{
+        const vs = (window.speechSynthesis && window.speechSynthesis.getVoices)? speechSynthesis.getVoices(): [];
+        if(!vs || !vs.length) return cachedVoice;
+        const fr = vs.find(v=>/fr\b/i.test(v.lang));
+        cachedVoice = fr || vs.find(v=>v.lang?.startsWith('fr')) || vs.find(v=>v.lang?.startsWith('en')) || vs[0] || null;
+        return cachedVoice;
+      }catch{ return cachedVoice }
+    }
+    try{
+      if('speechSynthesis' in window){
+        window.speechSynthesis.onvoiceschanged = ()=>{ ready=true; pickVoice(); const q=[...pending]; pending.length=0; q.forEach(t=> speakNow(t)); };
+        // Trigger load
+        setTimeout(()=>{ pickVoice(); ready=true; }, 300);
+      }
+    }catch{}
+    function speakNow(text){
+      try{
+        if(!window.speechSynthesis || !text || !state.sound) return;
+        const u=new SpeechSynthesisUtterance(text); u.lang='fr-FR'; u.rate=0.95; u.pitch=1.0; const v=pickVoice(); if(v) u.voice=v; speechSynthesis.cancel(); speechSynthesis.speak(u);
+      }catch{}
+    }
+    return {
+      speak(text){
+        try{
+          if(!window.speechSynthesis || !text || !state.sound) return;
+          // Ensure audio context resumed to avoid mobile blocks
+          try{ audioCtxResume && audioCtxResume(); }catch{}
+          if(!ready && (!speechSynthesis.getVoices || speechSynthesis.getVoices().length===0)){
+            pending.push(text);
+          } else {
+            speakNow(text);
+          }
+        }catch{}
+      },
+      stop(){ try{ speechSynthesis?.cancel?.(); }catch{} }
+    }
+  })();
   // Aide TDAH: expliquer en dizaines et unités (court + emojis)
   const tu=n=>[Math.floor(n/10), n%10];
   const fmtTU=n=>{const [d,u]=tu(n); return `${n} = ${d} diz. + ${u} unit.`};
@@ -710,6 +908,7 @@ body, body *{
 
   const STORE="lena_menu_v3";
   const ADHD_MODE=true; // Mode douceur: feedback gentil, pas de pénalité, indices brefs
+  const ENABLE_MOVE_BREAKS=false; // Désactive les pauses mouvement demandées
   const state={
     level:1,totalLevels:6,coins:0,sound:true, theme:null, party:false,
     user:{name:"Invité"},
@@ -721,7 +920,8 @@ body, body *{
     block:{correct:0,wrong:0},
     streak:0,
     blockStartCoins:0,
-    avatar:{hat:null, acc:null, bg:null, face:'🙂'}
+    avatar:{hat:null, acc:null, bg:null, face:'🙂'},
+    currentWrong:0
   };
   let navStack=["home"]; let skipPush=false;
   const save=()=>localStorage.setItem(STORE, JSON.stringify({...state,asked:[...state.asked]}));
@@ -743,36 +943,72 @@ body, body *{
     }
   })();
 
-  /* ----------- confetti ----------- */
+  /* ----------- haptics (gentle vibration on mobile) ----------- */
+  function haptic(kind){
+    try{
+      if(!('vibrate' in navigator)) return;
+      if(kind==='ok') navigator.vibrate([8, 28, 8]);
+      else if(kind==='no') navigator.vibrate([12, 24, 12]);
+      else navigator.vibrate(10);
+    }catch{}
+  }
+
+  /* ----------- celebration (new pastel burst) ----------- */
   const fx=(()=>{
-    const c=$("#fx"), ctx=c.getContext("2d"); let W,H,parts=[],raf;
+    // Lightweight canvas burst with hearts/stars that fade out
+    const c=$("#fx"), ctx=c.getContext("2d"); let W=0,H=0,parts=[],raf,life=0;
+    const palette=["#ffd1e8","#d9c7ff","#b9f5d0","#cde7ff","#ffef9f","#f9a8d4","#a78bfa"]; // pastels
     const resize=()=>{c.width=W=innerWidth; c.height=H=innerHeight}; addEventListener("resize",resize); resize();
-    function star(ctx, x, y, r, p=5){ ctx.beginPath(); for(let i=0;i<2*p;i++){ const ang=i*Math.PI/p; const rr=i%2? r*.45 : r; ctx.lineTo(x+rr*Math.cos(ang), y+rr*Math.sin(ang)); } ctx.closePath(); }
-    const palette=["#8b5cf6","#f472b6","#22d3ee","#f59e0b","#22c55e","#ffd1e8","#cde7ff","#b9f5d0","#ffef9f"];
-    const spawn=(n=140)=>{
-      for(let i=0;i<n;i++){
-        parts.push({shape:Math.random()<.5?'rect':'star',x:Math.random()*W,y:-20,r:rnd(5,10),c:choice(palette),vx:(Math.random()-.5)*1.6,vy:rnd(1.8,3.2),a:Math.random()*Math.PI, va:(Math.random()-.5)*0.2});
-      }
-      loop(); setTimeout(()=>{parts=[]; cancelAnimationFrame(raf);},1600);
-    };
-    const loop=()=>{cancelAnimationFrame(raf); raf=requestAnimationFrame(loop);
+    function drawHeart(x,y,s,rot,col,alpha){
+      ctx.save(); ctx.translate(x,y); ctx.rotate(rot); ctx.scale(s,s); ctx.globalAlpha=alpha; ctx.fillStyle=col;
+      ctx.beginPath(); ctx.moveTo(0,-6); ctx.bezierCurveTo(6,-12, 16,-6, 0,10); ctx.bezierCurveTo(-16,-6, -6,-12, 0,-6); ctx.fill(); ctx.restore();
+    }
+    function drawStar(x,y,r,rot,col,alpha){
+      ctx.save(); ctx.translate(x,y); ctx.rotate(rot); ctx.globalAlpha=alpha; ctx.fillStyle=col;
+      ctx.beginPath(); for(let i=0;i<10;i++){ const a=i*Math.PI/5; const rr=i%2? r*0.5:r; ctx.lineTo(Math.cos(a)*rr, Math.sin(a)*rr);} ctx.closePath(); ctx.fill(); ctx.restore();
+    }
+    function loop(){ cancelAnimationFrame(raf); raf=requestAnimationFrame(loop);
       ctx.clearRect(0,0,W,H);
-      parts.forEach(p=>{p.x+=p.vx; p.y+=p.vy; p.a+=p.va; ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.a);
-        ctx.fillStyle=p.c; if(p.shape==='rect'){ ctx.fillRect(-p.r,-p.r,p.r*2,p.r*2); } else { star(ctx,0,0,p.r,5); ctx.fill(); } ctx.restore();});
-      parts=parts.filter(p=>p.y<H+40);
-    };
+      parts.forEach(p=>{ p.x+=p.vx; p.y+=p.vy; p.vy+=0.012; p.rot+=p.vr; p.age+=1; });
+      parts=parts.filter(p=>p.age<p.maxAge);
+      const t=parts.length? parts[0].age : 0; life=t;
+      parts.forEach(p=>{
+        const a=Math.max(0, 1 - (p.age/p.maxAge));
+        if(p.kind==='heart') drawHeart(p.x,p.y,p.s, p.rot, p.c, a);
+        else drawStar(p.x,p.y,p.r, p.rot, p.c, a);
+      });
+      if(parts.length===0){ ctx.clearRect(0,0,W,H); }
+    }
+    function spawn(n=60){
+      parts.length=0; life=0;
+      const cx=innerWidth/2, cy=Math.max(100, innerHeight*0.25);
+      for(let i=0;i<n;i++){
+        const kind = Math.random()<0.55?'heart':'star';
+        const c=choice(palette); const ang=Math.random()*Math.PI*2; const sp=1.2+Math.random()*1.8;
+        parts.push({
+          kind,
+          x:cx + Math.cos(ang)*8,
+          y:cy + Math.sin(ang)*4,
+          vx:Math.cos(ang)*sp,
+          vy:Math.sin(ang)*sp*0.6 - 0.2,
+          rot:Math.random()*Math.PI,
+          vr:(Math.random()-.5)*0.2,
+          s:0.5+Math.random()*0.9,
+          r:6+Math.random()*10,
+          c,
+          age:0,
+          maxAge: 60+Math.floor(Math.random()*30)
+        });
+      }
+      loop();
+      // Automatic cleanup after ~2 seconds
+      setTimeout(()=>{ parts.length=0; cancelAnimationFrame(raf); ctx.clearRect(0,0,W,H); }, 2200);
+    }
     return {spawn};
   })();
 
-  // Win popup lightweight (non blocking)
-  function showWinPopup(msg='Bravo ! +1 🦄💰'){
-    try{
-      const old=document.getElementById('winPop'); if(old) old.remove();
-      const el=document.createElement('div'); el.id='winPop'; el.textContent=msg; document.body.appendChild(el);
-      setTimeout(()=>{ el.classList.add('out'); }, 900);
-      setTimeout(()=>{ el.remove(); }, 1200);
-    }catch{}
-  }
+  // Win popup disabled (no animation after each achievement)
+  function showWinPopup(msg='Bravo ! +1 🦄💰'){ return; }
 
   /* ----------- sparkles on click ----------- */
   function sparkleAt(x,y,count=6){
@@ -783,10 +1019,48 @@ body, body *{
     }
   }
   document.addEventListener("pointerdown",e=>{
-    if(e.target.closest(".sub,.card,.option,.chip")) sparkleAt(e.clientX,e.clientY,8);
+    if(e.target.closest(".sub,.card,.option,.chip")){
+      sparkleAt(e.clientX,e.clientY,8);
+      haptic('tap');
+    }
+  });
+  // Safety: delegate critical demo buttons in case of reconciling content
+  document.addEventListener("click", (ev)=>{
+    const t=ev.target;
+    if(t && t.id==="soustrSpeak" && !t.onclick){ try{ audioCtxResume && audioCtxResume(); }catch{}; const txt = "Soustraction posée : explication"; try{ tts.speak(txt); }catch{} }
+    if(t && t.id==="soustrStart" && !t.onclick){ try{ nextQuestion(); }catch{} }
   });
   // Asegura que el audio funcione tras la primera interacción del usuario
   addEventListener("pointerdown", ()=>{ try{ audioCtxResume && audioCtxResume(); }catch{} }, {once:true});
+
+  /* ----------- Floating stickers (hearts, stars, clouds) ----------- */
+  function spawnStickers(){
+    try{
+      if(document.querySelector('.sticker')) return; // already spawned
+      const EMO=['⭐','✨','💖','🌈','☁️','🌟','💫','🩷','🩵','🪄'];
+      const n = Math.min(14, Math.max(6, Math.round((innerWidth*innerHeight)/140000)));
+      for(let i=0;i<n;i++){
+        const el=document.createElement('div'); el.className='sticker'; const emo=choice(EMO); el.textContent=emo;
+        const s = 18 + Math.random()*18; el.style.fontSize = s+'px';
+        el.style.left = Math.round(Math.random()*100)+'vw';
+        el.style.top  = Math.round(Math.random()*100)+'vh';
+        el.style.opacity = (0.18 + Math.random()*0.18).toFixed(2);
+        el.style.animationDuration = (5 + Math.random()*4)+'s';
+        if(['⭐','✨','🌟','💫'].includes(emo)) el.classList.add('tw');
+        if(emo==='☁️') el.classList.add('cloud');
+        document.body.appendChild(el);
+      }
+      // gentle reposition loop
+      setInterval(()=>{
+        document.querySelectorAll('.sticker').forEach(el=>{
+          if(Math.random()<0.25){
+            el.style.left = Math.round(Math.random()*100)+'vw';
+            el.style.top  = Math.round(Math.random()*100)+'vh';
+          }
+        });
+      }, 5000);
+    }catch{}
+  }
 
   /* ----------- Pilot (guide) ----------- */
   let pilotTimers=[];
@@ -810,24 +1084,45 @@ body, body *{
       halo.style.height=(r.height + 16)+'px';
     }catch{}
   }
-  function pilotStart(q, kind){
+  function pilotStart(q, kind, force){
     pilotStop();
-    if((state.level||1) < 6) return; // Pilot for advanced levels
-    const box=document.createElement('div'); box.id='pilot'; box.innerHTML=`<div class="step">${state.avatar?.face||'🙂'} <span>${guideStepText(q)}</span></div><div class="small">Le guide licorne peut donner un indice après un moment…</div>`;
-    const host=document.getElementById('content'); if(host){ host.appendChild(box); }
-    // Progressive hints
-    const hintText = q?.meta?.hint || q?.explain || '';
-    if(hintText){
-      pilotTimers.push(setTimeout(()=>{ const el=document.getElementById('pilot'); if(el){ el.querySelector('.small').innerHTML = `Indice : <small>${hintText}</small>`; } }, 9000));
-    }
-    // Mini demonstration (halo on target) if still no action
-    pilotTimers.push(setTimeout(()=>{
+    const old=document.getElementById('pilotPanel'); if(old) old.remove();
+    // Show for levels 6+, or when forced (e.g., after 2 errors)
+    if(((state.level||1) < 6) && !force) return;
+    const panel=document.createElement('aside');
+    panel.id='pilotPanel'; panel.setAttribute('role','complementary'); panel.setAttribute('aria-live','polite');
+    const steps=guideStepText(q);
+    const hintNow=q?.meta?.hint || q?.explain || '';
+    panel.innerHTML = `
+      <h4>${state.avatar?.face||'🙂'} Guide licorne</h4>
+      <div class="pRow">🧭 ${steps}</div>
+      <div class="pHint" id="pHint">${hintNow? 'Indice : '+hintNow : 'Le guide peut donner un indice si tu bloques.'}</div>
+      <div class="pBtns">
+        <button class="btn g" id="pReplay">Revoir la démo</button>
+        <button class="btn g" id="pClose">Fermer</button>
+      </div>`;
+    document.body.appendChild(panel);
+    requestAnimationFrame(()=> panel.classList.add('show'));
+    // Progressive hint upgrade
+    const more = q?.explain && (!hintNow || hintNow.length<q.explain.length) ? q.explain : '';
+    if(more){ pilotTimers.push(setTimeout(()=>{ const el=document.getElementById('pHint'); if(el) el.innerHTML = 'Indice : '+more; }, 9000)); }
+    // Demo focusing halo
+    const runFocus=()=>{
       try{
         if(kind==='qcm'){ const items=Array.from(document.querySelectorAll('#opts .option')); const idx=state.current?.correct|0; const target=items[idx]; if(target) showHaloAround(target); }
         else if(kind==='input'){ const ans=document.getElementById('ans'); if(ans) showHaloAround(ans); }
         else if(kind==='order'){ const drop=document.getElementById('drop'); if(drop) showHaloAround(drop); }
       }catch{}
-    }, 15000));
+    };
+    pilotTimers.push(setTimeout(runFocus, 14000));
+    // Buttons
+    panel.querySelector('#pClose').onclick=()=>{ panel.remove(); };
+    panel.querySelector('#pReplay').onclick=()=>{
+      try{
+        if(q?.meta?.speakText){ audioCtxResume && audioCtxResume(); tts.speak(q.meta.speakText); }
+        else { runFocus(); }
+      }catch{}
+    };
   }
 
   /* ----------- header chips ----------- */
@@ -972,6 +1267,7 @@ body, body *{
 
   function renderMenu(){
   const g=$("#grid"); g.innerHTML="";
+  let idxReveal=0;
   AREAS.forEach(a=>{
       const keyArea = a.id+"|*";
       const starsArea = Math.max(0, ...a.subs.map(s=> state.stars[a.id+"|"+s.id]||0));
@@ -1001,6 +1297,7 @@ body, body *{
           if(a.id==='logique' && s.id==='rappel'){ openRappelMenu(a); return; }
           if(a.id==='math' && s.id==='mult'){ openMultMenu(a); return; }
           if(a.id==='math' && s.id==='div'){ openDivMenu(a); return; }
+          if(a.id==='math' && s.id==='mag_sub'){ openSoustrMenu(a); return; }
           state.area=a; state.sub=s; startBlock();
         };
         subs.appendChild(b);
@@ -1008,6 +1305,8 @@ body, body *{
       // Los subtemas se muestran siempre; desactivamos el colapso por clic
       // card.querySelector(".cardHeader").onclick=()=>{ card.classList.toggle("collapsed"); };
       g.appendChild(card);
+      // Reveal animation stagger
+      try{ card.style.animationDelay = (idxReveal*0.06)+'s'; setTimeout(()=> card.classList.add('reveal'), 0); idxReveal++; }catch{}
     });
     // Hacer subtemas alcanzables por teclado
   $$('#grid .sub').forEach(el=>{ el.tabIndex=0; el.setAttribute('role','button'); });
@@ -1018,14 +1317,22 @@ body, body *{
 
   /* ----------- Stage flow ----------- */
   function pushView(v){ if(skipPush) return; const last=navStack[navStack.length-1]; if(last!==v) navStack.push(v); }
-  function showHome(){ pilotStop(); $("#home").style.display="block"; $("#stage").style.display="none"; $("#breadcrumbs").textContent="Accueil"; renderMenu(); pushView('home'); }
-  function showStage(){
-    pilotStop();
-    $("#home").style.display="none";
-    const st=$("#stage"); st.style.display="grid";
-    st.classList.remove('screen-enter'); void st.offsetWidth; st.classList.add('screen-enter');
-    pushView('stage');
+  function swapSections(fromSel, toSel, toDisplay){
+    const from = document.querySelector(fromSel);
+    const to = document.querySelector(toSel);
+    if(!from || !to) return;
+    // Prepare target
+    to.style.display = toDisplay;
+    to.classList.remove('xfade-enter'); void to.offsetWidth; to.classList.add('xfade-enter');
+    // Animate out current if visible
+    if(getComputedStyle(from).display!=='none'){
+      from.classList.remove('xfade-leave'); void from.offsetWidth; from.classList.add('xfade-leave');
+      const onEnd=()=>{ from.style.display='none'; from.classList.remove('xfade-leave'); from.removeEventListener('animationend', onEnd); };
+      from.addEventListener('animationend', onEnd);
+    }
   }
+  function showHome(){ pilotStop(); swapSections('#stage','#home','block'); $("#breadcrumbs").textContent="Accueil"; renderMenu(); pushView('home'); }
+  function showStage(){ pilotStop(); swapSections('#home','#stage','grid'); pushView('stage'); }
   function goBack(){
     if(navStack.length<=1) return;
     navStack.pop(); const prev=navStack[navStack.length-1];
@@ -1050,13 +1357,18 @@ body, body *{
         const i=(pos.get(c)||0)+1; pos.set(c,i);
         const iconEl=c.querySelector('.icon'); if(iconEl){ iconEl.textContent=list[i%list.length]; }
       });
-    }, 4000);
+    }, 6000);
     function ICONS(a){ return ICON_ALTS[a] || ['⭐']; }
   }
-  function exercisesForLevel(L){ return clamp(5 + Math.round((L-1)*((20-5)/(state.totalLevels-1))), 5, 20); }
+  // Scale exercises per level (min 8 → max 30 across totalLevels)
+  function exercisesForLevel(L){
+    const min=8, max=30;
+    const tl=Math.max(1, (state.totalLevels||10));
+    return clamp(min + Math.round((L-1)*((max-min)/(tl-1))), min, max);
+  }
   function startBlock(){
-    // Architecture de niveaux: 10 niveaux, 5 → 20 exos
-    state.totalLevels = 10;
+    // Architecture de niveaux étendue: 20 niveaux, 8 → 30 exos
+    state.totalLevels = 20;
     state.progress.total = exercisesForLevel(state.level||1);
     state.progress.done=0; state.asked=new Set(); state.block={correct:0,wrong:0};
     state.blockStartCoins = state.coins;
@@ -1068,7 +1380,13 @@ body, body *{
       state.ecole.coloring = { shape: 'sapin', done: {} };
       save();
     }
-    showStage(); nextQuestion();
+    showStage();
+    // Démo avant soustractions (sur demande)
+    if(state.area?.id==='math' && state.sub?.id==='mag_sub'){
+      try{ showSoustrDemo(); }catch{ nextQuestion(); }
+    } else {
+      nextQuestion();
+    }
   }
 
   const engine={
@@ -1192,11 +1510,19 @@ body, body *{
           <div class="chip"><span class="colorDot" style="background:${q.meta.col.hex}"></span>Couleur: <b>${q.meta.col.name}</b></div>
         </div>`;
       }
+      const speakBtn = (q.meta && q.meta.speakText) ? `<button id="btnSpeak" class="btn g" style="margin-top:8px">🔈 Lire</button>` : '';
       $("#content").innerHTML=`<div class="prompt">✍️ ${q.text}</div>${legend}${banner}${hintText}
-        <div class="answerBox"><input id="ans" type="${q.kind||'text'}" placeholder="${q.placeholder||'Ta réponse'}"/></div>`;
+        <div class="answerBox"><input id="ans" type="${q.kind||'text'}" placeholder="${q.placeholder||'Ta réponse'}"/></div>${speakBtn}`;
       $("#ans").focus();
       $("#ans").addEventListener('keydown', (e)=>{ if(e.key==='Enter'){ $("#btnCheck").click(); }});
       $("#btnCheck").onclick=()=>{ const v=$("#ans").value; const ok=q.check(v); evaluate(ok,q,v); };
+      if(q.meta && q.meta.speakText && $("#btnSpeak")){
+        $("#btnSpeak").onclick=()=>{ try{ audioCtxResume && audioCtxResume(); }catch{}; tts.speak(q.meta.speakText); };
+      }
+      // magic twinkles for this exercise
+      if(q.meta && q.meta.magic==='twinkle'){
+        try{ const r=document.getElementById('content').getBoundingClientRect(); for(let i=0;i<6;i++){ sparkleAt(r.left + Math.random()*r.width, r.top + 30 + Math.random()*60, 6); } }catch{}
+      }
       bindNav(true);
       try{ pilotStart(q,'input'); }catch{}
     },
@@ -1489,18 +1815,22 @@ body, body *{
 
   function nextQuestion(){
     pilotStop();
+    state.currentWrong = 0;
     if(state.progress.done>=state.progress.total){ endOfBlock(); return; }
-    // petite pause mouvement toutes les 4 questions
-    if(state.progress.done>0 && state.progress.done%4===0){
-      const move=choice(["Lève-toi et touche tes orteils 5 fois !","Imite un chat pendant 10 secondes 😺","Saute comme une grenouille 6 fois 🐸","Fais un tour sur toi-même 🌀"]);
-      $("#content").innerHTML=`<div class="prompt">🤸 Pause mouvement :</div><div style="margin-top:10px;font-weight:900;font-size:20px">${move}</div>
-      <div style="margin-top:10px"><button class="btn s" id="doneMove">Je l’ai fait ! (+1🪙)</button></div>`;
-      $("#doneMove").onclick=()=>{ win(1); state.progress.done++; refreshHUD(); nextQuestion(); };
-      $("#btnCheck").style.display="none"; $("#btnSkip").style.display="inline-flex";
-      return;
-    }
+    // Breaks removed
     let q, tries=0;
-    do { q = makeQuestion(state.area.id, state.sub.id); tries++; if(tries>50) break; } while(state.asked.has(q.id));
+    do {
+      q = makeQuestion(state.area.id, state.sub.id);
+      tries++;
+      if(tries>150){
+        // Pool de questions uniques épuisée pour ce thème/niveau
+        try{
+          showToast('Plus de questions uniques disponibles');
+          endOfBlock();
+        }catch{ endOfBlock(); }
+        return;
+      }
+    } while(state.asked.has(q.id));
     // Adaptation de difficulté (6 niveaux, 3 questions courtes)
     const adapt=(qq)=>{
       try{
@@ -1537,9 +1867,43 @@ body, body *{
     refreshHUD();
   }
 
+  // Démonstration guidée pour la soustraction posée (avant de commencer)
+  function showSoustrDemo(){
+    const a=48, b=9; // Démo demandée : 48 − 9
+    const svg = posedSubSVG(a,b);
+    // Explication douce façon CP/CE1
+    const demoHtml = `
+      <div style="font-weight:900; font-size:18px; line-height:1.6">
+        48 − 9 = ?<br>
+        ✂️ Décompose :<br>
+        48 = <b>40</b> + <b>8</b><br>
+        9 = <b>8</b> + <b>1</b><br><br>
+        ➜ <b>8 − 8 = 0</b> 🎉 (ils s’annulent)<br>
+        ➜ Il reste <b>40 − 1 = 39</b><br><br>
+        ✅ Résultat : <b>48 − 9 = 39</b><br>
+        Bravo, tu as réussi ! 🌟
+      </div>`;
+    $("#content").innerHTML = `
+      <div class="prompt">✨ Démo — Soustraction posée (48 − 9)</div>
+      <div class="svgWrap">${svg}</div>
+      <div class="tale" style="margin-top:6px">${demoHtml}</div>
+      <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
+        <button id="soustrSpeak" class="btn g">🔈 Lire l’explication</button>
+        <button id="soustrStart" class="btn s">J’ai compris, commencer</button>
+      </div>`;
+    const speak=`Quarante-huit moins neuf. On découpe: quarante-huit, c’est quarante plus huit. Neuf, c’est huit plus un. On fait huit moins huit, cela fait zéro. Il reste quarante moins un, cela fait trente-neuf. Le résultat est trente-neuf.`;
+    $("#soustrSpeak").onclick = ()=> { try{ audioCtxResume && audioCtxResume(); }catch{} tts.speak(speak); };
+    $("#soustrStart").onclick = ()=> { nextQuestion(); };
+    $("#btnCheck").style.display='none';
+    $("#btnSkip").style.display='none';
+    $("#btnPrev").style.display='inline-flex';
+    $("#btnPrev").onclick=goBack;
+  }
+
   function evaluate(ok,q,userAns,el){
     pilotStop();
     if(ok){
+      state.currentWrong = 0;
       // Coloriage codé: colorier la zone courante si présent
       try{
         if(state.area?.id==='ecole' && state.sub?.id==='coloriage' && q?.meta?.col){
@@ -1554,8 +1918,11 @@ body, body *{
       }catch{}
       state.block.correct++;
       state.streak=(state.streak||0)+1;
-      if(el) el.classList.add("correct");
+      if(el){ el.classList.add("correct"); try{ const halo=document.createElement('div'); halo.className='haloPop'; el.style.position='relative'; el.appendChild(halo); setTimeout(()=>halo.remove(), 700); }catch{} }
+      // Gentle glow pop
+      try{ if(el){ el.classList.add('glow','pop'); setTimeout(()=>{ el.classList.remove('glow','pop'); }, 600); } }catch{}
       win(1);
+      haptic('ok');
       showWinPopup('✨ +1 🦄 • Bien joué !');
       try{ const msgs=["Bien joué ! ⭐","Bravo ! ✨","Super ! 🌟","Génial ! 🎈","Yes ! 🦄"]; showToast(msgs[Math.floor(Math.random()*msgs.length)]); }catch{}
       // Bonus por combo: 2 aciertos seguidos => +3, 3 seguidos => +4
@@ -1566,7 +1933,26 @@ body, body *{
     } else {
       state.block.wrong++;
       state.streak=0;
-      if(el) el.classList.add("wrong");
+      state.currentWrong = (state.currentWrong||0) + 1;
+      haptic('no');
+      if(el){ el.classList.add("wrong","shake-soft"); setTimeout(()=> el.classList.remove('shake-soft'), 360); }
+      // Show Pilot after two errors even on lower levels
+      try{ if(state.currentWrong>=2){ pilotStart(q, q?.type, true); } }catch{}
+      // Sweet penalty + solution for soustraction posée
+      if(q?.meta?.penaltyOnWrong){
+        const lost = lose(q.meta.penaltyOnWrong);
+        const sol = q?.meta?.solutionText || solutionOf(q);
+        const svg = q?.meta?.svg || '';
+        const msg = `
+          <div style="margin-bottom:6px">Courage, on y est presque ✨</div>
+          ${userAns!=null?`<div>Ta réponse : <b>${String(userAns)}</b></div>`:''}
+          <div>Résultat : <b>${sol}</b></div>
+          ${svg?`<div class="svgWrap" style="margin-top:6px">${svg}</div>`:''}
+          <div class="small" style="margin-top:6px">${q.explain||''}</div>
+          <div class="small" style="margin-top:6px">🦄 Billets utilisés : <b>${lost}</b></div>`;
+        showModal("Petit coup de pouce ✨", msg);
+        return;
+      }
       // Droite ou gauche (Vrai/Faux): muestra flecha de ayuda cuando fallo
       try{
         if(q?.meta?.dir){
@@ -1604,7 +1990,7 @@ body, body *{
     // Bonus doux pour le défi final (niveau 6)
     if(ADHD_MODE && state.level>=state.totalLevels){ win(3); showToast('Défi final réussi ! +3 🦄✨'); }
 
-    fx.spawn();
+    fx.spawn(); showRainbow();
     const earned = Math.max(0, state.coins - (state.blockStartCoins||0));
     showModal("🎉 Bravo !", `
       <p>Tu as terminé le niveau ${state.level} (${state.progress.total} exercices).</p>
@@ -1625,8 +2011,21 @@ body, body *{
     });
   }
 
-  function win(n){ state.coins+=n; save(); audio.ok(); return n; }
-  function lose(n){ const lost = Math.min(n, state.coins); state.coins=Math.max(0,state.coins-n); save(); audio.no(); return lost; }
+  function animateCoins(delta){
+    try{
+      const chip=document.getElementById('coinChip'); if(!chip) return;
+      const tag=document.createElement('span'); tag.style.marginLeft='6px'; tag.style.fontWeight='900'; tag.style.color= delta>0? '#16a34a' : '#dc2626';
+      tag.textContent = (delta>0? '+':'') + delta + '🪙';
+      tag.style.transition='transform .25s, opacity .6s'; tag.style.display='inline-block'; tag.style.transform='translateY(6px)'; tag.style.opacity='0';
+      chip.appendChild(tag);
+      requestAnimationFrame(()=>{ tag.style.transform='translateY(-6px)'; tag.style.opacity='1'; });
+      setTimeout(()=>{ tag.style.opacity='0'; tag.style.transform='translateY(-16px)'; }, 800);
+      setTimeout(()=> tag.remove(), 1200);
+    }catch{}
+  }
+  function showRainbow(){ try{ const r=document.getElementById('rainbow'); if(!r) return; r.classList.remove('show'); void r.offsetWidth; r.classList.add('show'); }catch{} }
+  function win(n){ state.coins+=n; save(); audio.ok(); animateCoins(n); try{ fx.spawn(36); }catch{} return n; }
+  function lose(n){ const lost = Math.min(n, state.coins); state.coins=Math.max(0,state.coins-n); save(); audio.no(); animateCoins(-lost); return lost; }
 
   // Toast no intrusivo para bonus
   function showToast(msg){
@@ -1644,12 +2043,28 @@ body, body *{
   function showModal(title, html, onOpen){
     $("#modalTitle").innerHTML=title; $("#modalBody").innerHTML=html; $("#modal").style.display="grid";
     $("#modalClose").onclick=hideModal; if(onOpen) onOpen();
+    try{ document.querySelectorAll('#modal .box .btn').forEach(b=> b.classList.add('magic')); }catch{}
     // Cerrar al hacer click en el fondo
     $("#modal").onclick=(e)=>{ if(e.target.id==="modal") hideModal(); };
-    // Enfocar botón OK para accesibilidad
-    setTimeout(()=>$("#modalClose").focus(),0);
+    // Focus trap inside modal box (accessibility)
+    try{
+      const box = document.querySelector('#modal .box');
+      const focusable = () => Array.from(box.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'))
+        .filter(el=> !el.hasAttribute('disabled') && el.offsetParent!==null);
+      const firstFocus = () => { const els=focusable(); (els[0]||box).focus(); };
+      setTimeout(firstFocus,0);
+      const onKey=(ev)=>{
+        if(ev.key==='Escape'){ ev.preventDefault(); hideModal(); return; }
+        if(ev.key==='Tab'){
+          const els=focusable(); if(!els.length) return; const i=els.indexOf(document.activeElement);
+          if(ev.shiftKey){ if(i<=0){ ev.preventDefault(); els[els.length-1].focus(); } }
+          else { if(i===els.length-1){ ev.preventDefault(); els[0].focus(); } }
+        }
+      };
+      box.addEventListener('keydown', onKey);
+    }catch{}
   }
-  function hideModal(){ $("#modal").style.display="none"; }
+  function hideModal(){ const m=$("#modal"); if(!m) return; m.classList.add('closing'); setTimeout(()=>{ m.style.display="none"; m.classList.remove('closing'); }, 160); }
 
   // Modes (clair / sombre)
   function openModes(){
@@ -1853,6 +2268,22 @@ body, body *{
     $("#btnCheck").style.display='none'; $("#btnSkip").style.display='inline-flex'; $("#btnPrev").style.display='inline-flex'; $("#btnPrev").onclick=showHome;
   }
 
+  // ----------- Soustractions: niveaux (1 → 10)
+  function openSoustrMenu(area){
+    state.area = area;
+    showStage();
+    $("#breadcrumbs").textContent = `${area.title} › Soustractions`;
+    const levels = Array.from({length:10}, (_,i)=> i+1);
+    $("#content").innerHTML = `<div class="prompt">➖ Choisis un niveau (1–10)</div><div class="options" id="soustrLvls"></div>`;
+    const wrap=$("#soustrLvls");
+    levels.forEach(L=>{
+      const el=document.createElement('div'); el.className='option'; el.textContent=`Niveau ${L}`;
+      el.onclick=()=>{ state.level=L; state.sub={id:'mag_sub', name:`Soustractions · niveau ${L}`}; startBlock(); };
+      wrap.appendChild(el);
+    });
+    $("#btnCheck").style.display='none'; $("#btnSkip").style.display='inline-flex'; $("#btnPrev").style.display='inline-flex'; $("#btnPrev").onclick=showHome;
+  }
+
   // ----------- Multiplications: chooser for table (1–5, 10)
   function openMultMenu(area){
     state.area = area;
@@ -2035,18 +2466,60 @@ body, body *{
       const hint = `🧩 Décompose<br>${fmtTU(a)}<br>${fmtTU(b)}<br>🧮 Calcule pas à pas : ${a} + ${b} = ??<br>✨ Résultat : ?? = ${rd} diz. + ${ru} unit.`;
       return { id:`m-mag-add-${a}-${b}-${L}`, type:'input', text, kind:'number', placeholder:'Réponse', check:v=> String(v).trim()==String(res), explain, meta:{ hint } };
     },
-    // Mathématiques magiques ✨🦄 — soustractions
+    // Soustraction posée avec retenue (toujours avec emprunt)
     mag_sub(lvl){
       const L = Math.max(1, Math.min(10, lvl||1));
-      const max = L<=3 ? 20 : (L<=6 ? 50 : 100);
-      let a=rnd(0,max), b=rnd(0,max);
-      if(b>a){ const t=a; a=b; b=t; }
-      const res=a-b;
-      const text = `🌟🦄 Mathématiques magiques — Soustraction<br>🪄 ${a} − ${b} = ?`;
-      const explain = expAddSub(a,b,res,false);
-      const [rd,ru]=tu(res);
-      const hint = `🧩 Décompose<br>${fmtTU(a)}<br>${fmtTU(b)}<br>🧮 Calcule pas à pas : ${a} − ${b} = ??<br>✨ Résultat : ?? = ${rd} diz. + ${ru} unit.`;
-      return { id:`m-mag-sub-${a}-${b}-${L}`, type:'input', text, kind:'number', placeholder:'Réponse', check:v=> String(v).trim()==String(res), explain, meta:{ hint } };
+      const range = L<=3 ? 20 : (L<=6 ? 50 : 100);
+      function gen(){
+        let a,b;
+        if(range<=20){
+          a=rnd(11,Math.min(19,range));
+          b=rnd(2,9);
+          const ua=a%10; if(ua>=b) b = Math.min(9, ua+1);
+          if(b>=a) b = Math.max(2, (a%10)+1);
+        } else {
+          const da=rnd(2,Math.min(9,Math.floor(range/10)));
+          const db=rnd(1,da);
+          const ua=rnd(0,8); const ub=rnd(ua+1,9); // garantir emprunt
+          a=da*10+ua; b=db*10+ub;
+          if(a<=b) a+=10;
+          if(a>range) a=range-(a%10)+ua; // borne
+        }
+        if(b>a) [a,b]=[b,a];
+        if((a%10) >= (b%10)) return gen();
+        if(a>range || b>range || a<=b) return gen();
+        return [a,b];
+      }
+      const [a,b]=gen(); const res=a-b;
+      const ua=a%10, ub=b%10, da=Math.floor(a/10);
+      const text = `🌟🦄 Soustraction posée — ${a} − ${b} = ?`;
+      const exp = [
+        `On ne peut pas faire ${ua} − ${ub}, alors on prend 1 dizaine du ${da}.`,
+        `Le ${da} devient ${da-1} et le ${ua} devient ${ua+10}.`,
+        `${ua+10} − ${ub} puis on termine avec les dizaines.`,
+        `Résultat : <b>${a} − ${b} = ${res}</b>.`
+      ].join('<br>');
+      const svg = posedSubSVG(a,b);
+      const speak = `Soustraction posée. ${a} moins ${b}. On ne peut pas faire ${ua} moins ${ub}. On emprunte une dizaine au ${da}. Le ${da} devient ${da-1} et le ${ua} devient ${ua+10}. Le résultat est ${res}.`;
+      const mag = {
+        id:`m-sub-ret-${a}-${b}-L${L}`,
+        type:'qcm',
+        text,
+        // three options: correct + two plausible distractors
+        options: (()=>{
+          const opts=new Set([res]);
+          const add=(x)=>{ if(x>=0) opts.add(x); };
+          add(res+1); add(res-1); add(res+2); add(res-2);
+          return Array.from(opts).slice(0,3).sort(()=>Math.random()-.5).map(x=>({label:String(x)}));
+        })(),
+        correct: 0, // will fix below
+        explain:exp,
+        meta:{ svg, hint:'Observe la flèche : la dizaine va aider les unités.', magic:'twinkle', speakText:speak, penaltyOnWrong:2, solutionText:String(res), soustractionPosee:true }
+      };
+      // fix correct index after options built
+      const i = mag.options.findIndex(o=> o.label===String(res));
+      mag.correct = i<0?0:i;
+      return mag;
     },
     addsub(lvl){
       // 0–100, pas de négatifs
@@ -2727,14 +3200,17 @@ body, body *{
       return list[idx];
     }
     function pickByLevel(list){
+      // Choisit un élément non posé (id pas dans state.asked) dans la tranche de niveau, sinon retourne un au hasard de la tranche
       const L = Math.max(1, Math.min(6, state.level||1));
       const size = Math.max(1, Math.ceil(list.length/6));
       const start = Math.min(list.length-1, (L-1)*size);
       const end = Math.min(list.length, start+size);
-      const span = Math.max(1, end-start);
-      const off = (state.progress.done||0) % span;
-      const idx = Math.min(list.length-1, start+off);
-      return list[idx];
+      const slice = list.slice(start, end);
+      // Essaye un choix non vu
+      const shuffled = slice.slice().sort(()=>Math.random()-.5);
+      for(const q of shuffled){ if(!state.asked?.has?.(q.id)) return q; }
+      // Tout vu: retourne un au hasard (nextQuestion gèrera l’épuisement global)
+      return shuffled[0] || list[0];
     }
 
     return {
@@ -2792,6 +3268,8 @@ body, body *{
   if(!state.avatar) state.avatar={hat:null, acc:null, bg:null, face:'🙂'};
 
   renderMenu(); refreshHUD(); showHome();
+  // Avatar World vibe: floating stickers
+  try{ spawnStickers(); }catch{}
 
   if(!state.user?.name || state.user.name==="Invité"){
     showModal("Bienvenue !", `
