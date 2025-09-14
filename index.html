@@ -621,9 +621,61 @@ body, body *{
 /* Shake effect triggered by JS */
 .shake-effect { animation: shake 0.5s ease-in-out; }
 
+/* 🎉 Barra con animación suave */
+#barProg {
+  transition: width 0.4s ease-in-out;
+}
+
+/* 🪙 Efecto pop al cambiar monedas */
+#coins.pop {
+  animation: pop 0.3s ease;
+}
+@keyframes pop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.4); }
+  100% { transform: scale(1); }
+}
+
+/* 👑 Brillo cuando sube de nivel */
+#lvl.levelUp {
+  animation: glow 0.8s ease;
+}
+@keyframes glow {
+  0% { text-shadow: 0 0 0px gold; }
+  50% { text-shadow: 0 0 15px gold; color: gold; }
+  100% { text-shadow: 0 0 0px transparent; color: inherit; }
+}
+
+/* ✨ Fade in/out para el emoji guía */
+#uni.fadeOut {
+  opacity: 0;
+  transition: opacity 0.2s ease-out;
+}
+#uni.fadeIn {
+  opacity: 1;
+  transition: opacity 0.4s ease-in;
+}
+
+
 
 
 </style>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 </head>
 <body>
 <a href="#content" class="skip-link">Aller au contenu</a>
@@ -694,9 +746,12 @@ body, body *{
 <canvas id="fx"></canvas>
 
 <script>
+
+
 /* =========================================================
    Appli de Léna — Menu con estrellas y efectos ✨
    ========================================================= */
+   
 (() => {
   const $=s=>document.querySelector(s), $$=s=>Array.from(document.querySelectorAll(s));
   const rnd=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
@@ -848,6 +903,11 @@ body, body *{
         return s+ label(W/2, H/2, 'Comparaisons')+ e;
     }
   }
+
+
+
+
+
   // Spatial scene SVG (house centered + helpers)
   function spatialSceneSVG(){
     const W=720,H=340;
@@ -1391,30 +1451,86 @@ body, body *{
     }
   }
 
-  /* ----------- HUD ----------- */
-  const avatarGlyph=()=>`${state.avatar?.hat||''} ${state.avatar?.hair||''} ${state.avatar?.face||'🙂'} ${state.avatar?.outfit||''} ${state.avatar?.acc||''}`.trim();
-  // Guide licorne qui évolue avec les pièces
-  const GUIDE_STEPS=[
-    {min:0,    name:'Bébé licorne',     emoji:'🍼🦄'},
-    {min:20,   name:'Licorne curieuse', emoji:'🌟🦄'},
-    {min:50,   name:'Licorne brillante',emoji:'✨🦄'},
-    {min:100,  name:'Licorne royale',   emoji:'👑🦄'},
-    {min:200,  name:'Licorne légendaire',emoji:'🌈🦄'}
-  ];
-  function guideInfo(){
-    const coins=state.coins||0; let stage=GUIDE_STEPS[0];
-    for(const s of GUIDE_STEPS){ if(coins>=s.min) stage=s; }
-    const idx=GUIDE_STEPS.indexOf(stage);
-    const next=GUIDE_STEPS[idx+1]?.min ?? stage.min;
-    const base=stage.min; const span=Math.max(1,(next-base));
-    const pct = Math.max(0, Math.min(100, Math.round(((coins-base)/span)*100)));
-    return {stage:idx, name:stage.name, emoji:stage.emoji, next, base, pct};
+/* ----------- HUD ----------- */
+
+const avatarGlyph = () =>
+  [state.avatar?.hat, state.avatar?.hair, state.avatar?.face || '🙂', state.avatar?.outfit, state.avatar?.acc]
+    .filter(Boolean)
+    .join(' ');
+
+const GUIDE_STEPS = [
+  { min: 0,   name: 'Bébé licorne',       emoji: '🍼🦄' },
+  { min: 20,  name: 'Licorne curieuse',   emoji: '🌟🦄' },
+  { min: 50,  name: 'Licorne brillante',  emoji: '✨🦄' },
+  { min: 100, name: 'Licorne royale',     emoji: '👑🦄' },
+  { min: 200, name: 'Licorne légendaire', emoji: '🌈🦄' }
+];
+
+function guideInfo() {
+  const coins = state.coins || 0;
+  let stage = GUIDE_STEPS[0];
+  for (const s of GUIDE_STEPS) {
+    if (coins >= s.min) stage = s;
   }
-  const refreshHUD=()=>{
-    $("#coins").textContent=state.coins; $("#lvl").textContent=state.level; $("#barProg").style.width=Math.round((state.progress.done/state.progress.total)*100)+"%";
-    const av=$("#avatarEmoji"); if(av) av.textContent=avatarGlyph();
-    const gi=guideInfo(); const uni=$("#uni"); if(uni){ uni.textContent=gi.emoji; uni.title=`${gi.name} — prochaines: ${gi.next}🪙`; }
-  };
+
+  const idx = GUIDE_STEPS.indexOf(stage);
+  const next = GUIDE_STEPS[idx + 1]?.min ?? stage.min;
+  const base = stage.min;
+  const span = Math.max(1, next - base);
+  const pct = Math.min(100, Math.max(0, Math.round(((coins - base) / span) * 100)));
+
+  return { stage: idx, name: stage.name, emoji: stage.emoji, next, base, pct };
+}
+
+let lastCoins = 0;
+let lastGuideStage = 0;
+let lastLevel = 1;
+
+const refreshHUD = () => {
+  // 🪙 Monedas animadas
+  const coinsEl = $("#coins");
+  if (coinsEl && state.coins !== lastCoins) {
+    coinsEl.textContent = state.coins;
+    coinsEl.classList.add('pop');
+    setTimeout(() => coinsEl.classList.remove('pop'), 300);
+    lastCoins = state.coins;
+  }
+
+  // 🧠 Nivel con brillo si sube
+  const lvlEl = $("#lvl");
+  if (lvlEl && state.level !== lastLevel) {
+    lvlEl.textContent = state.level;
+    lvlEl.classList.add('levelUp');
+    setTimeout(() => lvlEl.classList.remove('levelUp'), 800);
+    lastLevel = state.level;
+  }
+
+  // 📊 Barra de progreso animada
+  const progress = Math.round((state.progress?.done / state.progress?.total) * 100 || 0);
+  $("#barProg").style.width = `${progress}%`;
+
+  // 👤 Avatar
+  const av = $("#avatarEmoji");
+  if (av) av.textContent = avatarGlyph();
+
+  // 🦄 Guide évolutif avec transition
+  const gi = guideInfo();
+  const uni = $("#uni");
+  if (uni && gi.stage !== lastGuideStage) {
+    uni.classList.add('fadeOut');
+    setTimeout(() => {
+      uni.textContent = gi.emoji;
+      uni.title = `${gi.name} — prochaines: ${gi.next}🪙`;
+      uni.classList.remove('fadeOut');
+      uni.classList.add('fadeIn');
+      setTimeout(() => uni.classList.remove('fadeIn'), 400);
+    }, 200);
+    lastGuideStage = gi.stage;
+  }
+};
+
+
+
 
   /* ----------- areas + subtopics (menu) ----------- */
   const AREAS=[
