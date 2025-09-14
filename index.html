@@ -235,7 +235,7 @@ main{position:absolute; inset:var(--h) 0 0 0; display:grid; grid-template-rows: 
   display:flex; align-items:center; justify-content:space-between; padding:12px 16px;
   background: var(--card); color: var(--ink);
   border-bottom:1px solid rgba(167,139,250,.25); box-shadow:0 6px 16px rgba(0,0,0,.06);
-}
+}/*
 #breadcrumbs{font-weight:900}
 #progress{height:8px; background: linear-gradient(90deg, rgba(167,139,250,.25), rgba(236,72,153,.25)); border-top:1px solid rgba(167,139,250,.25); overflow:hidden}
 #barProg{height:100%; width:0%; background: linear-gradient(90deg, var(--p1), var(--p2), var(--warn)); transition: width .35s cubic-bezier(0.22, 1, 0.36, 1)}
@@ -244,6 +244,13 @@ main{position:absolute; inset:var(--h) 0 0 0; display:grid; grid-template-rows: 
 .spark{font-size:24px}
 .small{font-size:13px; color:var(--muted)}
 .ok{color:var(--ok)} .bad{color:var(--bad)}
+
+
+
+
+
+
+*/
 
 /* ===== MCQ Options ===== */
 .options{display:grid; grid-template-columns:repeat(2,minmax(200px,1fr)); gap:12px; margin-top:14px}
@@ -551,6 +558,71 @@ body, body *{
   #grid{ grid-template-columns: repeat(auto-fit, minmax(240px,1fr)) }
   .option{ font-size: clamp(18px, 1vw + 14px, 24px) }
 }
+
+
+
+
+
+
+
+
+
+/*  Animaciones básicas */
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20%, 80% { transform: translateX(-5px); }
+  50% { transform: translateX(5px); }
+}
+
+@keyframes glow {
+  0% { box-shadow: 0 0 0 rgba(255, 255, 255, 0); }
+  50% { box-shadow: 0 0 8px rgba(255, 255, 0, 0.7); }
+  100% { box-shadow: 0 0 0 rgba(255, 255, 255, 0); }
+}
+
+/* Hover efecto rebotante + cambio de color de fondo */
+.btn:hover {
+  animation: pulse 0.8s ease-in-out;
+  background-color: #ffeb3b;
+}
+
+/* Pulso simple */
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+
+
+/* Ocultar sección si no querés editar el HTML */
+#breadcrumbsFull, .breadcrumbs-full { display: none; }
+
+/* Animaciones */
+@keyframes shake { 0%, 100% { transform: translateX(0); } 20%, 80% { transform: translateX(-5px); } 50% { transform: translateX(5px); } }
+@keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+
+/* Hover en botones */
+.btn:hover { animation: pulse 0.8s ease-in-out; }
+
+/* Efecto mágico */
+.magic { position: relative; overflow: hidden; }
+.magic::after {
+  content: '';
+  position: absolute;
+  top: -50%; left: -50%;
+  width: 200%; height: 200%;
+  background: radial-gradient(circle, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0) 50%);
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+.magic:hover::after { opacity: 1; }
+
+/* Shake effect triggered by JS */
+.shake-effect { animation: shake 0.5s ease-in-out; }
+
+
+
 </style>
 </head>
 <body>
@@ -560,8 +632,8 @@ body, body *{
     <div id="brand">
       <div class="logo" aria-hidden="true"></div>
       <div class="title">
-        <div class="t1">Appli de Léna — 2e primaire</div>
-        <div class="t2">Monde licorne magique</div>
+        <div class="t1">2e primaire</div>
+        <div class="t2">App de Léna</div>
       </div>
     </div>
     <div id="controls">
@@ -2740,56 +2812,199 @@ body, body *{
   }
 
   // Tables imprimables (1–12) en lignes (sumas y restas)
-  function openPrintableTables(){
-    showStage();
-    const title = `École › Maths › Tables imprimables (1–12)`;
-    $("#breadcrumbs").textContent = title;
-    const mkSection = (label)=> `<h4 style="margin:8px 0 6px;font-family:'Fredoka';font-size:20px">${label}</h4>`;
-    const mkLine = (t)=> `<div style="font-weight:900;line-height:1.6">${t}</div>`;
-    const wrap = document.createElement('div');
-    wrap.id = 'printTables';
-    wrap.style.marginTop = '6px';
-    // Header + print button
-    const head = document.createElement('div');
-    head.innerHTML = `<div class="prompt">📄 Tables imprimables (additions 1–12 puis soustractions 1–12)</div>
-      <div class="small">Astuce : utilise « Imprimer » pour PDF ou papier.</div>
-      <div style="margin:8px 0;display:flex;gap:8px;flex-wrap:wrap">
-        <button id="btnPrint" class="btn g">🖨️ Imprimer</button>
-      </div>`;
-    $("#content").innerHTML = '';
-    $("#content").appendChild(head);
-    $("#content").appendChild(wrap);
-    // Build additions
-    const frag = document.createDocumentFragment();
-    for(let a=1;a<=12;a++){
-      const sec = document.createElement('div');
-      sec.innerHTML = mkSection(`➕ Table du ${a} (additions)`);
-      for(let b=1;b<=12;b++){
-        sec.innerHTML += mkLine(`${a} + ${b} = ${a+b}`);
-      }
-      frag.appendChild(sec);
+
+function openPrintableTables() {
+  showStage();
+  $("#breadcrumbs").textContent = "🧮 Tables de calcul (1–12)";
+
+  const content = $("#content");
+document.getElementById('content').innerHTML = '';
+
+
+  let coins = 0;
+  let quizSet = [];
+  let quizIndex = 0;
+  let currentTable = 1;
+  let currentType = 'add';
+
+  const updateCoins = () => {
+    const coinSlot = document.getElementById('coins');
+    if (coinSlot) coinSlot.textContent = coins;
+  };
+
+  const wrapper = document.createElement('div');
+  content.appendChild(wrapper);
+
+  wrapper.innerHTML = `
+    <div class="prompt fx-slide-up">Choisis une table</div>
+    <div class="coins" style="font-weight:bold; margin:10px 0;">Billets gagnés : <span id="coins">0</span> 💵</div>
+
+    <div>
+      <h3>➕ Additions</h3>
+      <div id="btnAdditions" style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:20px;"></div>
+    </div>
+
+    <div>
+      <h3>➖ Soustractions</h3>
+      <div id="btnSoustractions" style="display:flex;flex-wrap:wrap;gap:10px;"></div>
+    </div>
+
+    <div id="tableZone" style="margin-top:30px;"></div>
+  `;
+
+  const addWrap = document.getElementById('btnAdditions');
+  const subWrap = document.getElementById('btnSoustractions');
+  const zone = document.getElementById('tableZone');
+
+  const createButtons = (type, container) => {
+    for (let i = 1; i <= 12; i++) {
+      const btn = document.createElement('button');
+      btn.className = 'btn g';
+      btn.textContent = i;
+      btn.onclick = () => {
+        currentTable = i;
+        currentType = type;
+        generateQuiz();
+        showTable();
+      };
+      container.appendChild(btn);
     }
-    // Build soustractions
-    for(let a=1;a<=12;a++){
-      const sec = document.createElement('div');
-      sec.style.marginTop = '10px';
-      sec.innerHTML = mkSection(`➖ Table du ${a} (soustractions)`);
-      for(let b=a;b<=12;b++){
-        sec.innerHTML += mkLine(`${b} - ${a} = ${b-a}`);
-      }
-      frag.appendChild(sec);
+  };
+
+  const generateQuiz = () => {
+    quizSet = [];
+    for (let i = 0; i < 3; i++) {
+      const b = Math.floor(Math.random() * 12) + 1;
+      const question = {
+        q: currentType === 'add'
+          ? `${currentTable} + ${b}`
+          : `${currentTable + b} - ${currentTable}`,
+        correct: currentType === 'add' ? currentTable + b : b
+      };
+      quizSet.push(question);
     }
-    wrap.appendChild(frag);
-    // Actions bas de page
-    $("#btnCheck").style.display='none';
-    $("#btnSkip").style.display='inline-flex';
-    $("#btnPrev").style.display='inline-flex';
-    $("#btnSkip").onclick=()=> openEcoleMaths({id:'ecole', title:'École'});
-    $("#btnPrev").onclick=()=> openEcoleMaths({id:'ecole', title:'École'});
-    // Print
-    const pb = document.getElementById('btnPrint');
-    if(pb){ pb.onclick=()=>{ try{ window.print(); }catch{} }; }
-  }
+    quizIndex = 0;
+  };
+
+  const showTable = () => {
+    zone.innerHTML = '';
+
+    const block = document.createElement('div');
+    block.className = 'table-bloc fx-slide-up';
+    block.innerHTML = `<h3>${currentType === 'add' ? '➕' : '➖'} Table du ${currentTable}</h3>`;
+
+    for (let i = 1; i <= 12; i++) {
+      const txt = currentType === 'add'
+        ? `${currentTable} + ${i} = ${currentTable + i}`
+        : `${currentTable + i} - ${currentTable} = ${i}`;
+      const row = document.createElement('div');
+      row.textContent = txt;
+      row.style.lineHeight = '1.6';
+      row.style.fontWeight = 'bold';
+      block.appendChild(row);
+    }
+
+    const quizBtn = document.createElement('button');
+    quizBtn.className = 'btn g fx-pop';
+    quizBtn.textContent = "🎯 Tu as mémorisé ? Passe ce quiz !";
+    quizBtn.onclick = () => showQuestion();
+
+    zone.appendChild(block);
+    zone.appendChild(quizBtn);
+  };
+
+  const showQuestion = () => {
+    const q = quizSet[quizIndex];
+    zone.innerHTML = `<div class="prompt">Question : ${q.q} = ?</div>`;
+
+    const opts = [q.correct, q.correct + 1, q.correct + 2].sort(() => Math.random() - 0.5);
+    const optContainer = document.createElement('div');
+    optContainer.style.display = 'flex';
+    optContainer.style.justifyContent = 'center';
+    optContainer.style.gap = '10px';
+    optContainer.style.flexWrap = 'wrap';
+
+    opts.forEach(val => {
+      const btn = document.createElement('button');
+      btn.className = 'btn g';
+      btn.textContent = val;
+      btn.onclick = () => checkAnswer(val, q.correct);
+      optContainer.appendChild(btn);
+    });
+
+    const fb = document.createElement('div');
+    fb.id = 'feedback';
+    fb.style.marginTop = '10px';
+
+    zone.appendChild(optContainer);
+    zone.appendChild(fb);
+  };
+
+  const checkAnswer = (selected, correct) => {
+    const fb = document.getElementById('feedback');
+    if (selected === correct) {
+      fb.textContent = "✅ Bravo ! 🌟";
+      setTimeout(() => {
+        quizIndex++;
+        if (quizIndex < quizSet.length) {
+          showQuestion();
+        } else {
+          coins += 10;
+          updateCoins();
+          showVictory();
+        }
+      }, 800);
+    } else {
+      fb.textContent = `❌ Mauvaise réponse. La bonne réponse est ${correct}`;
+    }
+  };
+
+  const showVictory = () => {
+    const win = document.createElement('div');
+    win.innerHTML = `
+      <div class="prompt fx-glow">🎉 Tu as gagné 10 billets ! 💸</div>
+      <button class="btn g fx-pop">🔁 Choisir une autre table</button>
+    `;
+    win.querySelector('button').onclick = () => {
+      zone.innerHTML = '';
+    };
+    zone.appendChild(win);
+  };
+
+  createButtons('add', addWrap);
+  createButtons('sub', subWrap);
+
+  // Botones navegación
+  $("#btnCheck").style.display = 'none';
+  $("#btnSkip").style.display = 'none';
+  $("#btnPrev").style.display = 'inline-flex';
+  $("#btnPrev").onclick = () => openEcoleMaths({ id: 'ecole', title: 'École' });
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
 
   // ----------- École: Semana 15–19 → choisir thème
   function openEcole1519Topics(area){
@@ -3774,6 +3989,100 @@ body, body *{
   } else { $("#avatarName").textContent = state.user.name; }
 
 })();
+
+
+
+
+
+
+
+
+document.addEventListener('DOMContentLoaded', () => {
+  const home = document.getElementById('home');
+  const stage = document.getElementById('stage');
+  const content = document.getElementById('content');
+  const barProg = document.getElementById('barProg');
+  const btnPrev = document.getElementById('btnPrev');
+  const btnSkip = document.getElementById('btnSkip');
+  const btnCheck = document.getElementById('btnCheck');
+
+  // Estado
+  const questions = [
+    { q: "Quelle est la couleur du ciel ?", options: ["Rouge", "Bleu", "Vert", "Jaune"], correct: 1 },
+    { q: "Combien font 2 + 2 ?", options: ["3", "4", "5", "6"], correct: 1 },
+    { q: "Quel animal fait 'meuh' ?", options: ["Chien", "Chat", "Vache", "Oiseau"], correct: 2 },
+    { q: "Quelle saison suit l’hiver ?", options: ["Automne", "Printemps", "Été", "Hiver"], correct: 1 },
+    { q: "Combien de pattes a une araignée ?", options: ["6", "8", "10", "4"], correct: 1 }
+  ];
+
+  let currentIndex = 0;
+
+  function startStage() {
+    home.style.display = 'none';
+    stage.style.display = 'grid';
+    stage.classList.add('screen-enter');
+    loadQuestion(currentIndex);
+  }
+
+  function loadQuestion(index) {
+    const q = questions[index];
+    if (!q) return;
+    const progress = Math.floor((index / questions.length) * 100);
+    barProg.style.width = progress + '%';
+
+    content.innerHTML = `
+      <div class="prompt fx-slide-up">${q.q}</div>
+      <div class="options">
+        ${q.options.map((opt, i) => `<div class="option" data-index="${i}">${opt}</div>`).join('')}
+      </div>
+    `;
+
+    document.querySelectorAll('.option').forEach(opt => {
+      opt.addEventListener('click', () => {
+        document.querySelectorAll('.option').forEach(o => o.classList.remove('selected'));
+        opt.classList.add('selected');
+      });
+    });
+  }
+
+  btnPrev.addEventListener('click', () => {
+    if (currentIndex > 0) {
+      currentIndex--;
+      loadQuestion(currentIndex);
+    }
+  });
+
+  btnSkip.addEventListener('click', () => {
+    if (currentIndex < questions.length - 1) {
+      currentIndex++;
+      loadQuestion(currentIndex);
+    }
+  });
+
+  btnCheck.addEventListener('click', () => {
+    const selected = document.querySelector('.option.selected');
+    if (!selected) {
+      content.innerHTML += `<div class="small bad fx-shake">❌ Choisis une réponse avant de valider</div>`;
+      return;
+    }
+
+    const userAnswer = parseInt(selected.dataset.index, 10);
+    const correctAnswer = questions[currentIndex].correct;
+
+    if (userAnswer === correctAnswer) {
+      selected.classList.add('correct', 'fx-pop');
+      content.innerHTML += `<div class="prompt ok fx-glow">✅ Bravo ! Bonne réponse.</div>`;
+    } else {
+      selected.classList.add('wrong', 'shake-soft');
+      content.innerHTML += `<div class="prompt bad fx-shake">❌ Mauvaise réponse. Essaie encore !</div>`;
+    }
+  });
+
+  // 🔁 Demo auto-launch
+  setTimeout(startStage, 1000);
+});
+
+
 </script>
 </body>
 </html>
